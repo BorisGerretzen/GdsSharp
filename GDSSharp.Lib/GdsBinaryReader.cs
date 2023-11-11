@@ -3,18 +3,18 @@ using System.Text;
 
 namespace GdsSharp.Lib;
 
-public class BigEndianBinaryReader : BinaryReader
+public class GdsBinaryReader : BinaryReader
 {
-    public BigEndianBinaryReader(Stream input) : base(input)
+    public GdsBinaryReader(Stream input) : base(input)
     {
         
     }
 
-    public BigEndianBinaryReader(Stream input, Encoding encoding) : base(input, encoding)
+    public GdsBinaryReader(Stream input, Encoding encoding) : base(input, encoding)
     {
     }
 
-    public BigEndianBinaryReader(Stream input, Encoding encoding, bool leaveOpen) : base(input, encoding, leaveOpen)
+    public GdsBinaryReader(Stream input, Encoding encoding, bool leaveOpen) : base(input, encoding, leaveOpen)
     {
     }
     
@@ -52,5 +52,21 @@ public class BigEndianBinaryReader : BinaryReader
     {
         var data = base.ReadUInt64();
         return BitConverter.IsLittleEndian ? BinaryPrimitives.ReverseEndianness(data) : data;
+    }
+
+    public override float ReadSingle()
+    {
+        throw new NotImplementedException();
+    }
+
+    public override double ReadDouble()
+    {
+        throw new NotImplementedException();
+    }
+
+    public string ReadAsciiString(int length)
+    {
+        var data = base.ReadBytes(length);
+        return Encoding.ASCII.GetString(data);
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace GdsSharp.Lib.Models.Parsing;
 
-public class GdsHeader
+public class GdsHeader : IGdsSimpleRead
 {
     public const int RecordSize = 4;
 

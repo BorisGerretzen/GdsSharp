@@ -1,6 +1,6 @@
 ﻿namespace GdsSharp.Lib.Models.Parsing;
 
-public class GdsRecordHeader : IGdsRecord
+public class GdsRecordHeader : IGdsSimpleRead
 {
     public short StreamVersion { get; set; }
 }

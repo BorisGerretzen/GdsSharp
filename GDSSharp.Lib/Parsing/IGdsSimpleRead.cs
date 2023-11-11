@@ -1,6 +1,6 @@
 ﻿namespace GdsSharp.Lib.Models.Parsing;
 
-public interface IGdsRecord
+public interface IGdsSimpleRead : IGdsRecord
 {
     
 }
