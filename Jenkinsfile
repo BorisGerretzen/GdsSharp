@@ -2,6 +2,7 @@ pipeline {
     agent any
     environment {
         NUGET_KEY = credentials('jenkins-nuget-key')
+        TAG_NAME = sh(returnStdout: true, script: "git describe --tags").trim()
     }
     stages {
         stage('Install nuke') {
