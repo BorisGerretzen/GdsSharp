@@ -89,7 +89,7 @@ class Build : NukeBuild
 
     // ReSharper disable once UnusedMember.Local
     Target Pack => _ => _
-        .DependsOn(Clean, Test)
+        .DependsOn(Clean)
         .Requires(() => Configuration == Configuration.Release)
         .Executes(() =>
         {
