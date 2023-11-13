@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using GdsSharp.Lib.Models.Parsing;
+using GdsSharp.Lib.Parsing.Models;
 
 namespace GdsSharp.Lib;
 
@@ -25,6 +26,25 @@ public class GdsReader
                 0x0102 => ReadSimple<GdsRecordBgnLib>(),
                 0x0206 => ReadSimple<GdsRecordLibName>(),
                 0x0305 => ReadSimple<GdsRecordUnits>(),
+                0x4000 => new GdsRecordNoData{Type = GdsRecordNoDataType.EndLib},
+                0x0502 => ReadSimple<GdsRecordBgnStr>(),
+                0x0606 => ReadSimple<GdsRecordStrName>(),
+                0x0700 => new GdsRecordNoData{Type = GdsRecordNoDataType.EndStr},
+                0x0800 => new GdsRecordNoData{Type = GdsRecordNoDataType.Boundary},
+                0x0900 => new GdsRecordNoData{Type = GdsRecordNoDataType.Path},
+                0x0A00 => new GdsRecordNoData{Type = GdsRecordNoDataType.Sref},
+                0x0B00 => new GdsRecordNoData{Type = GdsRecordNoDataType.Aref},
+                0x0C00 => new GdsRecordNoData{Type = GdsRecordNoDataType.Text},
+                0x0D02 => ReadSimple<GdsRecordLayer>(),
+                0x0E02 => ReadSimple<GdsRecordDataType>(),
+                0x0F03 => ReadSimple<GdsRecordWidth>(),
+                0x1003 => new GdsRecordXy(_reader, _currentHeader),
+                0x1100 => new GdsRecordNoData{Type = GdsRecordNoDataType.EndEl},
+                0x1206 => ReadSimple<GdsRecordSName>(),
+                0x1302 => ReadSimple<GdsRecordColRow>(),
+                0x1500 => new GdsRecordNoData{Type = GdsRecordNoDataType.Node},
+                0x1602 => ReadSimple<GdsRecordTextType>(),
+                0x1701 => new GdsRecordPresentation(_reader, _currentHeader),
                 0x1F06 => new GdsRecordRefLibs(_reader, _currentHeader),
                 0x2006 => throw new NotImplementedException("FONTS"),
                 0x2202 => throw new NotImplementedException("GENERATIONS"),

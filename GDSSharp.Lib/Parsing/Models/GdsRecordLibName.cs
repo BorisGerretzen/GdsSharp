@@ -1,6 +1,7 @@
-﻿namespace GdsSharp.Lib.Models.Parsing;
+﻿using GdsSharp.Lib.Parsing.Models;
 
-public class GdsRecordLibName : IGdsSimpleRead
+namespace GdsSharp.Lib.Models.Parsing;
+
+public class GdsRecordLibName : GenericGdsRecord<string>
 {
-    public string LibName { get; set; } = null!;
 }

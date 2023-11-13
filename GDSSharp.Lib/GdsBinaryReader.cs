@@ -1,5 +1,6 @@
 ﻿using System.Buffers.Binary;
 using System.Text;
+using GdsSharp.Lib.Parsing;
 
 namespace GdsSharp.Lib;
 
@@ -61,7 +62,8 @@ public class GdsBinaryReader : BinaryReader
 
     public override double ReadDouble()
     {
-        throw new NotImplementedException();
+        var data = base.ReadBytes(GdsDouble.Size);
+        return new GdsDouble(data.AsSpan()).AsDouble();
     }
 
     public string ReadAsciiString(int length)
