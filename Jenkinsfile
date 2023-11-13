@@ -18,5 +18,15 @@ pipeline {
                 }
             }
         }
+        stage('Nuke Push if tagged') {
+            when {
+                buildingTag()
+            }
+            steps {
+                withDotNet(sdk: '7.0') {
+                    sh '/var/jenkins_home/.dotnet/tools/nuke push --NugetApiKey "ABCDEF"'
+                }
+            }
+        }
     }
 }
