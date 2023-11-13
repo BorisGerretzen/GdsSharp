@@ -3,14 +3,14 @@ using GdsSharp.Lib.Parsing.Tokens;
 
 namespace GdsSharp.Lib.Parsing;
 
-public interface IGdsSimpleRead : IGdsRecord
+public interface IGdsSimpleRead : IGdsReadableRecord
 {
-    void IGdsRecord.Read(GdsBinaryReader reader, GdsHeader header)
+    void IGdsReadableRecord.Read(GdsBinaryReader reader, GdsHeader header)
     {
         foreach (var property in GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.SetProperty))
         {
-            if(property.GetSetMethod() == null) continue;
-            
+            if (property.GetSetMethod() == null) continue;
+
             var propertyType = property.PropertyType;
 
             object valueToSet = propertyType switch
@@ -24,7 +24,7 @@ public interface IGdsSimpleRead : IGdsRecord
                 not null when propertyType == typeof(double) => reader.ReadDouble(),
                 _ => throw new ArgumentOutOfRangeException(nameof(propertyType), propertyType, "Unknown property type")
             };
-            
+
             property.SetValue(this, valueToSet);
         }
     }

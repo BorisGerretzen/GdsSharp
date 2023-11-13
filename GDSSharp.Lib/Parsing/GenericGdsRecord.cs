@@ -1,9 +1,6 @@
-﻿using System.Reflection;
-
-namespace GdsSharp.Lib.Parsing.Tokens;
+﻿namespace GdsSharp.Lib.Parsing;
 
 public class GenericGdsRecord<T> : IGdsSimpleRead
 {
     public virtual T Value { get; set; } = default!;
-    public static bool CanRead => true;
 }
