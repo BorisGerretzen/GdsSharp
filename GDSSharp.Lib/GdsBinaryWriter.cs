@@ -11,42 +11,42 @@ public class GdsBinaryWriter : BinaryWriter
         var data = BitConverter.IsLittleEndian ? BinaryPrimitives.ReverseEndianness(value) : value;
         base.Write(data);
     }
-    
+
     public override void Write(uint value)
     {
         var data = BitConverter.IsLittleEndian ? BinaryPrimitives.ReverseEndianness(value) : value;
         base.Write(data);
     }
-    
+
     public override void Write(ulong value)
     {
         var data = BitConverter.IsLittleEndian ? BinaryPrimitives.ReverseEndianness(value) : value;
         base.Write(data);
     }
-    
+
     public override void Write(short value)
     {
         var data = BitConverter.IsLittleEndian ? BinaryPrimitives.ReverseEndianness(value) : value;
         base.Write(data);
     }
-    
+
     public override void Write(int value)
     {
         var data = BitConverter.IsLittleEndian ? BinaryPrimitives.ReverseEndianness(value) : value;
         base.Write(data);
     }
-    
+
     public override void Write(long value)
     {
         var data = BitConverter.IsLittleEndian ? BinaryPrimitives.ReverseEndianness(value) : value;
         base.Write(data);
     }
-    
+
     public override void Write(float value)
     {
         throw new NotImplementedException("4 byte floats are not supported.");
     }
-    
+
     public override void Write(double value)
     {
         var data = new GdsDouble(value);

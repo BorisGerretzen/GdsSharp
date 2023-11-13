@@ -2,8 +2,8 @@
 
 public class GdsRecordUnits : IGdsSimpleRead
 {
-    public double DatabaseUnitInUserUnits { get; set; }
-    public double DatabaseUnitInMeters { get; set; }
-    
-    public double UserUnitInMeters => DatabaseUnitInMeters / DatabaseUnitInUserUnits;
+    public double UserUnits { get; set; }
+    public double PhysicalUnits { get; set; }
+
+    public double UserUnitInMeters => PhysicalUnits / UserUnits;
 }

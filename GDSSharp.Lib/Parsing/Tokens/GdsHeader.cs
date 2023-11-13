@@ -8,6 +8,6 @@ public class GdsHeader : IGdsSimpleRead
     public ushort Code { get; set; }
 
     public string CodeHex => Code.ToString("X4");
-    
+
     public ushort NumToRead => (ushort)(Length - RecordSize);
 }
