@@ -11,6 +11,11 @@
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
         <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+        <RepositoryUrl>https://github.com/BorisGerretzen/GdsSharp</RepositoryUrl>
+        <Authors>Boris Gerretzen</Authors>
+        <PackageTags>GDSII, calma, eda, photomask, lithography, ic</PackageTags>
+        <RepositoryType>git</RepositoryType>
+
     </PropertyGroup>
 
     <ItemGroup>
