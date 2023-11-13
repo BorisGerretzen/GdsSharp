@@ -1,14 +1,12 @@
-﻿using GdsSharp.Lib.Models.Parsing;
-
-namespace GdsSharp.Lib.Parsing.Models;
+﻿namespace GdsSharp.Lib.Parsing.Tokens;
 
 public class GdsRecordPresentation : IGdsRecord
 {
     public int FontNumber { get; set; }
     public int VerticalPresentation { get; set; }
     public int HorizontalPresentation { get; set; }
-    
-    public GdsRecordPresentation(GdsBinaryReader reader, GdsHeader header)
+
+    public void Read(GdsBinaryReader reader, GdsHeader header)
     {
         var values = reader.ReadInt16();
         if (header.NumToRead != 2)

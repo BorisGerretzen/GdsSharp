@@ -1,6 +1,4 @@
-﻿using GdsSharp.Lib.Models.Parsing;
-
-namespace GdsSharp.Lib.Parsing.Models;
+﻿namespace GdsSharp.Lib.Parsing.Tokens;
 
 public class GdsRecordColRow : IGdsSimpleRead
 {

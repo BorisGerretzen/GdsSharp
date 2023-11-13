@@ -1,4 +1,4 @@
-﻿namespace GdsSharp.Lib.Models.Parsing;
+﻿namespace GdsSharp.Lib.Parsing.Tokens;
 
 public class GdsRecordBgnLib : IGdsSimpleRead
 {

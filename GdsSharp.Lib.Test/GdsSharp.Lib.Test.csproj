@@ -24,6 +24,8 @@
     <ItemGroup>
       <None Remove="Assets\example.cal" />
       <EmbeddedResource Include="Assets\example.cal" />
+      <None Remove="Assets\inv.gds2" />
+      <EmbeddedResource Include="Assets\inv.gds2" />
     </ItemGroup>
 
 </Project>

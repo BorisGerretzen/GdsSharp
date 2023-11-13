@@ -1,15 +1,10 @@
-﻿namespace GdsSharp.Lib.Models.Parsing;
+﻿namespace GdsSharp.Lib.Parsing.Tokens;
 
 public class GdsRecordRefLibs : IGdsRecord
 {
     public List<string> Libraries { get; set; } = new();
 
-    /// <summary>
-    /// TODO: Untested
-    /// </summary>
-    /// <param name="reader"></param>
-    /// <param name="header"></param>
-    internal GdsRecordRefLibs(GdsBinaryReader reader, GdsHeader header)
+    public void Read(GdsBinaryReader reader, GdsHeader header)
     {
         var numStrings = header.NumToRead / 44;
         for (var i = 0; i < numStrings; i++)
