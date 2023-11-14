@@ -1,6 +1,6 @@
 ﻿namespace GdsSharp.Lib.Parsing.Tokens;
 
-public class GdsRecordBgnStr : IGdsSimpleRead
+public class GdsRecordBgnStr : IGdsSimpleRead, IGdsSimpleWrite
 {
     public short CreationTimeYear { get; set; }
     public short CreationTimeMonth { get; set; }
@@ -18,7 +18,7 @@ public class GdsRecordBgnStr : IGdsSimpleRead
 
     public ushort Code => 0x0502;
 
-    public int GetLength()
+    public ushort GetLength()
     {
         return 24;
     }

@@ -1,6 +1,6 @@
 ﻿namespace GdsSharp.Lib.Parsing.Tokens;
 
-public class GdsRecordUnits : IGdsSimpleRead
+public class GdsRecordUnits : IGdsSimpleRead, IGdsSimpleWrite
 {
     public double UserUnits { get; set; }
     public double PhysicalUnits { get; set; }
@@ -9,7 +9,7 @@ public class GdsRecordUnits : IGdsSimpleRead
 
     public ushort Code => 0x0305;
 
-    public int GetLength()
+    public ushort GetLength()
     {
         return 16;
     }

@@ -1,6 +1,6 @@
 ﻿namespace GdsSharp.Lib.Parsing.Tokens;
 
-public class GdsRecordRefLibs : IGdsReadableRecord
+public class GdsRecordRefLibs : IGdsReadableRecord, IGdsWriteableRecord
 {
     public List<string> Libraries { get; set; } = new();
 
@@ -12,8 +12,19 @@ public class GdsRecordRefLibs : IGdsReadableRecord
 
     public ushort Code => 0x1F06;
 
-    public int GetLength()
+    public ushort GetLength()
     {
-        return Libraries.Count * 44;
+        return (ushort)(Libraries.Count * 44);
+    }
+
+    public void Write(GdsBinaryWriter writer)
+    {
+        foreach (var library in Libraries)
+        {
+            var lengthDiff = 44 - library.Length;
+            if (lengthDiff < 0) throw new ArgumentException($"Library name is too long: {library}");
+            var paddedString = library + new string('\0', lengthDiff);
+            writer.Write(paddedString);
+        }
     }
 }

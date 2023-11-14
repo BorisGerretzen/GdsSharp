@@ -1,6 +1,6 @@
 namespace GdsSharp.Lib.Parsing.Tokens;
 
-public class GdsRecordFonts : IGdsReadableRecord
+public class GdsRecordFonts : IGdsReadableRecord, IGdsWriteableRecord
 {
     public List<string> Fonts { get; set; } = new();
 
@@ -12,8 +12,19 @@ public class GdsRecordFonts : IGdsReadableRecord
 
     public ushort Code => 0x2006;
 
-    public int GetLength()
+    public ushort GetLength()
     {
-        return Fonts.Count * 44;
+        return (ushort)(Fonts.Count * 44);
+    }
+
+    public void Write(GdsBinaryWriter writer)
+    {
+        foreach (var font in Fonts)
+        {
+            var lengthDiff = 44 - font.Length;
+            if (lengthDiff < 0) throw new ArgumentException($"Font name is too long: {font}");
+            var paddedString = font + new string('\0', lengthDiff);
+            writer.Write(paddedString);
+        }
     }
 }

@@ -1,14 +1,18 @@
 ﻿namespace GdsSharp.Lib.Parsing.Tokens;
 
-public struct GdsRecordNoData : IGdsRecord
+public struct GdsRecordNoData : IGdsWriteableRecord
 {
     public required GdsRecordNoDataType Type { get; init; }
 
     public ushort Code => (ushort)Type;
 
-    public int GetLength()
+    public ushort GetLength()
     {
         return 0;
+    }
+
+    public void Write(GdsBinaryWriter writer)
+    {
     }
 }
 

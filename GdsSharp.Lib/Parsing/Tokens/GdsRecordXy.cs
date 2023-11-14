@@ -1,6 +1,6 @@
 ﻿namespace GdsSharp.Lib.Parsing.Tokens;
 
-public class GdsRecordXy : IGdsReadableRecord
+public class GdsRecordXy : IGdsReadableRecord, IGdsWriteableRecord
 {
     public List<(int X, int Y)> Coordinates { get; set; } = new();
 
@@ -12,8 +12,17 @@ public class GdsRecordXy : IGdsReadableRecord
 
     public ushort Code => 0x1003;
 
-    public int GetLength()
+    public ushort GetLength()
     {
-        return Coordinates.Count * 8;
+        return (ushort)(Coordinates.Count * 8);
+    }
+
+    public void Write(GdsBinaryWriter writer)
+    {
+        foreach (var (x, y) in Coordinates)
+        {
+            writer.Write(x);
+            writer.Write(y);
+        }
     }
 }

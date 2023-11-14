@@ -1,6 +1,6 @@
 ﻿namespace GdsSharp.Lib.Parsing.Tokens;
 
-public class GdsRecordSTrans : IGdsReadableRecord
+public class GdsRecordSTrans : IGdsReadableRecord, IGdsWriteableRecord
 {
     public bool Reflection { get; set; }
     public bool AbsoluteMagnification { get; set; }
@@ -18,8 +18,17 @@ public class GdsRecordSTrans : IGdsReadableRecord
 
     public ushort Code => 0x1A01;
 
-    public int GetLength()
+    public ushort GetLength()
     {
         return 2;
+    }
+
+    public void Write(GdsBinaryWriter writer)
+    {
+        ushort packed = 0;
+        packed |= (ushort)((Reflection ? 1 : 0) << 15);
+        packed |= (ushort)((AbsoluteMagnification ? 1 : 0) << 2);
+        packed |= (ushort)((AbsoluteAngle ? 1 : 0) << 1);
+        writer.Write(packed);
     }
 }

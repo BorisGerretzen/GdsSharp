@@ -1,6 +1,6 @@
 namespace GdsSharp.Lib.Parsing.Tokens;
 
-public class GdsRecordElFlags : IGdsReadableRecord
+public class GdsRecordElFlags : IGdsReadableRecord, IGdsWriteableRecord
 {
     public bool ExternalData { get; set; }
     public bool TemplateData { get; set; }
@@ -16,8 +16,16 @@ public class GdsRecordElFlags : IGdsReadableRecord
 
     public ushort Code => 0x2601;
 
-    public int GetLength()
+    public ushort GetLength()
     {
         return 2;
+    }
+
+    public void Write(GdsBinaryWriter writer)
+    {
+        ushort packed = 0;
+        packed |= (ushort)((ExternalData ? 1 : 0) << 1);
+        packed |= (ushort)(TemplateData ? 1 : 0);
+        writer.Write(packed);
     }
 }

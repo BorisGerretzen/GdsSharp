@@ -6,6 +6,10 @@ namespace GdsSharp.Lib;
 
 public class GdsBinaryWriter : BinaryWriter
 {
+    public GdsBinaryWriter(Stream output) : base(output)
+    {
+    }
+
     public override void Write(ushort value)
     {
         var data = BitConverter.IsLittleEndian ? BinaryPrimitives.ReverseEndianness(value) : value;
@@ -55,6 +59,9 @@ public class GdsBinaryWriter : BinaryWriter
 
     public override void Write(string value)
     {
+        if (value.Length % 2 != 0)
+            value += '\0';
+
         var data = Encoding.ASCII.GetBytes(value);
         base.Write(data);
     }

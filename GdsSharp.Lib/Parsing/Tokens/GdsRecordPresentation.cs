@@ -1,6 +1,6 @@
 ﻿namespace GdsSharp.Lib.Parsing.Tokens;
 
-public class GdsRecordPresentation : IGdsReadableRecord
+public class GdsRecordPresentation : IGdsReadableRecord, IGdsWriteableRecord
 {
     public int FontNumber { get; set; }
     public int VerticalPresentation { get; set; }
@@ -19,8 +19,18 @@ public class GdsRecordPresentation : IGdsReadableRecord
 
     public ushort Code => 0x1701;
 
-    public int GetLength()
+    public ushort GetLength()
     {
         return 2;
+    }
+
+    public void Write(GdsBinaryWriter writer)
+    {
+        ushort packed = 0;
+        packed |= (ushort)((FontNumber & 0b11) << 4);
+        packed |= (ushort)((VerticalPresentation & 0b11) << 2);
+        packed |= (ushort)(HorizontalPresentation & 0b11);
+
+        writer.Write(packed);
     }
 }
