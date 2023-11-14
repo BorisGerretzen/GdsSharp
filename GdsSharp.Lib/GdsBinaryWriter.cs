@@ -48,7 +48,7 @@ public class GdsBinaryWriter : BinaryWriter
 
     public override void Write(float value)
     {
-        throw new NotImplementedException("4 byte floats are not supported.");
+        throw new InvalidOperationException("4 byte floats are not supported.");
     }
 
     public override void Write(double value)

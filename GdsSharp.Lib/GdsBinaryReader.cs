@@ -10,14 +10,6 @@ public class GdsBinaryReader : BinaryReader
     {
     }
 
-    public GdsBinaryReader(Stream input, Encoding encoding) : base(input, encoding)
-    {
-    }
-
-    public GdsBinaryReader(Stream input, Encoding encoding, bool leaveOpen) : base(input, encoding, leaveOpen)
-    {
-    }
-
     public override short ReadInt16()
     {
         var data = base.ReadInt16();
@@ -56,7 +48,7 @@ public class GdsBinaryReader : BinaryReader
 
     public override float ReadSingle()
     {
-        throw new NotImplementedException();
+        throw new InvalidOperationException("4 byte floats are not supported.");
     }
 
     public override double ReadDouble()
