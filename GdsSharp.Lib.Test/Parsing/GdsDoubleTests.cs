@@ -4,19 +4,14 @@ namespace GdsSharp.Lib.Test.Parsing;
 
 public class GdsDoubleTests
 {
-    private readonly byte[] _oneBytes =
-    {
-        0b01000001, 0b00010000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000
-    };
-
     private readonly byte[] _negOneBytes =
     {
         0b11000001, 0b00010000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000
     };
 
-    private readonly byte[] _zeroBytes =
+    private readonly byte[] _oneBytes =
     {
-        0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000
+        0b01000001, 0b00010000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000
     };
 
     private readonly byte[] _onePointSevenBytes =
@@ -29,8 +24,22 @@ public class GdsDoubleTests
         0b01000011, 0b00111110, 0b10000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000
     };
 
+    private readonly byte[] _zeroBytes =
+    {
+        0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000
+    };
+
+    [Test]
+    public void TestFromDoubleAsBytesToDouble0Point01()
+    {
+        var myDouble = new GdsDouble(0.01d);
+        var bytes = myDouble.AsBytes();
+        var myDouble2 = new GdsDouble(bytes);
+        Assert.That(myDouble2.AsDouble(), Is.EqualTo(0.01d).Within(1e-6));
+    }
+
     #region Memory layout
-    
+
     [Test]
     public void TestDoubleMemoryLayoutPositiveOne()
     {
@@ -75,7 +84,7 @@ public class GdsDoubleTests
         Assert.That(myDouble.Exponent, Is.EqualTo(3));
         Assert.That(myDouble.Mantissa, Is.EqualTo(0b00111110_10000000_00000000_00000000_00000000_00000000_00000000));
     }
-    
+
     #endregion
 
     #region FromBytes AsDouble
@@ -86,21 +95,21 @@ public class GdsDoubleTests
         var myDouble = new GdsDouble(_oneBytes);
         Assert.That(myDouble.AsDouble(), Is.EqualTo(1.0d));
     }
-    
+
     [Test]
     public void TestFromBytesAsDoubleNegativeOne()
     {
         var myDouble = new GdsDouble(_negOneBytes);
         Assert.That(myDouble.AsDouble(), Is.EqualTo(-1.0d));
     }
-    
+
     [Test]
     public void TestFromBytesAsDoubleZero()
     {
         var myDouble = new GdsDouble(_zeroBytes);
         Assert.That(myDouble.AsDouble(), Is.EqualTo(0.0d));
     }
-    
+
     [Test]
     public void TestFromBytesAsDoubleOnePointSeven()
     {
@@ -114,11 +123,11 @@ public class GdsDoubleTests
         var myDouble = new GdsDouble(_thousandBytes);
         Assert.That(myDouble.AsDouble(), Is.EqualTo(1000.0d).Within(1e-6));
     }
-    
+
     #endregion
-    
+
     #region FromDouble AsDouble
-    
+
     [Test]
     public void TestFromDoublePositiveOne()
     {
@@ -128,7 +137,7 @@ public class GdsDoubleTests
         Assert.That(myDouble.Mantissa, Is.EqualTo(0b00010000_00000000_00000000_00000000_00000000_00000000_00000000));
         Assert.That(myDouble.AsDouble(), Is.EqualTo(1.0d));
     }
-    
+
     [Test]
     public void TestFromDoubleNegativeOne()
     {
@@ -137,7 +146,7 @@ public class GdsDoubleTests
         Assert.That(myDouble.Exponent, Is.EqualTo(1));
         Assert.That(myDouble.Mantissa, Is.EqualTo(0b00010000_00000000_00000000_00000000_00000000_00000000_00000000));
     }
-    
+
     [Test]
     public void TestFromDoubleZero()
     {
@@ -164,11 +173,11 @@ public class GdsDoubleTests
         Assert.That(myDouble.Exponent, Is.EqualTo(3));
         Assert.That(myDouble.Mantissa, Is.EqualTo(0b00111110_10000000_00000000_00000000_00000000_00000000_00000000));
     }
-    
+
     #endregion
-    
+
     #region FromBytes ToBytes
-    
+
     [Test]
     public void TestFromBytesToBytesPositiveOne()
     {
@@ -176,7 +185,7 @@ public class GdsDoubleTests
         var bytes = myDouble.AsBytes();
         Assert.That(bytes, Is.EqualTo(_oneBytes));
     }
-    
+
     [Test]
     public void TestFromBytesToBytesNegativeOne()
     {
@@ -184,7 +193,7 @@ public class GdsDoubleTests
         var bytes = myDouble.AsBytes();
         Assert.That(bytes, Is.EqualTo(_negOneBytes));
     }
-    
+
     [Test]
     public void TestFromBytesToBytesZero()
     {
@@ -192,7 +201,7 @@ public class GdsDoubleTests
         var bytes = myDouble.AsBytes();
         Assert.That(bytes, Is.EqualTo(_zeroBytes));
     }
-    
+
     [Test]
     public void TestFromBytesToBytesOnePointSeven()
     {
@@ -200,7 +209,7 @@ public class GdsDoubleTests
         var bytes = myDouble.AsBytes();
         Assert.That(bytes, Is.EqualTo(_onePointSevenBytes));
     }
-    
+
     [Test]
     public void TestFromBytesToBytesThousand()
     {
@@ -208,6 +217,6 @@ public class GdsDoubleTests
         var bytes = myDouble.AsBytes();
         Assert.That(bytes, Is.EqualTo(_thousandBytes));
     }
-    
+
     #endregion
 }

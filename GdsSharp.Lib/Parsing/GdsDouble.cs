@@ -50,7 +50,7 @@ public struct GdsDouble
         var fexp = Math.Log2(value) / 4;
         if (double.IsNaN(fexp)) fexp = 0;
 
-        var exp = (byte)Math.Ceiling(fexp);
+        var exp = (int)Math.Ceiling(fexp);
         if (Math.Abs(fexp - exp) < 1e-6) exp++;
 
         var mantissa = (ulong)(value * Math.Pow(16, 14 - exp));
