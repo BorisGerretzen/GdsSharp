@@ -25,7 +25,7 @@ public class GdsWriterTests
     }
 
     [Test]
-    public void TestWriterWritesIdentical()
+    public void TestWriterWritesIdentical1()
     {
         var streamIn = new MemoryStream();
         var streamOut = new MemoryStream();
@@ -40,8 +40,30 @@ public class GdsWriterTests
 
         var bytesIn = streamIn.ToArray();
         var bytesOut = streamOut.ToArray();
-        // using var fStream = File.OpenWrite("output.gds2");
-        // streamOut.WriteTo(fStream);
+
+        Assert.That(bytesOut, Is.EqualTo(bytesIn));
+    }
+
+    [Test]
+    public void TestWriterWritesIdentical2()
+    {
+        var streamIn = new MemoryStream();
+        var streamOut = new MemoryStream();
+
+        var fileStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("GdsSharp.Lib.Test.Assets.inv.gds2") ?? throw new NullReferenceException();
+        fileStream.CopyTo(streamIn);
+        fileStream.Position = 0;
+
+        var parser = new GdsReader(fileStream);
+        var tokens = parser.Tokenize().ToList();
+        GdsWriter.Write(tokens, streamOut);
+
+        // remove padding
+        var bytesIn = streamIn.ToArray();
+        var paddingLength = bytesIn.Reverse().TakeWhile(e => e == 0).Count() - 1;
+        bytesIn = bytesIn.SkipLast(paddingLength).ToArray();
+
+        var bytesOut = streamOut.ToArray();
 
         Assert.That(bytesOut, Is.EqualTo(bytesIn));
     }
