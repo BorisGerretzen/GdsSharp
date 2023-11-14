@@ -1,78 +1,66 @@
-﻿using GdsSharp.Lib.Parsing;
+﻿using System.Linq.Expressions;
+using System.Reflection;
+using GdsSharp.Lib.Parsing;
 using GdsSharp.Lib.Parsing.Tokens;
 
 namespace GdsSharp.Lib;
 
 public class GdsReader
 {
+    private static readonly Dictionary<ushort, Func<IGdsRecord>> Activators = new();
     private readonly GdsBinaryReader _reader;
-    private GdsHeader? _currentHeader;
+
+    /// <summary>
+    ///     Initializes activators for all records.
+    /// </summary>
+    static GdsReader()
+    {
+        var assembly = Assembly.GetAssembly(typeof(GdsReader));
+        if (assembly is null) throw new InvalidOperationException("Could not get assembly");
+
+        // Get compiled activator for all records
+        var recordTypes = assembly.GetTypes()
+            .Where(t => t is { IsClass: true, IsAbstract: false } && typeof(IGdsRecord).IsAssignableFrom(t));
+        foreach (var recordType in recordTypes)
+        {
+            var activator = Expression.Lambda<Func<IGdsRecord>>(Expression.New(recordType)).Compile();
+            var record = activator.Invoke();
+            if (record is null) throw new InvalidOperationException($"Could not get activator for {recordType.Name}");
+            Activators.Add(record.Code, activator);
+        }
+
+        // Add activator for no data records
+        foreach (var value in Enum.GetValues<GdsRecordNoDataType>()) Activators.Add((ushort)value, () => new GdsRecordNoData { Type = value });
+    }
 
     public GdsReader(Stream stream)
     {
         _reader = new GdsBinaryReader(stream);
     }
 
+    /// <summary>
+    ///     Tokenizes the stream.
+    /// </summary>
+    /// <param name="token">Cancellation token.</param>
+    /// <returns>IEnumerable of the found tokens.</returns>
+    /// <exception cref="InvalidOperationException">If an invalid record code is found or lengths mismatch.</exception>
     public IEnumerable<IGdsRecord> Tokenize(CancellationToken token = default)
     {
         while (!token.IsCancellationRequested && _reader.BaseStream.Position < _reader.BaseStream.Length)
         {
-            _currentHeader = new GdsHeader();
-            ((IGdsSimpleRead)_currentHeader).Read(_reader, _currentHeader);
+            var currentHeader = new GdsHeader();
+            ((IGdsSimpleRead)currentHeader).Read(_reader, currentHeader);
 
             // Stop when padding is reached
-            if (_currentHeader.Code == 0 && _currentHeader.Length == 0) yield break;
+            if (currentHeader is { Code: 0, Length: 0 }) yield break;
 
-            IGdsRecord record = _currentHeader.Code switch
-            {
-                0x0002 => new GdsRecordHeader(),
-                0x0102 => new GdsRecordBgnLib(),
-                0x0206 => new GdsRecordLibName(),
-                0x0305 => new GdsRecordUnits(),
-                0x0400 => new GdsRecordNoData { Type = GdsRecordNoDataType.EndLib },
-                0x0502 => new GdsRecordBgnStr(),
-                0x0606 => new GdsRecordStrName(),
-                0x0700 => new GdsRecordNoData { Type = GdsRecordNoDataType.EndStr },
-                0x0800 => new GdsRecordNoData { Type = GdsRecordNoDataType.Boundary },
-                0x0900 => new GdsRecordNoData { Type = GdsRecordNoDataType.Path },
-                0x0A00 => new GdsRecordNoData { Type = GdsRecordNoDataType.Sref },
-                0x0B00 => new GdsRecordNoData { Type = GdsRecordNoDataType.Aref },
-                0x0C00 => new GdsRecordNoData { Type = GdsRecordNoDataType.Text },
-                0x0D02 => new GdsRecordLayer(),
-                0x0E02 => new GdsRecordDataType(),
-                0x0F03 => new GdsRecordWidth(),
-                0x1003 => new GdsRecordXy(),
-                0x1100 => new GdsRecordNoData { Type = GdsRecordNoDataType.EndEl },
-                0x1206 => new GdsRecordSName(),
-                0x1302 => new GdsRecordColRow(),
-                0x1500 => new GdsRecordNoData { Type = GdsRecordNoDataType.Node },
-                0x1602 => new GdsRecordTextType(),
-                0x1701 => new GdsRecordPresentation(),
-                0x1906 => new GdsRecordString(),
-                0x1A01 => new GdsRecordSTrans(),
-                0x1B05 => new GdsRecordMag(),
-                0x1C05 => new GdsRecordAngle(),
-                0x1F06 => new GdsRecordRefLibs(),
-                0x2006 => new GdsRecordFonts(),
-                0x2102 => new GdsRecordPathType(),
-                0x2202 => new GdsRecordGenerations(),
-                0x2306 => throw new NotImplementedException("ATTRTABLE"),
-                0x2601 => new GdsRecordElFlags(),
-                0x2A02 => new GdsRecordNodeType(),
-                0x2B02 => new GdsRecordPropAttr(),
-                0x2C06 => new GdsRecordPropValue(),
-                0x2D00 => new GdsRecordNoData { Type = GdsRecordNoDataType.Box },
-                0x2E02 => new GdsRecordBoxType(),
-                0x2F03 => new GdsRecordPlex(),
-                0x3202 => new GdsRecordTapeNum(),
-                0x3302 => new GdsRecordTapeCode(),
-                0x3602 => new GdsRecordFormat(),
-                0x3706 => new GdsRecordMask(),
-                0x3800 => new GdsRecordNoData { Type = GdsRecordNoDataType.EndMasks },
-                _ => throw new ArgumentOutOfRangeException(nameof(_currentHeader.Code), $"0x{_currentHeader.Code:X}", $"Unknown record code at position 0x{_reader.BaseStream.Position:X} ({_reader.BaseStream.Position})")
-            };
+            // Get record
+            if (!Activators.TryGetValue(currentHeader.Code, out var activator))
+                throw new InvalidOperationException($"Could not find activator for code 0x{currentHeader.Code:X} ({currentHeader.Code}) at position 0x{_reader.BaseStream.Position:X} ({_reader.BaseStream.Position})");
+            var record = activator.Invoke();
 
-            if (record is IGdsReadableRecord readableRecord) readableRecord.Read(_reader, _currentHeader);
+            if (record is IGdsReadableRecord readableRecord) readableRecord.Read(_reader, currentHeader);
+            if (record.GetLength() != currentHeader.NumToRead) throw new InvalidOperationException($"Record length mismatch at position 0x{_reader.BaseStream.Position:X} ({_reader.BaseStream.Position}), expected {currentHeader.NumToRead}, got {record.GetLength()}");
 
             yield return record;
         }

@@ -15,4 +15,11 @@ public class GdsRecordBgnStr : IGdsSimpleRead
     public short LastModificationTimeHour { get; set; }
     public short LastModificationTimeMinute { get; set; }
     public short LastModificationTimeSecond { get; set; }
+
+    public ushort Code => 0x0502;
+
+    public int GetLength()
+    {
+        return 24;
+    }
 }

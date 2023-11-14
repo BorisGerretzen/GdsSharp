@@ -15,4 +15,11 @@ public class GdsRecordBgnLib : IGdsSimpleRead
     public short LastAccessTimeHour { get; set; }
     public short LastAccessTimeMinute { get; set; }
     public short LastAccessTimeSecond { get; set; }
+
+    public ushort Code => 0x0102;
+
+    public int GetLength()
+    {
+        return 24;
+    }
 }

@@ -15,4 +15,11 @@ public class GdsRecordSTrans : IGdsReadableRecord
         AbsoluteMagnification = (data & 0b100) != 0;
         AbsoluteAngle = (data & 0b10) != 0;
     }
+
+    public ushort Code => 0x1A01;
+
+    public int GetLength()
+    {
+        return 2;
+    }
 }

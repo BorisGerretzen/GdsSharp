@@ -9,4 +9,11 @@ public class GdsRecordRefLibs : IGdsReadableRecord
         var numStrings = header.NumToRead / 44;
         for (var i = 0; i < numStrings; i++) Libraries.Add(reader.ReadAsciiString(44));
     }
+
+    public ushort Code => 0x1F06;
+
+    public int GetLength()
+    {
+        return Libraries.Count * 44;
+    }
 }

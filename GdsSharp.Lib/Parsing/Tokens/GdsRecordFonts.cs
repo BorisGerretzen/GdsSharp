@@ -9,4 +9,11 @@ public class GdsRecordFonts : IGdsReadableRecord
         var numStrings = header.NumToRead / 44;
         for (var i = 0; i < numStrings; i++) Fonts.Add(reader.ReadAsciiString(44));
     }
+
+    public ushort Code => 0x2006;
+
+    public int GetLength()
+    {
+        return Fonts.Count * 44;
+    }
 }

@@ -2,4 +2,6 @@
 
 public interface IGdsRecord
 {
+    ushort Code { get; }
+    int GetLength();
 }

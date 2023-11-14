@@ -16,4 +16,11 @@ public class GdsRecordPresentation : IGdsReadableRecord
         VerticalPresentation = (values & 0b1100) >> 2;
         HorizontalPresentation = values & 0b11;
     }
+
+    public ushort Code => 0x1701;
+
+    public int GetLength()
+    {
+        return 2;
+    }
 }

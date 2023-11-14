@@ -13,4 +13,11 @@ public class GdsRecordElFlags : IGdsReadableRecord
         ExternalData = (data & 0b10) != 0;
         TemplateData = (data & 0b1) != 0;
     }
+
+    public ushort Code => 0x2601;
+
+    public int GetLength()
+    {
+        return 2;
+    }
 }
