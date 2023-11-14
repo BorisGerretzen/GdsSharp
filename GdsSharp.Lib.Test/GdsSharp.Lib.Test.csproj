@@ -22,10 +22,14 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Remove="Assets\example.cal" />
-      <EmbeddedResource Include="Assets\example.cal" />
-      <None Remove="Assets\inv.gds2" />
-      <EmbeddedResource Include="Assets\inv.gds2" />
+        <None Remove="Assets\example.cal"/>
+        <EmbeddedResource Include="Assets\example.cal"/>
+        <None Remove="Assets\inv.gds2"/>
+        <EmbeddedResource Include="Assets\inv.gds2"/>
+        <None Remove="Assets\xor.gds2"/>
+        <EmbeddedResource Include="Assets\xor.gds2"/>
+        <None Remove="Assets\nand2.gds2"/>
+        <EmbeddedResource Include="Assets\nand2.gds2"/>
     </ItemGroup>
 
 </Project>

@@ -7,12 +7,16 @@ public class GdsReaderTests
 {
     private Stream _stream1 = null!;
     private Stream _stream2 = null!;
+    private Stream _stream3 = null!;
+    private Stream _stream4 = null!;
 
     [SetUp]
     public void SetUp()
     {
         _stream1 = Assembly.GetExecutingAssembly().GetManifestResourceStream("GdsSharp.Lib.Test.Assets.example.cal") ?? throw new NullReferenceException();
         _stream2 = Assembly.GetExecutingAssembly().GetManifestResourceStream("GdsSharp.Lib.Test.Assets.inv.gds2") ?? throw new NullReferenceException();
+        _stream3 = Assembly.GetExecutingAssembly().GetManifestResourceStream("GdsSharp.Lib.Test.Assets.nand2.gds2") ?? throw new NullReferenceException();
+        _stream4 = Assembly.GetExecutingAssembly().GetManifestResourceStream("GdsSharp.Lib.Test.Assets.xor.gds2") ?? throw new NullReferenceException();
     }
 
     [Test]
@@ -100,5 +104,21 @@ public class GdsReaderTests
         var parser = new GdsReader(_stream2);
         var tokens = parser.Tokenize().ToList();
         Assert.That(tokens, Has.Count.EqualTo(425));
+    }
+
+    [Test]
+    public void TokenizeDoesntCrashOnExample3()
+    {
+        var parser = new GdsReader(_stream3);
+        var tokens = parser.Tokenize().ToList();
+        Assert.That(tokens, Has.Count.EqualTo(1229));
+    }
+
+    [Test]
+    public void TokenizeDoesntCrashOnExample4()
+    {
+        var parser = new GdsReader(_stream4);
+        var tokens = parser.Tokenize().ToList();
+        Assert.That(tokens, Has.Count.EqualTo(1229));
     }
 }
