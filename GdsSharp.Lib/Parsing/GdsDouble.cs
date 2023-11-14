@@ -47,6 +47,13 @@ public struct GdsDouble
             value = -value;
         }
 
+        if (value == 0.0d)
+        {
+            Exponent = 0;
+            Mantissa = 0;
+            return;
+        }
+
         var fexp = Math.Log2(value) / 4;
         if (double.IsNaN(fexp)) fexp = 0;
 
