@@ -60,7 +60,7 @@ public struct GdsDouble
         var exp = (int)Math.Ceiling(fexp);
         if (Math.Abs(fexp - exp) < 1e-6) exp++;
 
-        var mantissa = (ulong)(value * Math.Pow(16, 14 - exp));
+        var mantissa = (ulong)(value / Math.Pow(16, exp - 14));
         Exponent = exp;
         Mantissa = mantissa;
     }
@@ -68,9 +68,8 @@ public struct GdsDouble
     /// <summary>
     ///     Creates a GDSII double from a byte array.
     /// </summary>
-    /// <param name="data">
-    ///     <Bytes to deserialize./ param>
-    ///         <exception cref="ArgumentException">If not exactly <see cref="Size" /> bytes.</exception>
+    /// <param name="data">Bytes to deserialize</param>
+    /// <exception cref="ArgumentException">If not exactly <see cref="Size" /> bytes.</exception>
     public GdsDouble(Span<byte> data)
     {
         if (data.Length != Size) throw new ArgumentException($"Data must be {Size} bytes long");
