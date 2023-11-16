@@ -1,222 +1,80 @@
-﻿using GdsSharp.Lib.Parsing;
+﻿using System.Buffers.Binary;
+using GdsSharp.Lib.Parsing;
 
 namespace GdsSharp.Lib.Test.Parsing;
 
 public class GdsDoubleTests
 {
-    private readonly byte[] _negOneBytes =
+    // @formatter:off
+    public static IEnumerable<(byte[] bytes, double realValue)> TestCases
     {
-        0b11000001, 0b00010000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000
-    };
+        get
+        {
+            yield return (new byte[] {0b11000001, 0b00010000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000}, -1);
+            yield return (new byte[] {0b01000001, 0b00010000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000}, 1);
+            yield return (new byte[] {0b01000001, 0b00011011, 0b00110011, 0b00110011, 0b00110011, 0b00110011, 0b00110011, 0b00110011}, 1.7d);
+            yield return (new byte[] {0b01000011, 0b00111110, 0b10000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000}, 1000);
+            yield return (new byte[] {0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000}, 0);
+            yield return (new byte[] {0x3E, 0x41, 0x89, 0x37, 0x4B, 0xC6, 0xA7, 0XF0}, 0.001d);
+        }
+    }
+    // @formatter:on
 
-    private readonly byte[] _oneBytes =
+    /// <summary>
+    ///     Test that the double is the same when converting from bytes to double
+    /// </summary>
+    [TestCaseSource(nameof(TestCases))]
+    public void TestMemoryLayout((byte[] bytes, double realValue) pair)
     {
-        0b01000001, 0b00010000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000
-    };
+        var myDouble = new GdsDouble(pair.bytes);
+        Assert.That(myDouble.IsNegative, Is.EqualTo(pair.bytes[0] >> 7 == 1));
 
-    private readonly byte[] _onePointSevenBytes =
-    {
-        0b01000001, 0b00011011, 0b00110011, 0b00110011, 0b00110011, 0b00110011, 0b00110011, 0b00110011
-    };
+        // remove sign bit
+        pair.bytes[0] &= 0b01111111;
+        Assert.That(myDouble.Exponent, Is.EqualTo(pair.bytes[0] == 0 ? 0 : pair.bytes[0] - 64));
 
-    private readonly byte[] _thousandBytes =
-    {
-        0b01000011, 0b00111110, 0b10000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000
-    };
-
-    private readonly byte[] _zeroBytes =
-    {
-        0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000
-    };
-
-    [Test]
-    public void TestFromDoubleAsBytesToDouble0Point01()
-    {
-        var myDouble = new GdsDouble(0.01d);
-        var bytes = myDouble.AsBytes();
-        var myDouble2 = new GdsDouble(bytes);
-        Assert.That(myDouble2.AsDouble(), Is.EqualTo(0.01d).Within(1e-6));
+        // remove exponent
+        pair.bytes[0] = 0;
+        Assert.That(myDouble.Mantissa, Is.EqualTo(BinaryPrimitives.ReadUInt64BigEndian(pair.bytes)));
     }
 
-    #region Memory layout
-
-    [Test]
-    public void TestDoubleMemoryLayoutPositiveOne()
+    /// <summary>
+    ///     Test that the double is the same when converting from bytes to double
+    /// </summary>
+    [TestCaseSource(nameof(TestCases))]
+    public void TestFromBytesAsDouble((byte[] bytes, double realValue) pair)
     {
-        var myDouble = new GdsDouble(_oneBytes);
-        Assert.That(myDouble.IsNegative, Is.False);
-        Assert.That(myDouble.Exponent, Is.EqualTo(1));
-        Assert.That(myDouble.Mantissa, Is.EqualTo(0b00010000_00000000_00000000_00000000_00000000_00000000_00000000));
+        var myDouble = new GdsDouble(pair.bytes);
+        Assert.That(myDouble.AsDouble(), Is.EqualTo(pair.realValue).Within(1e-9));
     }
 
-    [Test]
-    public void TestDoubleMemoryLayoutNegativeOne()
+    /// <summary>
+    ///     Test that the bytes are the same when converting from double to bytes
+    /// </summary>
+    [TestCaseSource(nameof(TestCases))]
+    public void TestFromDoubleAsBytes((byte[] bytes, double realValue) pair)
     {
-        var myDouble = new GdsDouble(_negOneBytes);
-        Assert.That(myDouble.IsNegative, Is.True);
-        Assert.That(myDouble.Exponent, Is.EqualTo(1));
-        Assert.That(myDouble.Mantissa, Is.EqualTo(0b00010000_00000000_00000000_00000000_00000000_00000000_00000000));
+        var myDouble = new GdsDouble(pair.realValue);
+        Assert.That(myDouble.AsBytes(), Is.EqualTo(pair.bytes));
+        Assert.That(myDouble.IsNegative, Is.EqualTo(pair.realValue < 0));
+
+        // remove sign bit
+        pair.bytes[0] &= 0b01111111;
+        Assert.That(myDouble.Exponent, Is.EqualTo(pair.bytes[0] == 0 ? 0 : pair.bytes[0] - 64));
+
+        // remove exponent
+        pair.bytes[0] = 0;
+        Assert.That(myDouble.Mantissa, Is.EqualTo(BinaryPrimitives.ReadUInt64BigEndian(pair.bytes)));
     }
 
-    [Test]
-    public void TestDoubleMemoryLayoutZero()
+    /// <summary>
+    ///     Test that the bytes are the same when converting from bytes to double and back to bytes
+    /// </summary>
+    [TestCaseSource(nameof(TestCases))]
+    public void TestFromBytesToBytes((byte[] bytes, double realValue) pair)
     {
-        var myDouble = new GdsDouble(_zeroBytes);
-        Assert.That(myDouble.IsNegative, Is.False);
-        Assert.That(myDouble.Exponent, Is.EqualTo(0));
-        Assert.That(myDouble.Mantissa, Is.EqualTo(0b00000000_00000000_00000000_00000000_00000000_00000000_00000000));
+        var myDouble = new GdsDouble(pair.bytes);
+        var bytesOut = myDouble.AsBytes();
+        Assert.That(bytesOut, Is.EqualTo(pair.bytes));
     }
-
-    [Test]
-    public void TestDoubleMemoryLayoutOnePointSeven()
-    {
-        var myDouble = new GdsDouble(_onePointSevenBytes);
-        Assert.That(myDouble.IsNegative, Is.False);
-        Assert.That(myDouble.Exponent, Is.EqualTo(1));
-        Assert.That(myDouble.Mantissa, Is.EqualTo(0b00011011_00110011_00110011_00110011_00110011_00110011_00110011));
-    }
-
-    [Test]
-    public void TestDoubleMemoryLayoutThousand()
-    {
-        var myDouble = new GdsDouble(_thousandBytes);
-        Assert.That(myDouble.IsNegative, Is.False);
-        Assert.That(myDouble.Exponent, Is.EqualTo(3));
-        Assert.That(myDouble.Mantissa, Is.EqualTo(0b00111110_10000000_00000000_00000000_00000000_00000000_00000000));
-    }
-
-    #endregion
-
-    #region FromBytes AsDouble
-
-    [Test]
-    public void TestFromBytesAsDoublePositiveOne()
-    {
-        var myDouble = new GdsDouble(_oneBytes);
-        Assert.That(myDouble.AsDouble(), Is.EqualTo(1.0d));
-    }
-
-    [Test]
-    public void TestFromBytesAsDoubleNegativeOne()
-    {
-        var myDouble = new GdsDouble(_negOneBytes);
-        Assert.That(myDouble.AsDouble(), Is.EqualTo(-1.0d));
-    }
-
-    [Test]
-    public void TestFromBytesAsDoubleZero()
-    {
-        var myDouble = new GdsDouble(_zeroBytes);
-        Assert.That(myDouble.AsDouble(), Is.EqualTo(0.0d));
-    }
-
-    [Test]
-    public void TestFromBytesAsDoubleOnePointSeven()
-    {
-        var myDouble = new GdsDouble(_onePointSevenBytes);
-        Assert.That(myDouble.AsDouble(), Is.EqualTo(1.7f).Within(1e-6));
-    }
-
-    [Test]
-    public void TestFromBytesAsDoubleThousand()
-    {
-        var myDouble = new GdsDouble(_thousandBytes);
-        Assert.That(myDouble.AsDouble(), Is.EqualTo(1000.0d).Within(1e-6));
-    }
-
-    #endregion
-
-    #region FromDouble AsDouble
-
-    [Test]
-    public void TestFromDoublePositiveOne()
-    {
-        var myDouble = new GdsDouble(1.0d);
-        Assert.That(myDouble.IsNegative, Is.False);
-        Assert.That(myDouble.Exponent, Is.EqualTo(1));
-        Assert.That(myDouble.Mantissa, Is.EqualTo(0b00010000_00000000_00000000_00000000_00000000_00000000_00000000));
-        Assert.That(myDouble.AsDouble(), Is.EqualTo(1.0d));
-    }
-
-    [Test]
-    public void TestFromDoubleNegativeOne()
-    {
-        var myDouble = new GdsDouble(-1.0d);
-        Assert.That(myDouble.IsNegative, Is.True);
-        Assert.That(myDouble.Exponent, Is.EqualTo(1));
-        Assert.That(myDouble.Mantissa, Is.EqualTo(0b00010000_00000000_00000000_00000000_00000000_00000000_00000000));
-    }
-
-    [Test]
-    public void TestFromDoubleZero()
-    {
-        var myDouble = new GdsDouble(0.0d);
-        Assert.That(myDouble.IsNegative, Is.False);
-        Assert.That(myDouble.Exponent, Is.EqualTo(0));
-        Assert.That(myDouble.Mantissa, Is.EqualTo(0b00000000_00000000_00000000_00000000_00000000_00000000_00000000));
-    }
-
-    [Test]
-    public void TestFromDoubleOnePointSeven()
-    {
-        var myDouble = new GdsDouble(1.7d);
-        Assert.That(myDouble.IsNegative, Is.False);
-        Assert.That(myDouble.Exponent, Is.EqualTo(1));
-        Assert.That(myDouble.Mantissa, Is.EqualTo(0b00011011_00110011_00110011_00110011_00110011_00110011_00110011));
-    }
-
-    [Test]
-    public void TestFromDoubleThousand()
-    {
-        var myDouble = new GdsDouble(1000.0d);
-        Assert.That(myDouble.IsNegative, Is.False);
-        Assert.That(myDouble.Exponent, Is.EqualTo(3));
-        Assert.That(myDouble.Mantissa, Is.EqualTo(0b00111110_10000000_00000000_00000000_00000000_00000000_00000000));
-    }
-
-    #endregion
-
-    #region FromBytes ToBytes
-
-    [Test]
-    public void TestFromBytesToBytesPositiveOne()
-    {
-        var myDouble = new GdsDouble(_oneBytes);
-        var bytes = myDouble.AsBytes();
-        Assert.That(bytes, Is.EqualTo(_oneBytes));
-    }
-
-    [Test]
-    public void TestFromBytesToBytesNegativeOne()
-    {
-        var myDouble = new GdsDouble(_negOneBytes);
-        var bytes = myDouble.AsBytes();
-        Assert.That(bytes, Is.EqualTo(_negOneBytes));
-    }
-
-    [Test]
-    public void TestFromBytesToBytesZero()
-    {
-        var myDouble = new GdsDouble(_zeroBytes);
-        var bytes = myDouble.AsBytes();
-        Assert.That(bytes, Is.EqualTo(_zeroBytes));
-    }
-
-    [Test]
-    public void TestFromBytesToBytesOnePointSeven()
-    {
-        var myDouble = new GdsDouble(_onePointSevenBytes);
-        var bytes = myDouble.AsBytes();
-        Assert.That(bytes, Is.EqualTo(_onePointSevenBytes));
-    }
-
-    [Test]
-    public void TestFromBytesToBytesThousand()
-    {
-        var myDouble = new GdsDouble(_thousandBytes);
-        var bytes = myDouble.AsBytes();
-        Assert.That(bytes, Is.EqualTo(_thousandBytes));
-    }
-
-    #endregion
 }

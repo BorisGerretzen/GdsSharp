@@ -66,7 +66,7 @@ public class GdsBinaryReader : BinaryReader
     {
         var data = base.ReadBytes(length);
         var str = Encoding.ASCII.GetString(data);
-        while (str.EndsWith('\0')) str = str[..^1];
+        while (str.EndsWith('\0')) str = str[..^1]; // Remove trailing nulls
         return str;
     }
 }

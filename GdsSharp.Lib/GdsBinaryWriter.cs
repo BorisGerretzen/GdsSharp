@@ -59,6 +59,7 @@ public class GdsBinaryWriter : BinaryWriter
 
     public override void Write(string value)
     {
+        // Pad with null byte if odd length
         if (value.Length % 2 != 0)
             value += '\0';
 

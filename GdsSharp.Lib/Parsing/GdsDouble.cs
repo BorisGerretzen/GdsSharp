@@ -26,16 +26,6 @@ public struct GdsDouble
     public ulong Mantissa { get; set; }
 
     /// <summary>
-    ///     Number of bits used for the exponent.
-    /// </summary>
-    public int NumExponentBits => 7;
-
-    /// <summary>
-    ///     Number of bits used for the mantissa.
-    /// </summary>
-    public int NumMantissaBits => 56;
-
-    /// <summary>
     ///     Creates a GDSII double from a normal double.
     /// </summary>
     /// <param name="value">Normal double.</param>

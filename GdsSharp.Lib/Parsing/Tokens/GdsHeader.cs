@@ -10,9 +10,14 @@ public class GdsHeader : IGdsSimpleRead, IGdsSimpleWrite
     /// </summary>
     public ushort Length { get; set; }
 
-    public string CodeHex => Code.ToString("X4");
-
+    /// <summary>
+    ///     Number of bytes to read after the header.
+    /// </summary>
     public ushort NumToRead => (ushort)(Length - RecordSize);
+
+    /// <summary>
+    ///     Record type.
+    /// </summary>
     public ushort Code { get; set; }
 
     public ushort GetLength()

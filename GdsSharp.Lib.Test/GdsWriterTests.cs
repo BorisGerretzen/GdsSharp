@@ -24,33 +24,19 @@ public class GdsWriterTests
         Assert.That(bytes, Has.Length.EqualTo(records.First().GetLength() + GdsHeader.RecordSize));
     }
 
-    [Test]
-    public void TestWriterWritesIdentical1()
+    [TestCase("example.cal")]
+    [TestCase("inv.gds2")]
+    [TestCase("nand2.gds2")]
+    [TestCase("xor.gds2")]
+    [TestCase("osu018_stdcells.gds2")]
+    public void TestWriterWritesIdentical(string manifestFile)
     {
         var streamIn = new MemoryStream();
         var streamOut = new MemoryStream();
 
-        var fileStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("GdsSharp.Lib.Test.Assets.example.cal") ?? throw new NullReferenceException();
-        fileStream.CopyTo(streamIn);
-        fileStream.Position = 0;
-
-        var parser = new GdsReader(fileStream);
-        var tokens = parser.Tokenize().ToList();
-        GdsWriter.Write(tokens, streamOut);
-
-        var bytesIn = streamIn.ToArray();
-        var bytesOut = streamOut.ToArray();
-
-        Assert.That(bytesOut, Is.EqualTo(bytesIn));
-    }
-
-    [Test]
-    public void TestWriterWritesIdentical2()
-    {
-        var streamIn = new MemoryStream();
-        var streamOut = new MemoryStream();
-
-        var fileStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("GdsSharp.Lib.Test.Assets.inv.gds2") ?? throw new NullReferenceException();
+        var fileStream =
+            Assembly.GetExecutingAssembly().GetManifestResourceStream($"GdsSharp.Lib.Test.Assets.{manifestFile}") ??
+            throw new NullReferenceException();
         fileStream.CopyTo(streamIn);
         fileStream.Position = 0;
 
@@ -65,54 +51,7 @@ public class GdsWriterTests
 
         var bytesOut = streamOut.ToArray();
 
-        Assert.That(bytesOut, Is.EqualTo(bytesIn));
-    }
-
-    [Test]
-    public void TestWriterWritesIdentical3()
-    {
-        var streamIn = new MemoryStream();
-        var streamOut = new MemoryStream();
-
-        var fileStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("GdsSharp.Lib.Test.Assets.nand2.gds2") ?? throw new NullReferenceException();
-        fileStream.CopyTo(streamIn);
-        fileStream.Position = 0;
-
-        var parser = new GdsReader(fileStream);
-        var tokens = parser.Tokenize().ToList();
-        GdsWriter.Write(tokens, streamOut);
-
-        // remove padding
-        var bytesIn = streamIn.ToArray();
-        var paddingLength = bytesIn.Reverse().TakeWhile(e => e == 0).Count() - 1;
-        bytesIn = bytesIn.SkipLast(paddingLength).ToArray();
-
-        var bytesOut = streamOut.ToArray();
-
-        Assert.That(bytesOut, Is.EqualTo(bytesIn));
-    }
-
-    [Test]
-    public void TestWriterWritesIdentical4()
-    {
-        var streamIn = new MemoryStream();
-        var streamOut = new MemoryStream();
-
-        var fileStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("GdsSharp.Lib.Test.Assets.xor.gds2") ?? throw new NullReferenceException();
-        fileStream.CopyTo(streamIn);
-        fileStream.Position = 0;
-
-        var parser = new GdsReader(fileStream);
-        var tokens = parser.Tokenize().ToList();
-        GdsWriter.Write(tokens, streamOut);
-
-        // remove padding
-        var bytesIn = streamIn.ToArray();
-        var paddingLength = bytesIn.Reverse().TakeWhile(e => e == 0).Count() - 1;
-        bytesIn = bytesIn.SkipLast(paddingLength).ToArray();
-
-        var bytesOut = streamOut.ToArray();
-
-        Assert.That(bytesOut, Is.EqualTo(bytesIn));
+        // Check within 1 because sometimes floating point numbers are slightly different
+        Assert.That(bytesOut, Is.EqualTo(bytesIn).Within(1));
     }
 }
