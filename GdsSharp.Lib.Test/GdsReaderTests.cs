@@ -1,5 +1,5 @@
 using System.Reflection;
-using GdsSharp.Lib.Parsing.Tokens;
+using GdsSharp.Lib.Parsing.Records;
 
 namespace GdsSharp.Lib.Test;
 
@@ -13,10 +13,14 @@ public class GdsReaderTests
     [SetUp]
     public void SetUp()
     {
-        _stream1 = Assembly.GetExecutingAssembly().GetManifestResourceStream("GdsSharp.Lib.Test.Assets.example.cal") ?? throw new NullReferenceException();
-        _stream2 = Assembly.GetExecutingAssembly().GetManifestResourceStream("GdsSharp.Lib.Test.Assets.inv.gds2") ?? throw new NullReferenceException();
-        _stream3 = Assembly.GetExecutingAssembly().GetManifestResourceStream("GdsSharp.Lib.Test.Assets.nand2.gds2") ?? throw new NullReferenceException();
-        _stream4 = Assembly.GetExecutingAssembly().GetManifestResourceStream("GdsSharp.Lib.Test.Assets.xor.gds2") ?? throw new NullReferenceException();
+        _stream1 = Assembly.GetExecutingAssembly().GetManifestResourceStream("GdsSharp.Lib.Test.Assets.example.cal") ??
+                   throw new NullReferenceException();
+        _stream2 = Assembly.GetExecutingAssembly().GetManifestResourceStream("GdsSharp.Lib.Test.Assets.inv.gds2") ??
+                   throw new NullReferenceException();
+        _stream3 = Assembly.GetExecutingAssembly().GetManifestResourceStream("GdsSharp.Lib.Test.Assets.nand2.gds2") ??
+                   throw new NullReferenceException();
+        _stream4 = Assembly.GetExecutingAssembly().GetManifestResourceStream("GdsSharp.Lib.Test.Assets.xor.gds2") ??
+                   throw new NullReferenceException();
     }
 
     [Test]

@@ -1,6 +1,7 @@
 using System.Reflection;
 using GdsSharp.Lib.Parsing;
-using GdsSharp.Lib.Parsing.Tokens;
+using GdsSharp.Lib.Parsing.Abstractions;
+using GdsSharp.Lib.Parsing.Records;
 
 namespace GdsSharp.Lib.Test;
 

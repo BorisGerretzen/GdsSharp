@@ -1,7 +1,7 @@
 using System.Linq.Expressions;
 using System.Reflection;
-using GdsSharp.Lib.Parsing;
-using GdsSharp.Lib.Parsing.Tokens;
+using GdsSharp.Lib.Parsing.Abstractions;
+using GdsSharp.Lib.Parsing.Records;
 
 namespace GdsSharp.Lib;
 
@@ -29,6 +29,7 @@ public class GdsStreamOperator
         }
 
         // Add activator for no data records
-        foreach (var value in Enum.GetValues<GdsRecordNoDataType>()) Activators.Add((ushort)value, () => new GdsRecordNoData { Type = value });
+        foreach (var value in Enum.GetValues<GdsRecordNoDataType>())
+            Activators.Add((ushort)value, () => new GdsRecordNoData { Type = value });
     }
 }

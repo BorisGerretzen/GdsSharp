@@ -1,5 +1,5 @@
 ﻿using GdsSharp.Lib.Parsing;
-using GdsSharp.Lib.Parsing.Tokens;
+using GdsSharp.Lib.Parsing.Abstractions;
 
 namespace GdsSharp.Lib;
 
@@ -30,13 +30,26 @@ public class GdsReader : GdsStreamOperator
 
             // Get record
             if (!Activators.TryGetValue(currentHeader.Code, out var activator))
-                throw new InvalidOperationException($"Could not find activator for code 0x{currentHeader.Code:X} ({currentHeader.Code}) at position 0x{_reader.BaseStream.Position:X} ({_reader.BaseStream.Position})");
+                throw new InvalidOperationException(
+                    $"Could not find activator for code 0x{currentHeader.Code:X} ({currentHeader.Code}) at position 0x{_reader.BaseStream.Position:X} ({_reader.BaseStream.Position})");
             var record = activator.Invoke();
 
             if (record is IGdsReadableRecord readableRecord) readableRecord.Read(_reader, currentHeader);
-            if (record.GetLength() != currentHeader.NumToRead) throw new InvalidOperationException($"Record length mismatch at position 0x{_reader.BaseStream.Position:X} ({_reader.BaseStream.Position}), expected {currentHeader.NumToRead}, got {record.GetLength()}");
+            if (record.GetLength() != currentHeader.NumToRead)
+                throw new InvalidOperationException(
+                    $"Record length mismatch at position 0x{_reader.BaseStream.Position:X} ({_reader.BaseStream.Position}), expected {currentHeader.NumToRead}, got {record.GetLength()}");
 
             yield return record;
         }
+    }
+
+    public GdsFile Read(CancellationToken token = default)
+    {
+        var file = new GdsFile
+        {
+            Records = Tokenize(token).ToList()
+        };
+
+        return file;
     }
 }
