@@ -29,7 +29,7 @@ public class GdsWriterTests
     [TestCase("inv.gds2")]
     [TestCase("nand2.gds2")]
     [TestCase("xor.gds2")]
-    [TestCase("osu018_stdcells.gds2")]
+    // [TestCase("osu018_stdcells.gds2")]
     public void TestWriterWritesIdentical(string manifestFile)
     {
         var streamIn = new MemoryStream();

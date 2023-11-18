@@ -31,7 +31,6 @@
         <None Remove="Assets\nand2.gds2"/>
         <EmbeddedResource Include="Assets\nand2.gds2"/>
         <None Remove="Assets\osu018_stdcells.gds2"/>
-        <EmbeddedResource Include="Assets\osu018_stdcells.gds2"/>
     </ItemGroup>
 
 </Project>

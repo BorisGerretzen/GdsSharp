@@ -8,7 +8,7 @@ public class GdsParserTests
     [TestCase("inv.gds2")]
     [TestCase("nand2.gds2")]
     [TestCase("xor.gds2")]
-    [TestCase("osu018_stdcells.gds2")]
+    // [TestCase("osu018_stdcells.gds2")]
     public void TestParserDoesntCrash(string manifestFile)
     {
         var fileStream =

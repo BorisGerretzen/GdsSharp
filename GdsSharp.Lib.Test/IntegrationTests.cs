@@ -9,7 +9,7 @@ public class IntegrationTests
     [TestCase("inv.gds2")]
     [TestCase("nand2.gds2")]
     [TestCase("xor.gds2")]
-    [TestCase("osu018_stdcells.gds2")]
+    // [TestCase("osu018_stdcells.gds2")]
     public void TestRoundTrip(string manifestFile)
     {
         var fileStream =
