@@ -111,7 +111,7 @@ public class GdsParser
     private T? GetOrDefault<T>()
         where T : IGdsRecord
     {
-        if (IsNext<T>()) return default;
+        if (!IsNext<T>()) return default;
         _tokenOffset++;
         return (T)_queue.Dequeue();
     }

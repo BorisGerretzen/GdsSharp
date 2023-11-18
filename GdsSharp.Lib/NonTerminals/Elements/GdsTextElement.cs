@@ -13,7 +13,7 @@ public class GdsTextElement : IGdsLayeredElement
     public int Width { get; set; }
     public bool IsAbsoluteWidth { get; set; }
     public GdsStrans Transformation { get; set; } = new();
-    public IList<GdsPoint> Points { get; set; } = new List<GdsPoint>();
+    public List<GdsPoint> Points { get; set; } = new();
     public required string Text { get; set; }
     public bool ExternalData { get; set; }
     public bool TemplateData { get; set; }
