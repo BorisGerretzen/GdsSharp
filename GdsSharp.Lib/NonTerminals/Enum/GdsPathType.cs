@@ -1,4 +1,4 @@
-namespace GdsSharp.Lib.Models.Enum;
+namespace GdsSharp.Lib.NonTerminals.Enum;
 
 public enum GdsPathType
 {

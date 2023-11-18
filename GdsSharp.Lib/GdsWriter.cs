@@ -1,5 +1,5 @@
-using GdsSharp.Lib.Parsing;
-using GdsSharp.Lib.Parsing.Abstractions;
+using GdsSharp.Lib.Terminals;
+using GdsSharp.Lib.Terminals.Abstractions;
 
 namespace GdsSharp.Lib;
 

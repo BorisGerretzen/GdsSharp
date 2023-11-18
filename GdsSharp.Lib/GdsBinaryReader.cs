@@ -1,6 +1,6 @@
 ﻿using System.Buffers.Binary;
 using System.Text;
-using GdsSharp.Lib.Parsing;
+using GdsSharp.Lib.Terminals;
 
 namespace GdsSharp.Lib;
 
