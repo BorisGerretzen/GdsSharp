@@ -17,6 +17,6 @@ public class GdsParserTests
         var tokenizer = new GdsTokenizer(fileStream);
         var tokens = tokenizer.Tokenize();
         var parser = new GdsParser(tokens);
-        parser.Parse();
+        var file = parser.Parse();
     }
 }
