@@ -4,5 +4,5 @@ public interface IGdsElement
 {
     bool ExternalData { get; set; }
     bool TemplateData { get; set; }
-    short PlexNumber { get; set; }
+    int PlexNumber { get; set; }
 }

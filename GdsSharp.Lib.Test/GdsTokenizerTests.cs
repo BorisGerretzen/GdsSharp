@@ -1,9 +1,9 @@
 using System.Reflection;
-using GdsSharp.Lib.Parsing.Records;
+using GdsSharp.Lib.Terminals.Records;
 
 namespace GdsSharp.Lib.Test;
 
-public class GdsReaderTests
+public class GdsTokenizerTests
 {
     private Stream _stream1 = null!;
     private Stream _stream2 = null!;
@@ -26,8 +26,8 @@ public class GdsReaderTests
     [Test]
     public void TokenizeDoesntCrashOnExample1()
     {
-        var parser = new GdsReader(_stream1);
-        var tokens = parser.Tokenize().ToList();
+        var tokenizer = new GdsTokenizer(_stream1);
+        var tokens = tokenizer.Tokenize().ToList();
         Assert.That(tokens, Has.Count.EqualTo(76));
 
         Assert.That(tokens.FirstOfType<GdsRecordHeader>().Value, Is.EqualTo(5));
@@ -105,24 +105,24 @@ public class GdsReaderTests
     [Test]
     public void TokenizeDoesntCrashOnExample2()
     {
-        var parser = new GdsReader(_stream2);
-        var tokens = parser.Tokenize().ToList();
+        var tokenizer = new GdsTokenizer(_stream2);
+        var tokens = tokenizer.Tokenize().ToList();
         Assert.That(tokens, Has.Count.EqualTo(425));
     }
 
     [Test]
     public void TokenizeDoesntCrashOnExample3()
     {
-        var parser = new GdsReader(_stream3);
-        var tokens = parser.Tokenize().ToList();
+        var tokenizer = new GdsTokenizer(_stream3);
+        var tokens = tokenizer.Tokenize().ToList();
         Assert.That(tokens, Has.Count.EqualTo(1229));
     }
 
     [Test]
     public void TokenizeDoesntCrashOnExample4()
     {
-        var parser = new GdsReader(_stream4);
-        var tokens = parser.Tokenize().ToList();
+        var tokenizer = new GdsTokenizer(_stream4);
+        var tokens = tokenizer.Tokenize().ToList();
         Assert.That(tokens, Has.Count.EqualTo(1229));
     }
 }

@@ -1,7 +1,7 @@
 using System.Reflection;
-using GdsSharp.Lib.Parsing;
-using GdsSharp.Lib.Parsing.Abstractions;
-using GdsSharp.Lib.Parsing.Records;
+using GdsSharp.Lib.Terminals;
+using GdsSharp.Lib.Terminals.Abstractions;
+using GdsSharp.Lib.Terminals.Records;
 
 namespace GdsSharp.Lib.Test;
 
@@ -41,7 +41,7 @@ public class GdsWriterTests
         fileStream.CopyTo(streamIn);
         fileStream.Position = 0;
 
-        var parser = new GdsReader(fileStream);
+        var parser = new GdsTokenizer(fileStream);
         var tokens = parser.Tokenize().ToList();
         GdsWriter.Write(tokens, streamOut);
 

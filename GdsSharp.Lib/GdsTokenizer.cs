@@ -1,13 +1,14 @@
-﻿using GdsSharp.Lib.Parsing;
-using GdsSharp.Lib.Parsing.Abstractions;
+﻿using System.Collections;
+using GdsSharp.Lib.Terminals;
+using GdsSharp.Lib.Terminals.Abstractions;
 
 namespace GdsSharp.Lib;
 
-public class GdsReader : GdsStreamOperator
+public class GdsTokenizer : GdsStreamOperator
 {
     private readonly GdsBinaryReader _reader;
 
-    public GdsReader(Stream stream)
+    public GdsTokenizer(Stream stream)
     {
         _reader = new GdsBinaryReader(stream);
     }
@@ -41,15 +42,5 @@ public class GdsReader : GdsStreamOperator
 
             yield return record;
         }
-    }
-
-    public GdsFile Read(CancellationToken token = default)
-    {
-        var file = new GdsFile
-        {
-            Records = Tokenize(token).ToList()
-        };
-
-        return file;
     }
 }

@@ -1,7 +1,7 @@
 using System.Linq.Expressions;
 using System.Reflection;
-using GdsSharp.Lib.Parsing.Abstractions;
-using GdsSharp.Lib.Parsing.Records;
+using GdsSharp.Lib.Terminals.Abstractions;
+using GdsSharp.Lib.Terminals.Records;
 
 namespace GdsSharp.Lib;
 
@@ -14,7 +14,7 @@ public class GdsStreamOperator
     /// </summary>
     static GdsStreamOperator()
     {
-        var assembly = Assembly.GetAssembly(typeof(GdsReader));
+        var assembly = Assembly.GetAssembly(typeof(GdsTokenizer));
         if (assembly is null) throw new InvalidOperationException("Could not get assembly");
 
         // Get compiled activator for all records
