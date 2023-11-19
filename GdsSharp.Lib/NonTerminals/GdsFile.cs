@@ -14,4 +14,11 @@ public class GdsFile
     public required double PhysicalUnits { get; set; }
     public GdsFormatType FormatType { get; set; } = GdsFormatType.GdsArchive;
     public List<GdsStructure> Structures { get; set; } = new();
+
+    public void WriteTo(Stream stream)
+    {
+        var tokenWriter = new GdsTokenWriter(this);
+        var tokens = tokenWriter.Tokenize();
+        GdsWriter.Write(tokens, stream);
+    }
 }
