@@ -15,6 +15,14 @@ public class GdsFile
     public GdsFormatType FormatType { get; set; } = GdsFormatType.GdsArchive;
     public List<GdsStructure> Structures { get; set; } = new();
 
+    public static GdsFile From(Stream stream)
+    {
+        var tokenizer = new GdsTokenizer(stream);
+        var tokens = tokenizer.Tokenize();
+        var parser = new GdsParser(tokens);
+        return parser.Parse();
+    }
+    
     public void WriteTo(Stream stream)
     {
         var tokenWriter = new GdsTokenWriter(this);
