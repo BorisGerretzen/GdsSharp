@@ -14,8 +14,10 @@ pipeline {
         }
         stage('Nuke Pack') {
             steps {
-                withDotNet(sdk: '8.0') {
-                    sh '/var/jenkins_home/.dotnet/tools/nuke pack'
+                withDotNet(sdk: '7.0') {
+                    withDotNet(sdk: '8.0') {
+                        sh '/var/jenkins_home/.dotnet/tools/nuke pack'
+                    }
                 }
             }
         }
@@ -24,8 +26,10 @@ pipeline {
                 buildingTag()
             }
             steps {
-                withDotNet(sdk: '8.0') {
-                    sh '/var/jenkins_home/.dotnet/tools/nuke push --NugetApiKey "$NUGET_KEY"'
+                withDotNet(sdk: '7.0') {
+                    withDotNet(sdk: '8.0') {
+                        sh '/var/jenkins_home/.dotnet/tools/nuke push --NugetApiKey "$NUGET_KEY"'
+                    }
                 }
             }
         }
