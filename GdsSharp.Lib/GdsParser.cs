@@ -270,7 +270,7 @@ public class GdsParser
 
         if (width is not null)
         {
-            elem.PathType = (GdsPathType)width.Value;
+            elem.Width = width.Value;
         }
 
         if (transformation is not null)
@@ -361,7 +361,7 @@ public class GdsParser
 
         if (width is not null)
         {
-            elem.PathType = (GdsPathType)width.Value;
+            elem.Width = width.Value;
         }
 
         return elem;
