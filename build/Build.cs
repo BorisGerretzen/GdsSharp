@@ -9,8 +9,21 @@ using Nuke.Common.Tools.GitVersion;
 using Nuke.Common.Utilities.Collections;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
 
-[GitHubActions("test", GitHubActionsImage.UbuntuLatest, On = new[] { GitHubActionsTrigger.PullRequest },
-    InvokedTargets = new[] { nameof(Test) })]
+[GitHubActions(
+    "test",
+    GitHubActionsImage.UbuntuLatest,
+    On = [GitHubActionsTrigger.PullRequest],
+    InvokedTargets = [nameof(Test)],
+    FetchDepth = 999
+)]
+[GitHubActions(
+    "publish",
+    GitHubActionsImage.UbuntuLatest,
+    On = [GitHubActionsTrigger.WorkflowDispatch],
+    InvokedTargets = [nameof(Pack), nameof(Push)],
+    ImportSecrets = [nameof(NugetApiKey)],
+    FetchDepth = 999
+)]
 class Build : NukeBuild
 {
     [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]

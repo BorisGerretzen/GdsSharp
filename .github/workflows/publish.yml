@@ -9,14 +9,14 @@
 #
 #     - To trigger manual generation invoke:
 #
-#         nuke --generate-configuration GitHubActions_test --host GitHubActions
+#         nuke --generate-configuration GitHubActions_publish --host GitHubActions
 #
 # </auto-generated>
 # ------------------------------------------------------------------------------
 
-name: test
+name: publish
 
-on: [pull_request]
+on: [workflow_dispatch]
 
 jobs:
   ubuntu-latest:
@@ -33,5 +33,7 @@ jobs:
             .nuke/temp
             ~/.nuget/packages
           key: ${{ runner.os }}-${{ hashFiles('**/global.json', '**/*.csproj', '**/Directory.Packages.props') }}
-      - name: 'Run: Test'
-        run: ./build.cmd Test
+      - name: 'Run: Pack, Push'
+        run: ./build.cmd Pack Push
+        env:
+          NugetApiKey: ${{ secrets.NUGET_API_KEY }}
