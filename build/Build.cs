@@ -14,7 +14,7 @@ using static Nuke.Common.Tools.DotNet.DotNetTasks;
     GitHubActionsImage.UbuntuLatest,
     On = [GitHubActionsTrigger.PullRequest],
     InvokedTargets = [nameof(Test)],
-    FetchDepth = 999
+    FetchDepth = 0
 )]
 [GitHubActions(
     "publish",
@@ -22,7 +22,7 @@ using static Nuke.Common.Tools.DotNet.DotNetTasks;
     On = [GitHubActionsTrigger.WorkflowDispatch],
     InvokedTargets = [nameof(Pack), nameof(Push)],
     ImportSecrets = [nameof(NugetApiKey)],
-    FetchDepth = 999
+    FetchDepth = 0
 )]
 class Build : NukeBuild
 {
