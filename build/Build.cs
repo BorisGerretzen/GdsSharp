@@ -123,6 +123,7 @@ class Build : NukeBuild
 
     // ReSharper disable once UnusedMember.Local
     Target Push => _ => _
+        .After(Pack)
         .Executes(() =>
         {
             DotNetNuGetPush(s => s
