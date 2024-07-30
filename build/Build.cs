@@ -33,7 +33,7 @@ class Build : NukeBuild
 
     [Parameter("API Key for the NuGet server.")] [Secret] readonly string NugetApiKey;
 
-    [Parameter("NuGet server URL.")] readonly string NugetSource = "https://api.nuget.org/v3/index.json";
+    [Parameter("NuGet server URL.")] readonly string NugetSource = "https://api.nugettest.org/v3/index.json";
 
     [Parameter("NuGet package version.")] readonly string PackageVersion;
 
