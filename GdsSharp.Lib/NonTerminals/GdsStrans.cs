@@ -7,7 +7,7 @@ public class GdsStrans
     public bool AbsoluteMagnification { get; set; } = false;
 
     public bool AbsoluteAngle { get; set; } = false;
-     
+
     /// <summary>
     ///     Magnification factor. Default is 1.0.
     /// </summary>

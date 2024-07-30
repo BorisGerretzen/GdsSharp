@@ -1,5 +1,4 @@
 ﻿using System.CommandLine;
-using System.Data;
 using System.Text;
 using System.Text.Json;
 using GdsSharp.Lib;
@@ -8,15 +7,15 @@ using GdsSharp.Lib.NonTerminals.Elements;
 
 // Root
 var numArgument = new Argument<int>(
-    name: "num",
-    description: "The number of objects to generate.");
+    "num",
+    "The number of objects to generate.");
 var rootCommand = new RootCommand("Sample app for System.CommandLine");
 
 // file
 var subFile = new Command("file", "Write to a file instead of stdout");
 var fileArgument = new Argument<string>(
-    name: "file",
-    description: "The file to write to.");
+    "file",
+    "The file to write to.");
 subFile.AddArgument(numArgument);
 subFile.AddArgument(fileArgument);
 subFile.SetHandler((num, file) =>
@@ -27,7 +26,7 @@ subFile.SetHandler((num, file) =>
         {
             var options = new JsonSerializerOptions
             {
-                WriteIndented = true,
+                WriteIndented = true
             };
             var json = JsonSerializer.Serialize((object[])tokenWriter.Tokenize().ToArray(), options);
             var bytes = Encoding.UTF8.GetBytes(json);
@@ -55,15 +54,15 @@ static GdsFile GenerateFile(int num)
         LastAccessTime = DateTime.Now,
         UserUnits = 1e-3,
         PhysicalUnits = 1e-9,
-        Version = 600,
+        Version = 600
     };
 
     file.Structures.Add(new GdsStructure
     {
         CreationTime = DateTime.Now,
         ModificationTime = DateTime.Now,
-        Name = $"Structure",
-        Elements = GenerateElements(num).ToList(),
+        Name = "Structure",
+        Elements = GenerateElements(num).ToList()
     });
     return file;
 }

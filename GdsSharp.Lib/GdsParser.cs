@@ -18,7 +18,7 @@ public class GdsParser
     }
 
     /// <summary>
-    /// Parses the GDSII token stream.
+    ///     Parses the GDSII token stream.
     /// </summary>
     /// <returns>Parsed file.</returns>
     /// <exception cref="ParseException">If the token stream is invalid.</exception>
@@ -35,10 +35,7 @@ public class GdsParser
         var units = Get<GdsRecordUnits>();
 
         var structures = new List<GdsStructure>();
-        while (_queue.Peek() is not GdsRecordNoData { Type: GdsRecordNoDataType.EndLib })
-        {
-            structures.Add(ParseGdsStructure());
-        }
+        while (_queue.Peek() is not GdsRecordNoData { Type: GdsRecordNoDataType.EndLib }) structures.Add(ParseGdsStructure());
 
         var file = new GdsFile
         {
@@ -49,7 +46,7 @@ public class GdsParser
             LastAccessTime = new DateTime(bgnLib.LastAccessTimeYear, bgnLib.LastAccessTimeMonth, bgnLib.LastAccessTimeDay, bgnLib.LastAccessTimeHour,
                 bgnLib.LastAccessTimeMinute, bgnLib.LastAccessTimeSecond),
             PhysicalUnits = units.PhysicalUnits,
-            UserUnits = units.UserUnits,
+            UserUnits = units.UserUnits
         };
 
         if (refLibs is not null)
@@ -72,10 +69,10 @@ public class GdsParser
     #region Helpers
 
     /// <summary>
-    ///    Peeks the next token and throws a <see cref="ParseException" /> if it is not of type <typeparamref name="T" />.
+    ///     Peeks the next token and throws a <see cref="ParseException" /> if it is not of type <typeparamref name="T" />.
     /// </summary>
     /// <typeparam name="T">Expected token type.</typeparam>
-    /// <returns>Peeked token of type <typeparamref name="T"/>.</returns>
+    /// <returns>Peeked token of type <typeparamref name="T" />.</returns>
     /// <exception cref="ParseException">If peeked token is not of expected type.</exception>
     private T Peek<T>()
         where T : IGdsRecord
@@ -87,10 +84,10 @@ public class GdsParser
     }
 
     /// <summary>
-    ///   Gets the next token and throws a <see cref="ParseException" /> if it is not of type <typeparamref name="T" />.
+    ///     Gets the next token and throws a <see cref="ParseException" /> if it is not of type <typeparamref name="T" />.
     /// </summary>
     /// <typeparam name="T">Expected token type.</typeparam>
-    /// <returns>Next token of type <typeparamref name="T"/>.</returns>
+    /// <returns>Next token of type <typeparamref name="T" />.</returns>
     /// <exception cref="ParseException">If next token is not of expected type.</exception>
     private T Get<T>()
         where T : IGdsRecord
@@ -103,11 +100,14 @@ public class GdsParser
     }
 
     /// <summary>
-    /// Peeks the next token and dequeues it if it is of type <typeparamref name="T" />.
-    /// If the next token is not of type <typeparamref name="T" />, <see langword="null"/> is returned.
+    ///     Peeks the next token and dequeues it if it is of type <typeparamref name="T" />.
+    ///     If the next token is not of type <typeparamref name="T" />, <see langword="null" /> is returned.
     /// </summary>
     /// <typeparam name="T">Expected token type.</typeparam>
-    /// <returns>Next token of type <typeparamref name="T"/>, or <see langword="null"/> if next token is not of expected type.</returns>
+    /// <returns>
+    ///     Next token of type <typeparamref name="T" />, or <see langword="null" /> if next token is not of expected
+    ///     type.
+    /// </returns>
     private T? GetOrDefault<T>()
         where T : IGdsRecord
     {
@@ -117,10 +117,10 @@ public class GdsParser
     }
 
     /// <summary>
-    /// Checks if the next token is of type <typeparamref name="T" />.
+    ///     Checks if the next token is of type <typeparamref name="T" />.
     /// </summary>
     /// <typeparam name="T">Expected token type.</typeparam>
-    /// <returns>True if next token is of type <typeparamref name="T"/>, false otherwise.</returns>
+    /// <returns>True if next token is of type <typeparamref name="T" />, false otherwise.</returns>
     private bool IsNext<T>()
         where T : IGdsRecord
     {
@@ -128,9 +128,10 @@ public class GdsParser
     }
 
     /// <summary>
-    /// Gets the next token of type <see cref="GdsRecordNoData"/> and throws a <see cref="ParseException" /> if it is not of type <paramref name="type" />.
+    ///     Gets the next token of type <see cref="GdsRecordNoData" /> and throws a <see cref="ParseException" /> if it is not
+    ///     of type <paramref name="type" />.
     /// </summary>
-    /// <param name="type">Expected <see cref="GdsRecordNoDataType"/>.</param>
+    /// <param name="type">Expected <see cref="GdsRecordNoDataType" />.</param>
     /// <exception cref="ParseException">If next token is not of expected type.</exception>
     private void GetNoData(GdsRecordNoDataType type)
     {
@@ -139,7 +140,8 @@ public class GdsParser
     }
 
     /// <summary>
-    /// Fills the common properties of an <see cref="IGdsElement"/> from the given <paramref name="flags"/> and <paramref name="plex"/>.
+    ///     Fills the common properties of an <see cref="IGdsElement" /> from the given <paramref name="flags" /> and
+    ///     <paramref name="plex" />.
     /// </summary>
     /// <param name="element">Element to fill.</param>
     /// <param name="flags">Flags to use.</param>
@@ -152,10 +154,7 @@ public class GdsParser
             element.TemplateData = flags.TemplateData;
         }
 
-        if (plex is not null)
-        {
-            element.PlexNumber = plex.Value;
-        }
+        if (plex is not null) element.PlexNumber = plex.Value;
     }
 
     #endregion
@@ -179,7 +178,7 @@ public class GdsParser
         {
             Reflection = strans.Reflection,
             AbsoluteAngle = strans.AbsoluteAngle,
-            AbsoluteMagnification = strans.AbsoluteMagnification,
+            AbsoluteMagnification = strans.AbsoluteMagnification
         };
 
         if (GetOrDefault<GdsRecordMag>() is { } mag)
@@ -203,7 +202,7 @@ public class GdsParser
         {
             BoxType = boxType.Value,
             Layer = layer.Value,
-            Points = xy.Coordinates.AsGdsPoints(),
+            Points = xy.Coordinates.AsGdsPoints()
         };
 
         FillElement(elem, flags, plex);
@@ -251,7 +250,7 @@ public class GdsParser
             Text = str.Value,
             Layer = layer.Value,
             TextType = textType.Value,
-            Points = xy.Coordinates.AsGdsPoints(),
+            Points = xy.Coordinates.AsGdsPoints()
         };
 
         FillElement(elem, flags, plex);
@@ -263,20 +262,11 @@ public class GdsParser
             elem.Font = (GdsFont)presentation.FontNumber;
         }
 
-        if (pathType is not null)
-        {
-            elem.PathType = (GdsPathType)pathType.Value;
-        }
+        if (pathType is not null) elem.PathType = (GdsPathType)pathType.Value;
 
-        if (width is not null)
-        {
-            elem.Width = width.Value;
-        }
+        if (width is not null) elem.Width = width.Value;
 
-        if (transformation is not null)
-        {
-            elem.Transformation = transformation;
-        }
+        if (transformation is not null) elem.Transformation = transformation;
 
         return elem;
     }
@@ -301,10 +291,7 @@ public class GdsParser
 
         FillElement(elem, flags, plex);
 
-        if (transformation is not null)
-        {
-            elem.Transformation = transformation;
-        }
+        if (transformation is not null) elem.Transformation = transformation;
 
         return elem;
     }
@@ -321,15 +308,12 @@ public class GdsParser
         var elem = new GdsStructureReferenceElement
         {
             StructureName = name.Value,
-            Points = xy.Coordinates.AsGdsPoints(),
+            Points = xy.Coordinates.AsGdsPoints()
         };
 
         FillElement(elem, flags, plex);
 
-        if (transformation is not null)
-        {
-            elem.Transformation = transformation;
-        }
+        if (transformation is not null) elem.Transformation = transformation;
 
         return elem;
     }
@@ -349,20 +333,14 @@ public class GdsParser
         {
             DataType = dataType.Value,
             Layer = layer.Value,
-            Points = xy.Coordinates.AsGdsPoints(),
+            Points = xy.Coordinates.AsGdsPoints()
         };
 
         FillElement(elem, flags, plex);
 
-        if (pathType is not null)
-        {
-            elem.PathType = (GdsPathType)pathType.Value;
-        }
+        if (pathType is not null) elem.PathType = (GdsPathType)pathType.Value;
 
-        if (width is not null)
-        {
-            elem.Width = width.Value;
-        }
+        if (width is not null) elem.Width = width.Value;
 
         return elem;
     }
@@ -380,7 +358,7 @@ public class GdsParser
         {
             DataType = dataType.Value,
             Layer = layer.Value,
-            Points = xy.Coordinates.AsGdsPoints(),
+            Points = xy.Coordinates.AsGdsPoints()
         };
 
         FillElement(elem, flags, plex);
@@ -405,10 +383,7 @@ public class GdsParser
         };
 
         var properties = new List<GdsProperty>();
-        while (_queue.Peek() is not GdsRecordNoData { Type: GdsRecordNoDataType.EndEl })
-        {
-            properties.Add(ParseGdsProperty());
-        }
+        while (_queue.Peek() is not GdsRecordNoData { Type: GdsRecordNoDataType.EndEl }) properties.Add(ParseGdsProperty());
 
         GetNoData(GdsRecordNoDataType.EndEl);
 
@@ -425,10 +400,7 @@ public class GdsParser
         var name = Get<GdsRecordStrName>();
 
         var elements = new List<GdsElement>();
-        while (_queue.Peek() is not GdsRecordNoData { Type: GdsRecordNoDataType.EndStr })
-        {
-            elements.Add(ParseGdsElement());
-        }
+        while (_queue.Peek() is not GdsRecordNoData { Type: GdsRecordNoDataType.EndStr }) elements.Add(ParseGdsElement());
 
         GetNoData(GdsRecordNoDataType.EndStr);
         return new GdsStructure

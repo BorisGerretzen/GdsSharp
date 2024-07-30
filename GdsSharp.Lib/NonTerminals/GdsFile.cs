@@ -22,7 +22,7 @@ public class GdsFile
         var parser = new GdsParser(tokens);
         return parser.Parse();
     }
-    
+
     public void WriteTo(Stream stream)
     {
         var tokenWriter = new GdsTokenWriter(this);

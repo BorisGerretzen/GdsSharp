@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using GdsSharp.Lib.Terminals;
+﻿using GdsSharp.Lib.Terminals;
 using GdsSharp.Lib.Terminals.Abstractions;
 
 namespace GdsSharp.Lib;

@@ -10,11 +10,9 @@ public class ParseException : Exception
 
     public ParseException(GdsRecordNoDataType expected, GdsRecordNoDataType actual, int offset) : base($"Expected token {expected} but found {actual} at offset {offset}.")
     {
-        
     }
-    
+
     public ParseException(GdsRecordNoDataType unexpected, int offset) : base($"Unexpected token {unexpected} at offset {offset}.")
     {
-        
     }
 }

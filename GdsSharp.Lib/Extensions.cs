@@ -12,7 +12,7 @@ public static class Extensions
             Y = c.y
         });
     }
-    
+
     public static List<(int x, int y)> AsTuplePoints(this List<GdsPoint> coordinates)
     {
         return coordinates.ConvertAll(c => (c.X, c.Y));
