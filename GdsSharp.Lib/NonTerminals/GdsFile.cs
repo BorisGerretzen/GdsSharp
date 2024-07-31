@@ -4,8 +4,8 @@ public class GdsFile
 {
     public short Version { get; set; } = 5;
     public required string LibraryName { get; set; }
-    public required DateTime LastModificationTime { get; set; }
-    public required DateTime LastAccessTime { get; set; }
+    public DateTime LastModificationTime { get; set; } = DateTime.Now;
+    public DateTime LastAccessTime { get; set; } = DateTime.Now;
     public List<string> ReferencedLibraries { get; set; } = new();
     public List<string> Fonts { get; set; } = new();
     public string? AttributeDefinitionFile { get; set; }

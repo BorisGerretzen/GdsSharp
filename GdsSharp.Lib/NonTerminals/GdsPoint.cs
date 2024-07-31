@@ -1,3 +1,5 @@
+using System.Numerics;
+
 namespace GdsSharp.Lib.NonTerminals;
 
 public struct GdsPoint
@@ -8,9 +10,19 @@ public struct GdsPoint
         Y = y;
     }
 
+    public GdsPoint(Vector2 vector) : this(vector.X, vector.Y)
+    {
+    }
+
+    public GdsPoint(float x, float y)
+    {
+        X = (int)MathF.Round(x);
+        Y = (int)MathF.Round(y);
+    }
+
     public int X { get; set; }
     public int Y { get; set; }
-    
+
     public static GdsPoint operator +(GdsPoint a, GdsPoint b) => new(a.X + b.X, a.Y + b.Y);
     public static GdsPoint operator -(GdsPoint a, GdsPoint b) => new(a.X - b.X, a.Y - b.Y);
     public static GdsPoint operator *(GdsPoint a, GdsPoint b) => new(a.X * b.X, a.Y * b.Y);

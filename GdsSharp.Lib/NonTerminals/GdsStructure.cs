@@ -5,7 +5,7 @@ namespace GdsSharp.Lib.NonTerminals;
 public class GdsStructure
 {
     public required string Name { get; set; }
-    public required DateTime CreationTime { get; set; }
-    public required DateTime ModificationTime { get; set; }
+    public DateTime CreationTime { get; set; } = DateTime.Now;
+    public DateTime ModificationTime { get; set; } = DateTime.Now;
     public List<GdsElement> Elements { get; set; } = new();
 }
