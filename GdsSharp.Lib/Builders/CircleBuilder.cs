@@ -18,6 +18,9 @@ public static class CircleBuilder
     /// <returns>Polygon approximating a circle.</returns>
     public static GdsElement CreateCircle(int x, int y, int radius, int numPoints = 64)
     {
+        if (numPoints % 8 != 0)
+            throw new ArgumentException("Number of points must be a multiple of 8.", nameof(numPoints));
+
         var pointsPerSector = new Dictionary<int, List<GdsPoint>>
         {
             { 0, new() },

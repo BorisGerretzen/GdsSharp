@@ -59,6 +59,7 @@ public class BezierBuilder
     /// <summary>
     /// Builds a path from the added control points.
     /// </summary>
+    /// <remarks>Often <see cref="BuildPolygon"/> is a better option than this as it offers a better outline of the curve.</remarks>
     /// <param name="width">Width of the created path.</param>
     /// <param name="numVertices">Number of path elements.</param>
     /// <returns>A GdsPath element.</returns>
@@ -83,17 +84,14 @@ public class BezierBuilder
     ///     Builds the Bézier curve as a polygon.
     /// </summary>
     /// <param name="width">Width of the line.</param>
-    /// <param name="numVertices">
-    ///     Number of vertices to use for the polygon, note that we will use approximately twice this
-    ///     number.
-    /// </param>
-    /// <returns></returns>
+    /// <param name="numVertices">Number of vertices to use for the polygon.</param>
+    /// <returns>GdsBoundaryElement.</returns>
     public GdsElement BuildPolygon(int width, int numVertices = 64)
     {
         var halfWidth = width / 2.0f;
 
         // Generate the points on the Bézier curve
-        var splinePoints = GeneratePoints(numVertices).ToList();
+        var splinePoints = GeneratePoints(numVertices / 2).ToList();
 
         // Generate offset points along the normals above and below each point
         var offsetPoints = new GdsPoint[splinePoints.Count * 2 + 1];
