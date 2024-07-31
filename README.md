@@ -58,7 +58,7 @@ var elemPoly = new BezierBuilder()
     .AddPoint(0, 1000)
     .AddPoint(1000, 1000)
     .AddPoint(1000, 0)
-    .BuildPolygon(200);
+    .BuildPolygon(width: 200, numVertices: 128);
 
 // When using BuildLine the curve will be a GdsPathElement.
 // BuildPolygon is recommended because it produces a smaller error in the curve.
@@ -67,7 +67,7 @@ var elemLine = new BezierBuilder()
     .AddPoint(0, 1000)
     .AddPoint(1000, 1000)
     .AddPoint(1000, 0)
-    .BuildLine(width: 200);
+    .BuildLine(width: 200, numVertices: 128);
 ```
 
 ## Missing features
