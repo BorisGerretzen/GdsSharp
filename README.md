@@ -48,7 +48,7 @@ var elemRect = RectBuilder.CreateRect(x: 0, y: 0, width: 100, height: 200);
 
 ### Bézier curve
 
-The Bézier curve is created using a builder pattern. The curve is defined by a list of points, with the first and last points being the start and end points of the curve, and the intermediate points being control points.
+The Bézier curve is created using a builder pattern. The curve is defined by a list of control points, the library supports a maximum of 16 control points per curve.
 Like the circle, an optional parameter can be used to specify the number of points to use for the discretization of the curve.
 ```csharp
 // Generate a line from a Bézier curve with width 200.
