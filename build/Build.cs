@@ -8,6 +8,7 @@ using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Tools.GitVersion;
 using Nuke.Common.Utilities.Collections;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
+using static Nuke.Common.Tools.Git.GitTasks;
 
 [GitHubActions(
     "test",
@@ -133,6 +134,7 @@ class Build : NukeBuild
                     .SetTargetPath(v)
                 )
             );
+            Git($"push --set-upstream origin {PackageVersion ?? GitVersion.NuGetVersionV2}");
         });
 
     public static int Main() => Execute<Build>(x => x.Test);
