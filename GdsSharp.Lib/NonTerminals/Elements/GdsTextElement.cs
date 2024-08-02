@@ -1,4 +1,4 @@
-using GdsSharp.Lib.Abstractions;
+using GdsSharp.Lib.NonTerminals.Abstractions;
 using GdsSharp.Lib.NonTerminals.Enum;
 
 namespace GdsSharp.Lib.NonTerminals.Elements;

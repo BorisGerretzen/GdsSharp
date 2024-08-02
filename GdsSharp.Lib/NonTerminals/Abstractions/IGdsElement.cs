@@ -1,4 +1,4 @@
-namespace GdsSharp.Lib.Abstractions;
+namespace GdsSharp.Lib.NonTerminals.Abstractions;
 
 public interface IGdsElement
 {

@@ -1,4 +1,6 @@
-﻿using GdsSharp.Lib.Terminals;
+﻿using GdsSharp.Lib.Abstractions;
+using GdsSharp.Lib.Binary;
+using GdsSharp.Lib.Terminals;
 using GdsSharp.Lib.Terminals.Abstractions;
 
 namespace GdsSharp.Lib;

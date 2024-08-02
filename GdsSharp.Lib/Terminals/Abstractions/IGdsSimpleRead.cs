@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using GdsSharp.Lib.Binary;
 
 namespace GdsSharp.Lib.Terminals.Abstractions;
 

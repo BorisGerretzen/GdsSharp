@@ -2,7 +2,7 @@
 using System.Text;
 using GdsSharp.Lib.Terminals;
 
-namespace GdsSharp.Lib;
+namespace GdsSharp.Lib.Binary;
 
 public class GdsBinaryReader : BinaryReader
 {

@@ -134,7 +134,13 @@ class Build : NukeBuild
                     .SetTargetPath(v)
                 )
             );
-            Git($"push --set-upstream origin {PackageVersion ?? GitVersion.NuGetVersionV2}");
+
+            var version = PackageVersion ?? GitVersion.NuGetVersionV2;
+
+            Git("config --global user.email \"<>\"");
+            Git("config --global user.name \"GitHub Actions\"");
+            Git($"tag -a {version} -m \"Created release '{version}'\"");
+            Git($"push --tags");
         });
 
     public static int Main() => Execute<Build>(x => x.Test);

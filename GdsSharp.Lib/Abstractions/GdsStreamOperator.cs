@@ -3,7 +3,7 @@ using System.Reflection;
 using GdsSharp.Lib.Terminals.Abstractions;
 using GdsSharp.Lib.Terminals.Records;
 
-namespace GdsSharp.Lib;
+namespace GdsSharp.Lib.Abstractions;
 
 public class GdsStreamOperator
 {

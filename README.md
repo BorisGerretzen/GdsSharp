@@ -3,7 +3,8 @@
 [![NuGet](https://img.shields.io/nuget/v/GdsSharp.svg)](https://www.nuget.org/packages/GdsSharp/)\
 A library for reading, editing, and writing [Calma GDSII](https://en.wikipedia.org/wiki/GDSII) files.
 
-Some helpers are also provided for drawing curves like circles and Bézier curves.
+Some helpers are also provided for drawing shapes like circles and Bézier curves.
+Additionally, a path builder is included to create parameterized paths with multiple segments.
 
 ## Usage
 
@@ -26,7 +27,7 @@ file.WriteTo(fileStream);
 An example of how to create a GDS file from scratch and creating some shapes using the helpers can be found in
 the [example project](https://github.com/BorisGerretzen/GdsSharp/blob/master/GdsGenerator/Program.cs).
 This is the created GDS file:
-![image](https://github.com/user-attachments/assets/0e0e524f-129d-433f-b560-626846b6e991)
+![image](https://github.com/user-attachments/assets/6629195b-64e3-4778-87e7-d8cae87826d7)
 
 
 ## Helpers
@@ -68,6 +69,49 @@ var elemLine = new BezierBuilder()
     .AddPoint(1000, 1000)
     .AddPoint(1000, 0)
     .BuildLine(width: 200, numVertices: 128);
+```
+
+### Path builder
+
+GdsSharp also includes a path builder that can be used to create paths with multiple segments.
+The output of this code can be seen on the bottom part of the picture above.
+
+```csharp
+// Use the path builder to create a path
+new PathBuilder(
+        initialWidth: 100f, 
+        initialPosition: new Vector2(-3100, -3300), 
+        initialHeading: Vector2.UnitX)
+    // Straight ahead for 2000 units
+    .Straight(2000)
+    
+    // Bend 45 degrees to the left with a radius of 500 units
+    .BendDeg(-45, 500)
+    
+    // Generate shape like <=>
+    .Straight(100, widthEnd: 250)
+    .Straight(100)
+    .Straight(100, widthEnd: 100)
+    
+    // Some more bends
+    .BendDeg(-45, 500)
+    .Straight(100)
+    .Straight(200, widthStart: 250)
+    .BendDeg(180, 300)
+    .BendDeg(-180, 300)
+    
+    // Example of using a function to change the width
+    .BendDeg(-180, 900, f => MathF.Cos(f * 50) * 100 + 150)
+    
+    // PathBuilder also supports Bézier curves
+    .Bezier(b => b
+        .AddPoint(0, 0)
+        .AddPoint(0,1000)
+        .AddPoint(2000, 1000)
+        .AddPoint(1000, 0),
+        width: t => 250 - (250-50) * t)
+    .Straight(800)
+    .Build();
 ```
 
 ## Missing features

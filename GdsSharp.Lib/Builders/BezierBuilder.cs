@@ -147,7 +147,12 @@ public class BezierBuilder
         }
     }
 
-    private Vector2 Evaluate(float t)
+    /// <summary>
+    ///     Evaluates the Bézier curve at a given t.
+    /// </summary>
+    /// <param name="t">[0,1]</param>
+    /// <returns>Position on the curve at <see cref="t" />.</returns>
+    public Vector2 Evaluate(float t)
     {
         var n = _controlPoints.Count - 1;
         var x = 0.0f;
@@ -162,7 +167,12 @@ public class BezierBuilder
         return new Vector2(x, y);
     }
 
-    private Vector2 EvaluateTangent(float t)
+    /// <summary>
+    ///     Evaluates the tangent of the Bézier curve at a given t.
+    /// </summary>
+    /// <param name="t">[0,1]</param>
+    /// <returns>Tangent vector of the curve at <see cref="t" />.</returns>
+    public Vector2 EvaluateTangent(float t)
     {
         var n = _controlPoints.Count - 1;
         var nMinusOne = n - 1;
