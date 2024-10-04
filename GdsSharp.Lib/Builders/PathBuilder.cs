@@ -10,7 +10,7 @@ public class PathBuilder
     private readonly Vector2 _initialHeading;
     private readonly Vector2 _initialPosition;
     private readonly float _initialWidth;
-    private readonly List<PathSegment> _pathSegments = new();
+    private readonly List<GdsPathSegment> _pathSegments = new();
 
     public PathBuilder(float initialWidth, Vector2? initialPosition = null, Vector2? initialHeading = null)
     {
@@ -31,7 +31,7 @@ public class PathBuilder
     /// <param name="vertices">Number of vertices used for the path. The final mesh will have two times this amount.</param>
     public PathBuilder AddPathSegment(Func<float, Vector2> path, Func<float, Vector2> derivative, Func<float, float?>? width = null, int vertices = 10)
     {
-        _pathSegments.Add(new PathSegment(path, derivative, width, vertices));
+        _pathSegments.Add(new GdsPathSegment(path, derivative, width, vertices));
         return this;
     }
 
@@ -115,18 +115,41 @@ public class PathBuilder
     }
 
     /// <summary>
-    ///     Builds the path into a GdsElement.
+    ///     Builds the path into a series of elements each having a maximum number of vertices.
     /// </summary>
-    /// <returns>GdsBoundaryElement.</returns>
-    public GdsElement Build()
+    /// <param name="maxVertices">Maximum number of vertices per element.</param>
+    /// <returns>Enumerable of <see cref="GdsBoundaryElement"/>.</returns>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="maxVertices"/> is less than 4.</exception>
+    public IEnumerable<GdsElement> Build(int maxVertices = 200)
     {
-        return new GdsElement
+        if (maxVertices < 4)
+            throw new ArgumentException("maxVerticesPerElement must be at least 4 to form a valid polygon.", nameof(maxVertices));
+
+        var allPoints = GetPolygonPoints().ToList();
+
+        var currentIndex = 0;
+        while (currentIndex < allPoints.Count / 2)
         {
-            Element = new GdsBoundaryElement
+            // Check how much we can fit in this element
+            var numPoints = Math.Min(maxVertices, (allPoints.Count/2 - currentIndex)*2) / 2;
+            numPoints = Math.Max(2, numPoints);
+            
+            // Get the points from the up and down leg of the polygon
+            var pointsUp = allPoints.GetRange(currentIndex, numPoints);
+            var pointsDown = allPoints.GetRange(allPoints.Count - currentIndex - numPoints, numPoints).ToList();
+            pointsUp.AddRange(pointsDown);
+
+            yield return new GdsElement
             {
-                Points = GetPolygonPoints().ToList()
-            }
-        };
+                Element = new GdsBoundaryElement
+                {
+                    Points = pointsUp
+                }
+            };
+
+            // Make sure we start at the last point of the previous element
+            currentIndex += numPoints-1;
+        }
     }
 
     /// <summary>
@@ -154,16 +177,16 @@ public class PathBuilder
     ///     Generates a list of points for each segment in the path.
     /// </summary>
     /// <returns>List of points per segment.</returns>
-    private OrderedDictionary<PathSegment, List<PathPoint>> GetPathPoints()
+    private OrderedDictionary<GdsPathSegment, List<GdsPathPoint>> GetPathPoints()
     {
-        var points = new OrderedDictionary<PathSegment, List<PathPoint>>();
+        var points = new OrderedDictionary<GdsPathSegment, List<GdsPathPoint>>();
         var position = _initialPosition;
         var heading = _initialHeading;
         var currentWidth = _initialWidth;
 
         foreach (var segment in _pathSegments)
         {
-            var segmentPoints = new List<PathPoint>();
+            var segmentPoints = new List<GdsPathPoint>();
 
             Vector2? lastPosition = null;
             Vector2? lastHeading = null;
@@ -187,7 +210,7 @@ public class PathBuilder
                 currentWidth = width ?? currentWidth;
 
                 var normal = new Vector2(-derivative.Y, derivative.X);
-                segmentPoints.Add(new PathPoint(point + position, normal, currentWidth));
+                segmentPoints.Add(new GdsPathPoint(point + position, normal, currentWidth));
             }
 
             if (lastPosition.HasValue)
@@ -208,7 +231,7 @@ public class PathBuilder
     /// <param name="Derivative">Function that defines the derivative of the segment.</param>
     /// <param name="Width">Function that defines the width of the segment.</param>
     /// <param name="Vertices">Number of vertices of the segment.</param>
-    private record struct PathSegment(Func<float, Vector2> Path, Func<float, Vector2> Derivative, Func<float, float?>? Width, int Vertices);
+    private record struct GdsPathSegment(Func<float, Vector2> Path, Func<float, Vector2> Derivative, Func<float, float?>? Width, int Vertices);
 
     /// <summary>
     ///     Represents a single point in the path.
@@ -216,5 +239,5 @@ public class PathBuilder
     /// <param name="Point">The coordinates of the point.</param>
     /// <param name="Normal">The normal of the point.</param>
     /// <param name="Width">The width at the point.</param>
-    private record struct PathPoint(Vector2 Point, Vector2 Normal, float Width);
+    private record struct GdsPathPoint(Vector2 Point, Vector2 Normal, float Width);
 }

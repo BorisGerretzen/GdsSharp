@@ -11,7 +11,7 @@ var file = new GdsFile
     Version = 600
 };
 
-file.Structures.Add(new GdsStructure
+var structure = new GdsStructure
 {
     Name = "Example structure",
     Elements =
@@ -54,45 +54,53 @@ file.Structures.Add(new GdsStructure
                     new GdsPoint(-1250, 0)
                 ]
             }
-        },
-
-        // Use the path builder to create a path
-        new PathBuilder(
-                100f,
-                new Vector2(-3100, -3300),
-                Vector2.UnitX)
-            // Straight ahead for 2000 units
-            .Straight(2000)
-
-            // Bend 45 degrees to the left with a radius of 500 units
-            .BendDeg(-45, 500)
-
-            // Generate shape like <=>
-            .Straight(100, widthEnd: 250)
-            .Straight(100)
-            .Straight(100, widthEnd: 100)
-
-            // Some more bends
-            .BendDeg(-45, 500)
-            .Straight(100)
-            .Straight(200, 250)
-            .BendDeg(180, 300)
-            .BendDeg(-180, 300)
-
-            // Example of using a function to change the width
-            .BendDeg(-180, 900, f => MathF.Cos(f * 50) * 100 + 150)
-
-            // PathBuilder also supports Bézier curves
-            .Bezier(b => b
-                    .AddPoint(0, 0)
-                    .AddPoint(0, 1000)
-                    .AddPoint(2000, 1000)
-                    .AddPoint(1000, 0),
-                t => 250 - (250 - 50) * t)
-            .Straight(800)
-            .Build()
+        }
     ]
-});
+};
 
+// Use the path builder to create a path
+// Returns an IEnumerable of GdsElement because the path may be split into multiple elements
+structure.Elements.AddRange(
+    new PathBuilder(
+            100f,
+            new Vector2(-3100, -3300),
+            Vector2.UnitX)
+        // Straight ahead for 2000 units
+        .Straight(2000)
+
+        // Bend 45 degrees to the left with a radius of 500 units
+        .BendDeg(-45, 500)
+
+        // Generate shape like <=>
+        .Straight(100, widthEnd: 250)
+        .Straight(100)
+        .Straight(100, widthEnd: 100)
+
+        // Some more bends
+        .BendDeg(-45, 500)
+        .Straight(100)
+        .Straight(200, 250)
+        .BendDeg(180, 300)
+        .BendDeg(-180, 300)
+
+        // Example of using a function to change the width
+        .BendDeg(-180, 900, f => MathF.Cos(f * 50) * 100 + 150)
+
+        // PathBuilder also supports Bézier curves
+        .Bezier(b => b
+                .AddPoint(0, 0)
+                .AddPoint(0, 1000)
+                .AddPoint(2000, 1000)
+                .AddPoint(1000, 0),
+            t => 250 - (250 - 50) * t)
+        .Straight(800)
+
+        // Build the path in sections of 200 vertices
+        // This is the 'official' maximum number of vertices per element in GDSII
+        // In practice, the number of vertices per element can be much higher
+        .Build(maxVertices: 200)
+);
+
+file.Structures.Add(structure);
 using var write = File.OpenWrite("example.gds");
 file.WriteTo(write);

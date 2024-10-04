@@ -103,6 +103,11 @@ class Build : NukeBuild
                 .SetFramework("net8.0")
                 .EnableNoRestore()
                 .EnableNoBuild()
+                .CombineWith(
+                    from framework in GdsSharpProject.GetTargetFrameworks()
+                    select new { framework }, (cs, v) => cs
+                        .SetFramework(v.framework)
+                )
             );
         });
 

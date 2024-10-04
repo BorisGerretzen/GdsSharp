@@ -26,7 +26,11 @@ file.WriteTo(fileStream);
 
 An example of how to create a GDS file from scratch and creating some shapes using the helpers can be found in
 the [example project](https://github.com/BorisGerretzen/GdsSharp/blob/master/GdsGenerator/Program.cs).
-This is the created GDS file:
+The created GDS file can be seen below.
+
+As you can see the path in the bottom part of the image is created using the path builder.
+In this screenshot the path builder has been set to create elements with a maximum number of 200 vertices.
+The path builder will automatically split your high resolution path into multiple elements if the number of vertices exceeds the maximum.
 ![image](https://github.com/user-attachments/assets/6629195b-64e3-4778-87e7-d8cae87826d7)
 
 
@@ -78,53 +82,45 @@ The output of this code can be seen on the bottom part of the picture above.
 
 ```csharp
 // Use the path builder to create a path
-new PathBuilder(
-        initialWidth: 100f, 
-        initialPosition: new Vector2(-3100, -3300), 
-        initialHeading: Vector2.UnitX)
+IEnumerable<GdsElement> elements = new PathBuilder(
+        100f,
+        new Vector2(-3100, -3300),
+        Vector2.UnitX)
     // Straight ahead for 2000 units
     .Straight(2000)
-    
+
     // Bend 45 degrees to the left with a radius of 500 units
     .BendDeg(-45, 500)
-    
+
     // Generate shape like <=>
     .Straight(100, widthEnd: 250)
     .Straight(100)
     .Straight(100, widthEnd: 100)
-    
+
     // Some more bends
     .BendDeg(-45, 500)
     .Straight(100)
-    .Straight(200, widthStart: 250)
+    .Straight(200, 250)
     .BendDeg(180, 300)
     .BendDeg(-180, 300)
-    
+
     // Example of using a function to change the width
     .BendDeg(-180, 900, f => MathF.Cos(f * 50) * 100 + 150)
-    
+
     // PathBuilder also supports Bézier curves
     .Bezier(b => b
-        .AddPoint(0, 0)
-        .AddPoint(0,1000)
-        .AddPoint(2000, 1000)
-        .AddPoint(1000, 0),
-        width: t => 250 - (250-50) * t)
+            .AddPoint(0, 0)
+            .AddPoint(0, 1000)
+            .AddPoint(2000, 1000)
+            .AddPoint(1000, 0),
+        t => 250 - (250 - 50) * t)
     .Straight(800)
-    .Build();
+
+    // Build the path in sections of 200 vertices
+    // This is the 'official' maximum number of vertices per element in GDSII
+    // In practice, the number of vertices per element can be much higher
+    .Build(maxVertices: 200);
 ```
-
-## Missing features
-
-I have not implemented all features of the GDSii spec, some terminals
-like [STRTYPE](https://boolean.klaasholwerda.nl/interface/bnf/gdsformat.html#rec_strtype) are not not released, and I am
-not sure if they are used in files.
-If you have a file and the library crashes because of this, let me know or open a PR!
-
-Furthermore, I have also not
-implemented [ATTRTABLE](https://boolean.klaasholwerda.nl/interface/bnf/gdsformat.html#rec_attrtable), none of the files
-I currently have use it and I'm not sure how it is formatted exactly.
-Again, if you have a file that uses it and want to contribute, let me know or open a PR!
 
 ## Contributing
 
