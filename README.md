@@ -31,8 +31,7 @@ The created GDS file can be seen below.
 As you can see the path in the bottom part of the image is created using the path builder.
 In this screenshot the path builder has been set to create elements with a maximum number of 200 vertices.
 The path builder will automatically split your high resolution path into multiple elements if the number of vertices exceeds the maximum.
-![image](https://github.com/user-attachments/assets/6629195b-64e3-4778-87e7-d8cae87826d7)
-
+![image](https://github.com/user-attachments/assets/30f91036-09c0-4903-827e-1e57a663ba86)
 
 ## Helpers
 Some helper functions are provided to draw curved shapes like circles and Bézier curves.
