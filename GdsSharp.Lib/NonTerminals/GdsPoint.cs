@@ -2,7 +2,7 @@ using System.Numerics;
 
 namespace GdsSharp.Lib.NonTerminals;
 
-public struct GdsPoint
+public readonly struct GdsPoint
 {
     public GdsPoint(int x, int y)
     {
@@ -20,8 +20,8 @@ public struct GdsPoint
         Y = (int)MathF.Round(y);
     }
 
-    public int X { get; set; }
-    public int Y { get; set; }
+    public readonly int X;
+    public readonly int Y;
 
     public static GdsPoint operator +(GdsPoint a, GdsPoint b) => new(a.X + b.X, a.Y + b.Y);
     public static GdsPoint operator -(GdsPoint a, GdsPoint b) => new(a.X - b.X, a.Y - b.Y);

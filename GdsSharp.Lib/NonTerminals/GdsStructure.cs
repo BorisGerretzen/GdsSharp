@@ -7,5 +7,5 @@ public class GdsStructure
     public required string Name { get; set; }
     public DateTime CreationTime { get; set; } = DateTime.Now;
     public DateTime ModificationTime { get; set; } = DateTime.Now;
-    public List<GdsElement> Elements { get; set; } = new();
+    public IEnumerable<GdsElement> Elements { get; set; } = new List<GdsElement>();
 }

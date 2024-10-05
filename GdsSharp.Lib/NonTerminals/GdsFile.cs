@@ -13,7 +13,7 @@ public class GdsFile
     public required double UserUnits { get; set; }
     public required double PhysicalUnits { get; set; }
     public GdsFormatType FormatType { get; set; } = GdsFormatType.GdsArchive;
-    public List<GdsStructure> Structures { get; set; } = new();
+    public IEnumerable<GdsStructure> Structures { get; set; } = new List<GdsStructure>();
 
     public static GdsFile From(Stream stream)
     {

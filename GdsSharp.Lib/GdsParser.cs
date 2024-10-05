@@ -34,9 +34,6 @@ public class GdsParser
         var format = IsNext<GdsRecordFormat>() ? Get<GdsRecordFormat>() : null;
         var units = Get<GdsRecordUnits>();
 
-        var structures = new List<GdsStructure>();
-        while (_queue.Peek() is not GdsRecordNoData { Type: GdsRecordNoDataType.EndLib }) structures.Add(ParseGdsStructure());
-
         var file = new GdsFile
         {
             Version = header.Value,
@@ -46,7 +43,8 @@ public class GdsParser
             LastAccessTime = new DateTime(bgnLib.LastAccessTimeYear, bgnLib.LastAccessTimeMonth, bgnLib.LastAccessTimeDay, bgnLib.LastAccessTimeHour,
                 bgnLib.LastAccessTimeMinute, bgnLib.LastAccessTimeSecond),
             PhysicalUnits = units.PhysicalUnits,
-            UserUnits = units.UserUnits
+            UserUnits = units.UserUnits,
+            Structures = ParseStructures()
         };
 
         if (refLibs is not null)
@@ -60,12 +58,10 @@ public class GdsParser
 
         if (format is not null)
             file.FormatType = (GdsFormatType)format.Value;
-
-        file.Structures = structures;
-
+        
         return file;
     }
-
+    
     #region Helpers
 
     /// <summary>
@@ -393,15 +389,18 @@ public class GdsParser
             Properties = properties
         };
     }
-
+    
+    private IEnumerable<GdsElement> ParseElements()
+    {
+        while (_queue.Peek() is not GdsRecordNoData { Type: GdsRecordNoDataType.EndEl }) 
+            yield return ParseGdsElement();
+    }
+    
     private GdsStructure ParseGdsStructure()
     {
         var bgnStr = Get<GdsRecordBgnStr>();
         var name = Get<GdsRecordStrName>();
-
-        var elements = new List<GdsElement>();
-        while (_queue.Peek() is not GdsRecordNoData { Type: GdsRecordNoDataType.EndStr }) elements.Add(ParseGdsElement());
-
+        
         GetNoData(GdsRecordNoDataType.EndStr);
         return new GdsStructure
         {
@@ -410,8 +409,14 @@ public class GdsParser
                 bgnStr.CreationTimeMinute, bgnStr.CreationTimeSecond),
             ModificationTime = new DateTime(bgnStr.LastModificationTimeYear, bgnStr.LastModificationTimeMonth, bgnStr.LastModificationTimeDay,
                 bgnStr.LastModificationTimeHour, bgnStr.LastModificationTimeMinute, bgnStr.LastModificationTimeSecond),
-            Elements = elements
+            Elements = ParseElements()
         };
+    }
+    
+    private IEnumerable<GdsStructure> ParseStructures()
+    {
+        while (_queue.Peek() is not GdsRecordNoData { Type: GdsRecordNoDataType.EndLib }) 
+            yield return ParseGdsStructure();
     }
 
     #endregion
