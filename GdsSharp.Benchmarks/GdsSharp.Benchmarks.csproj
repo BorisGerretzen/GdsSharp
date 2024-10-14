@@ -26,10 +26,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="PathBuilder\Implementations\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <Compile Remove="PathBuilder\Implementations\PathBuilderArray.cs" />
       <Compile Remove="PathBuilder\Implementations\PathBuilderListReverse.cs" />
       <Compile Remove="PathBuilder\Implementations\PathBuilderListReverseFactorExtract.cs" />
@@ -37,10 +33,6 @@
       <Compile Remove="PathBuilder\Implementations\PathBuilderListReverseSpan.cs" />
       <Compile Remove="PathBuilder\IPathBuilder.cs" />
       <Compile Remove="PathBuilder\PathBuilderBase.cs" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="PathBuilder\Implementations\" />
     </ItemGroup>
 
 </Project>

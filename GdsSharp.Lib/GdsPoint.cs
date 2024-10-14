@@ -1,6 +1,6 @@
 using System.Numerics;
 
-namespace GdsSharp.Lib.NonTerminals;
+namespace GdsSharp.Lib;
 
 public readonly struct GdsPoint
 {

@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using FluentAssertions;
+using GdsSharp.Lib.Lexing;
 
 namespace GdsSharp.Lib.Test;
 

@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using GdsSharp.Lib.Lexing;
 
 namespace GdsSharp.Lib.Test;
 

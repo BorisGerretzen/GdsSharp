@@ -1,4 +1,8 @@
-namespace GdsSharp.Lib.NonTerminals;
+using GdsSharp.Lib.Lexing;
+using GdsSharp.Lib.NonTerminals;
+using GdsSharp.Lib.NonTerminals.Enum;
+
+namespace GdsSharp.Lib;
 
 public class GdsFile
 {

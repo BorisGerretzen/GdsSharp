@@ -1,12 +1,11 @@
 ﻿using System.Collections;
 using GdsSharp.Lib.Abstractions;
 using GdsSharp.Lib.Binary;
-using GdsSharp.Lib.NonTerminals;
 using GdsSharp.Lib.Terminals;
 using GdsSharp.Lib.Terminals.Abstractions;
 using GdsSharp.Lib.Terminals.Records;
 
-namespace GdsSharp.Lib;
+namespace GdsSharp.Lib.Lexing;
 
 public class GdsTokenStream : GdsStreamOperator, IDisposable, IEnumerable<IGdsRecord>
 {

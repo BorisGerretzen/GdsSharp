@@ -1,5 +1,4 @@
-﻿using GdsSharp.Lib.Builders;
-using GdsSharp.Lib.NonTerminals;
+﻿using GdsSharp.Lib;
 using GdsSharp.Lib.NonTerminals.Elements;
 
 // var file = new GdsFile

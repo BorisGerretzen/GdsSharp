@@ -1,4 +1,5 @@
 using System.Reflection;
+using GdsSharp.Lib.Lexing;
 using GdsSharp.Lib.Terminals;
 using GdsSharp.Lib.Terminals.Abstractions;
 using GdsSharp.Lib.Terminals.Records;
