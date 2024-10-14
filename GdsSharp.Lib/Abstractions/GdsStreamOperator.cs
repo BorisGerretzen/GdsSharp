@@ -14,7 +14,7 @@ public class GdsStreamOperator
     /// </summary>
     static GdsStreamOperator()
     {
-        var assembly = Assembly.GetAssembly(typeof(GdsTokenizer));
+        var assembly = Assembly.GetAssembly(typeof(GdsStreamOperator));
         if (assembly is null) throw new InvalidOperationException("Could not get assembly");
 
         // Get compiled activator for all records

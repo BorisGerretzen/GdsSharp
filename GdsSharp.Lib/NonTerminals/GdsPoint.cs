@@ -16,8 +16,8 @@ public readonly struct GdsPoint
 
     public GdsPoint(float x, float y)
     {
-        X = (int)MathF.Round(x);
-        Y = (int)MathF.Round(y);
+        X = (int)(x + 0.5f);
+        Y = (int)(y + 0.5f);
     }
 
     public readonly int X;

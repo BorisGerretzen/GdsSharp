@@ -125,7 +125,8 @@ public class BezierBuilder
         {
             Element = new GdsBoundaryElement
             {
-                Points = offsetPoints.ToList()
+                Points = offsetPoints.ToList(),
+                NumPoints = offsetPoints.Length
             }
         };
 

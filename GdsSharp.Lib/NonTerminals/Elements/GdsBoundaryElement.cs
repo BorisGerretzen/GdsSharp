@@ -5,7 +5,8 @@ namespace GdsSharp.Lib.NonTerminals.Elements;
 public class GdsBoundaryElement : IGdsLayeredElement
 {
     public short DataType { get; set; }
-    public List<GdsPoint> Points { get; set; } = new();
+    public IEnumerable<GdsPoint> Points { get; set; } = new List<GdsPoint>();
+    public required int NumPoints { get; set; }
     public bool ExternalData { get; set; }
     public bool TemplateData { get; set; }
     public int PlexNumber { get; set; }

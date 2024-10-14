@@ -14,9 +14,8 @@ public class GdsParserTests
         var fileStream =
             Assembly.GetExecutingAssembly().GetManifestResourceStream($"GdsSharp.Lib.Test.Assets.{manifestFile}") ??
             throw new NullReferenceException();
-        var tokenizer = new GdsTokenizer(fileStream);
-        var tokens = tokenizer.Tokenize();
-        var parser = new GdsParser(tokens);
+        using var stream = new GdsTokenStream(fileStream);
+        var parser = new GdsParser(stream);
         var file = parser.Parse();
     }
 }

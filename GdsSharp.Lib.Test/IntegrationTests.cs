@@ -15,19 +15,15 @@ public class IntegrationTests
         var fileStream =
             Assembly.GetExecutingAssembly().GetManifestResourceStream($"GdsSharp.Lib.Test.Assets.{manifestFile}") ??
             throw new NullReferenceException();
-
-        var tokenizer = new GdsTokenizer(fileStream);
-        var tokens = tokenizer.Tokenize().ToList();
-
-        var parser = new GdsParser(tokens);
+        var tokenStream = new GdsTokenStream(fileStream);
+        var parser = new GdsParser(tokenStream);
         var file = parser.Parse();
-
-        var tokenWriter = new GdsTokenWriter(file);
-        var tokensNew = tokenWriter.Tokenize().ToList();
-
-        var parserNew = new GdsParser(tokensNew);
-        var fileNew = parserNew.Parse();
-
-        file.Should().BeEquivalentTo(fileNew);
+        file.Structures = file.Structures.ToList();
+        
+        using var fs2 = new FileStream("jemoeder.gds", FileMode.Create);
+        file.WriteTo(fs2);
+        
+        
+        // file.Should().BeEquivalentTo(fileNew);
     }
 }

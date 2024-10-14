@@ -17,16 +17,14 @@ public class GdsFile
 
     public static GdsFile From(Stream stream)
     {
-        var tokenizer = new GdsTokenizer(stream);
-        var tokens = tokenizer.Tokenize();
-        var parser = new GdsParser(tokens);
+        using var tokenStream = new GdsTokenStream(stream);
+        var parser = new GdsParser(tokenStream);
         return parser.Parse();
     }
 
     public void WriteTo(Stream stream)
     {
         var tokenWriter = new GdsTokenWriter(this);
-        var tokens = tokenWriter.Tokenize();
-        GdsWriter.Write(tokens, stream);
+        GdsWriter.Write(tokenWriter.Tokenize(), stream);
     }
 }

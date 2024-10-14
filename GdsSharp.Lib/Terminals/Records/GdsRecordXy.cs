@@ -1,31 +1,32 @@
 ﻿using GdsSharp.Lib.Binary;
+using GdsSharp.Lib.NonTerminals;
 using GdsSharp.Lib.Terminals.Abstractions;
 
 namespace GdsSharp.Lib.Terminals.Records;
 
-public class GdsRecordXy : IGdsReadableRecord, IGdsWriteableRecord
+public class GdsRecordXy : IGdsWriteableRecord
 {
-    public List<(int X, int Y)> Coordinates { get; set; } = new();
-
-    public void Read(GdsBinaryReader reader, GdsHeader header)
+    public required IEnumerable<GdsPoint> Coordinates { get; set; }
+    public required int NumPoints { get; set; }
+    
+    public GdsRecordXy()
     {
-        var numCoordinates = header.NumToRead / 8;
-        for (var i = 0; i < numCoordinates; i++) Coordinates.Add((reader.ReadInt32(), reader.ReadInt32()));
+        Coordinates = new List<GdsPoint>();
     }
-
+    
     public ushort Code => 0x1003;
 
     public ushort GetLength()
     {
-        return (ushort)(Coordinates.Count * 8);
+        return (ushort)(NumPoints * 8);
     }
 
     public void Write(GdsBinaryWriter writer)
     {
-        foreach (var (x, y) in Coordinates)
+        foreach (var point in Coordinates)
         {
-            writer.Write(x);
-            writer.Write(y);
+            writer.Write(point.X);
+            writer.Write(point.Y);
         }
     }
 }

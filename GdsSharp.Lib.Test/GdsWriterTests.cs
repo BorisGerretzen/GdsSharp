@@ -41,9 +41,8 @@ public class GdsWriterTests
         fileStream.CopyTo(streamIn);
         fileStream.Position = 0;
 
-        var parser = new GdsTokenizer(fileStream);
-        var tokens = parser.Tokenize().ToList();
-        GdsWriter.Write(tokens, streamOut);
+        var tokenStream = new GdsTokenStream(fileStream);
+        GdsWriter.Write(tokenStream, streamOut);
 
         // remove padding
         var bytesIn = streamIn.ToArray();

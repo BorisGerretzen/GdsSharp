@@ -1,7 +1,6 @@
 ﻿using System.Numerics;
 using GdsSharp.Lib.NonTerminals;
 using GdsSharp.Lib.NonTerminals.Elements;
-using SoftCircuits.Collections;
 
 namespace GdsSharp.Lib.Builders;
 
@@ -124,31 +123,29 @@ public class PathBuilder
     {
         if (maxVertices < 4)
             throw new ArgumentException("maxVerticesPerElement must be at least 4 to form a valid polygon.", nameof(maxVertices));
+        
+        var ap = GetPathPoints();
 
-        var splinePoints = GetPathPoints();
-        while() // todo
-    }
-
-    /// <summary>
-    ///     Builds a polygon from the path.
-    /// </summary>
-    /// <returns></returns>
-    private static IEnumerable<GdsPoint> GetPolygonPoints(ICollection<GdsPathPoint> splinePoints)
-    {
-        List<GdsPoint> meshUp = new();
-        List<GdsPoint> meshDown = new();
-
-        foreach (var (point, normal, width) in splinePoints)
+        foreach (var points in ap.Chunk(maxVertices/2))
         {
-            meshUp.Add(new GdsPoint(point + normal * width / 2));
-            meshDown.Add(new GdsPoint(point - normal * width / 2));
+            var allPoints = new GdsPoint[points.Length * 2];
+            for(var i = 0; i < points.Length; i++)
+            {
+                allPoints[i] = new GdsPoint(points[i].Point + points[i].Width * points[i].Normal);
+                allPoints[allPoints.Length - i - 1] = new GdsPoint(points[i].Point - points[i].Width * points[i].Normal);
+            }
+            
+            
+            yield return new GdsElement
+            {
+                Element = new GdsBoundaryElement
+                {
+                    Points = allPoints.ToList(),
+                    NumPoints = allPoints.Length,
+                }
+            };
         }
-
-        meshDown.Reverse();
-        meshUp.AddRange(meshDown);
-        return meshUp;
     }
-
     /// <summary>
     ///     Generates a list of points for each segment in the path.
     /// </summary>
@@ -159,11 +156,14 @@ public class PathBuilder
         var heading = _initialHeading;
         var currentWidth = _initialWidth;
 
+        var unitYAngle = Vector2.UnitY.Angle();
+        
         foreach (var segment in _pathSegments)
         {
             Vector2? lastPosition = null;
             Vector2? lastHeading = null;
 
+            var rotationAngle = unitYAngle - heading.Angle();
             for (var i = 0; i <= segment.Vertices; i++)
             {
                 var t = i / (float)segment.Vertices;
@@ -174,7 +174,6 @@ public class PathBuilder
                 var width = segment.Width?.Invoke(t);
 
                 // Correct the point and derivative for the heading
-                var rotationAngle = Vector2.UnitY.Angle() - heading.Angle();
                 point = point.Rotate(-rotationAngle);
                 derivative = derivative.Rotate(-rotationAngle);
 
@@ -200,7 +199,7 @@ public class PathBuilder
     /// <param name="Derivative">Function that defines the derivative of the segment.</param>
     /// <param name="Width">Function that defines the width of the segment.</param>
     /// <param name="Vertices">Number of vertices of the segment.</param>
-    protected readonly record struct GdsPathSegment(Func<float, Vector2> Path, Func<float, Vector2> Derivative, Func<float, float?>? Width, int Vertices);
+    protected record struct GdsPathSegment(Func<float, Vector2> Path, Func<float, Vector2> Derivative, Func<float, float?>? Width, int Vertices);
 
     /// <summary>
     ///     Represents a single point in the path.
@@ -208,5 +207,5 @@ public class PathBuilder
     /// <param name="Point">The coordinates of the point.</param>
     /// <param name="Normal">The normal of the point.</param>
     /// <param name="Width">The width at the point.</param>
-    protected readonly record struct GdsPathPoint(Vector2 Point, Vector2 Normal, float Width);
+    protected record struct GdsPathPoint(Vector2 Point, Vector2 Normal, float Width);
 }
