@@ -11,4 +11,10 @@ public class GdsBoundaryElement : IGdsLayeredElement
     public bool TemplateData { get; set; }
     public int PlexNumber { get; set; }
     public short Layer { get; set; }
+
+    /// <inheritdoc />
+    public void Materialize()
+    {
+        Points = Points.ToList();
+    }
 }

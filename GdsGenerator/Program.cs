@@ -24,14 +24,15 @@ using GdsSharp.Lib.NonTerminals.Elements;
 //
 // using var fs = new FileStream("example.gds", FileMode.Create, FileAccess.Write);
 // file.WriteTo(fs);
-
+var t1 = DateTime.Now;
 using (var fs = new FileStream("example.gds", FileMode.Open, FileAccess.Read))
 using (var fs2 = new FileStream("example2.gds", FileMode.Create, FileAccess.Write))
 {
     var file = BufferSize(fs);
     file.WriteTo(fs2);
 }
-
+var t2 = DateTime.Now;
+Console.WriteLine((t2 - t1).TotalSeconds);
 return;
 
 GdsFile BufferSize(Stream stream)

@@ -2,11 +2,8 @@
 
 namespace GdsSharp.Lib.Test;
 
-[TestFixture]
 public class VectorExtensionsTests
 {
-    private const float TwoPi = 2 * MathF.PI;
-
     [Test]
     public void Rotate_Rotate90Degrees_CorrectResult()
     {

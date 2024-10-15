@@ -31,4 +31,16 @@ public class GdsFile
         var tokenWriter = new GdsTokenWriter(this);
         GdsWriter.Write(tokenWriter.Tokenize(), stream);
     }
+
+    /// <summary>
+    /// Materializes all structures in the GDS file.
+    /// </summary>
+    public void Materialize()
+    {
+        var structures = Structures.ToList();
+        foreach (var structure in structures)
+        {
+            structure.Materialize();
+        }
+    }
 }
