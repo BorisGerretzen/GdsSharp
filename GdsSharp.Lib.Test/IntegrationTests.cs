@@ -14,14 +14,14 @@ public class IntegrationTests
     [TestCase("gds3d_example.gds")]
     public void TestRoundTrip(string manifestFile)
     {
-        var fileStream =
+        using var fileStream =
             Assembly.GetExecutingAssembly().GetManifestResourceStream($"GdsSharp.Lib.Test.Assets.{manifestFile}") ??
             throw new NullReferenceException();
         using var tokenStream = new GdsTokenStream(fileStream);
         var parser = new GdsParser(tokenStream);
         var file = parser.Parse();
         
-        var ms = new MemoryStream();
+        using var ms = new MemoryStream();
         file.WriteTo(ms);
         ms.Position = 0;
         

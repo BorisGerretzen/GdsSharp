@@ -1,6 +1,6 @@
 ﻿using BenchmarkDotNet.Attributes;
 
-namespace GdsSharp.Benchmarks.FloatInt;
+namespace GdsSharp.Benchmarks;
 
 public class FloatToIntBenchmark
 {

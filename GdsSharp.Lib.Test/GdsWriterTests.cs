@@ -33,16 +33,16 @@ public class GdsWriterTests
     [TestCase("gds3d_example.gds")]
     public void TestWriterWritesIdentical(string manifestFile)
     {
-        var streamIn = new MemoryStream();
-        var streamOut = new MemoryStream();
+        using var streamIn = new MemoryStream();
+        using var streamOut = new MemoryStream();
 
-        var fileStream =
+        using var fileStream =
             Assembly.GetExecutingAssembly().GetManifestResourceStream($"GdsSharp.Lib.Test.Assets.{manifestFile}") ??
             throw new NullReferenceException();
         fileStream.CopyTo(streamIn);
         fileStream.Position = 0;
 
-        var tokenStream = new GdsTokenStream(fileStream);
+        using var tokenStream = new GdsTokenStream(fileStream);
         GdsWriter.Write(tokenStream, streamOut);
 
         // remove padding

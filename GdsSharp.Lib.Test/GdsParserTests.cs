@@ -13,7 +13,7 @@ public class GdsParserTests
     [TestCase("gds3d_example.gds")]
     public void TestParserDoesntCrash(string manifestFile)
     {
-        var fileStream =
+        using var fileStream =
             Assembly.GetExecutingAssembly().GetManifestResourceStream($"GdsSharp.Lib.Test.Assets.{manifestFile}") ??
             throw new NullReferenceException();
         using var stream = new GdsTokenStream(fileStream);
