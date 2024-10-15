@@ -14,6 +14,7 @@
         <RepositoryUrl>https://github.com/BorisGerretzen/GdsSharp.git</RepositoryUrl>
         <Authors>Boris Gerretzen</Authors>
         <PackageTags>GDSII, calma, eda, photomask, lithography, ic</PackageTags>
+        <Description>A C# library for reading, editing, and writing Calma GDSII files.</Description>
         <RepositoryType>git</RepositoryType>
     </PropertyGroup>
 
