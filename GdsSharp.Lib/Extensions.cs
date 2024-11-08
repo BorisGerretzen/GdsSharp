@@ -1,10 +1,11 @@
 ﻿using System.Numerics;
-using GdsSharp.Lib.NonTerminals;
 
 namespace GdsSharp.Lib;
 
 public static class GdsExtensions
 {
+    public const float Deg2Rad = MathF.PI / 180;
+
     /// <summary>
     ///     Rotates a vector by the given angle in radians.
     /// </summary>

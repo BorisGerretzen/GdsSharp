@@ -4,6 +4,7 @@ namespace GdsSharp.Lib.NonTerminals.Elements;
 
 public class GdsStructureReferenceElement : IGdsElement
 {
+    private const float Deg2Rad = MathF.PI / 180;
     public required string StructureName { get; set; }
     public GdsStrans Transformation { get; set; } = new();
     public List<GdsPoint> Points { get; set; } = new();
@@ -20,7 +21,24 @@ public class GdsStructureReferenceElement : IGdsElement
 
         var boundingBox = structure.GetBoundingBox(structureProvider);
         if (boundingBox.IsEmpty) return boundingBox;
-        var boundingBoxes = Points.Select(p => new GdsBoundingBox(p + boundingBox.Min, p + boundingBox.Max));
+
+        IEnumerable<GdsBoundingBox> boundingBoxes;
+        if (Transformation.Angle != 0)
+        {
+            var (sin, cos) = MathF.SinCos((float)Transformation.Angle * GdsExtensions.Deg2Rad);
+            boundingBoxes = Points.Select(p => new GdsBoundingBox(
+                p + boundingBox.Min.Rotate(sin, cos),
+                p + boundingBox.Max.Rotate(sin, cos)
+            ));
+        }
+        else
+        {
+            boundingBoxes = Points.Select(p => new GdsBoundingBox(
+                p + boundingBox.Min,
+                p + boundingBox.Max)
+            );
+        }
+
         return new GdsBoundingBox(boundingBoxes);
     }
 }

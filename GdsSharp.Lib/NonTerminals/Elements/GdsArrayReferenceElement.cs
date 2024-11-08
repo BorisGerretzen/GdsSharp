@@ -22,7 +22,23 @@ public class GdsArrayReferenceElement : IGdsElement
 
         var boundingBox = structure.GetBoundingBox(structureProvider);
         if (boundingBox.IsEmpty) return boundingBox;
-        var boundingBoxes = Points.Select(p => new GdsBoundingBox(p + boundingBox.Min, p + boundingBox.Max));
+        IEnumerable<GdsBoundingBox> boundingBoxes;
+        if (Transformation.Angle != 0)
+        {
+            var (sin, cos) = MathF.SinCos((float)Transformation.Angle * GdsExtensions.Deg2Rad);
+            boundingBoxes = Points.Select(p => new GdsBoundingBox(
+                p + boundingBox.Min.Rotate(sin, cos),
+                p + boundingBox.Max.Rotate(sin, cos)
+            ));
+        }
+        else
+        {
+            boundingBoxes = Points.Select(p => new GdsBoundingBox(
+                p + boundingBox.Min,
+                p + boundingBox.Max)
+            );
+        }
+
         return new GdsBoundingBox(boundingBoxes);
     }
 }

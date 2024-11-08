@@ -49,4 +49,12 @@ public readonly struct GdsPoint
     {
         return $"({X}, {Y})";
     }
+
+    public GdsPoint Rotate(float sin, float cos)
+    {
+        return new GdsPoint(
+            cos * X - sin * Y,
+            sin * X + cos * Y
+        );
+    }
 }
