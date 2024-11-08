@@ -10,12 +10,32 @@ namespace GdsSharp.Lib.Lexing;
 public class GdsTokenStream : GdsStreamOperator, IDisposable, IEnumerable<IGdsRecord>
 {
     private readonly GdsBinaryReader _reader;
-    
+
     public GdsTokenStream(Stream stream)
     {
         _reader = new GdsBinaryReader(stream);
     }
-    
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        _reader.Dispose();
+        GC.SuppressFinalize(this);
+    }
+
+    /// <inheritdoc />
+    public IEnumerator<IGdsRecord> GetEnumerator()
+    {
+        GdsTokenReference? element;
+        while ((element = Read()) != null) yield return element.Record;
+    }
+
+    /// <inheritdoc />
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
+    }
+
     /// <summary>
     /// Peeks at the next item in the queue.
     /// </summary>
@@ -45,7 +65,7 @@ public class GdsTokenStream : GdsStreamOperator, IDisposable, IEnumerable<IGdsRe
         if (element is null) throw new InvalidOperationException("No more items in the queue.");
         return element;
     }
-    
+
     /// <summary>
     /// Sets the position of the reader.
     /// </summary>
@@ -61,7 +81,7 @@ public class GdsTokenStream : GdsStreamOperator, IDisposable, IEnumerable<IGdsRe
     private GdsTokenReference? Read()
     {
         var pos = _reader.BaseStream.Position;
-        if(pos == _reader.BaseStream.Length) return null;
+        if (pos == _reader.BaseStream.Length) return null;
 
         var header = new GdsHeader();
         ((IGdsSimpleRead)header).Read(_reader, header);
@@ -86,10 +106,11 @@ public class GdsTokenStream : GdsStreamOperator, IDisposable, IEnumerable<IGdsRe
                 readableRecord.Read(_reader, header);
                 break;
         }
-        
+
         if (record.GetLength() != header.NumToRead)
-            throw new InvalidOperationException($"Record length mismatch at position 0x{_reader.BaseStream.Position:X} ({_reader.BaseStream.Position}), expected {header.NumToRead}, got {record.GetLength()}");
-        
+            throw new InvalidOperationException(
+                $"Record length mismatch at position 0x{_reader.BaseStream.Position:X} ({_reader.BaseStream.Position}), expected {header.NumToRead}, got {record.GetLength()}");
+
         return new GdsTokenReference(header, record, pos);
     }
 
@@ -106,28 +127,5 @@ public class GdsTokenStream : GdsStreamOperator, IDisposable, IEnumerable<IGdsRe
         {
             _reader.BaseStream.Position = oldPosition;
         }
-    } 
-    
-    /// <inheritdoc />
-    public void Dispose()
-    {
-        _reader.Dispose();
-        GC.SuppressFinalize(this);
-    }
-
-    /// <inheritdoc />
-    public IEnumerator<IGdsRecord> GetEnumerator()
-    {
-        GdsTokenReference? element;
-        while ((element = Read()) != null)
-        {
-            yield return element.Record;
-        }
-    }
-    
-    /// <inheritdoc />
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return GetEnumerator();
     }
 }

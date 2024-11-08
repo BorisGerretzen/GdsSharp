@@ -15,4 +15,10 @@ public class GdsBoxElement : IGdsLayeredElement
     public bool TemplateData { get; set; }
     public int PlexNumber { get; set; }
     public short Layer { get; set; }
+
+    /// <inheritdoc />
+    public GdsBoundingBox GetBoundingBox(GdsStructure.StructureProvider structureProvider)
+    {
+        return new GdsBoundingBox(Points);
+    }
 }

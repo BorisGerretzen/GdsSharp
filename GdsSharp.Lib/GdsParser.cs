@@ -412,7 +412,7 @@ public class GdsParser
         var (name, reference) = Get<GdsRecordStrName>();
 
         var elements = ParseElements(reference.Offset + reference.Header.Length);
-        
+
         // Skip elements until the end of the structure
         while (_queue.Dequeue().Record is not GdsRecordNoData { Type: GdsRecordNoDataType.EndStr })
         {

@@ -15,4 +15,11 @@ public interface IGdsElement
     virtual void Materialize()
     {
     }
+
+    /// <summary>
+    ///     Calculates the bounding box of the element.
+    /// </summary>
+    /// <param name="structureProvider">Maps structure names to structure objects. <see cref="GdsFile.GetStructure" /></param>
+    /// <returns>The bounding box of the element.</returns>
+    GdsBoundingBox GetBoundingBox(GdsStructure.StructureProvider structureProvider);
 }

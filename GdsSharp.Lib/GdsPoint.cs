@@ -16,8 +16,14 @@ public readonly struct GdsPoint
 
     public GdsPoint(float x, float y)
     {
-        X = (int)(x + 0.5f);
-        Y = (int)(y + 0.5f);
+        X = (int)MathF.Round(x);
+        Y = (int)MathF.Round(y);
+    }
+
+    public GdsPoint(double x, double y)
+    {
+        X = (int)Math.Round(x);
+        Y = (int)Math.Round(y);
     }
 
     public readonly int X;
@@ -38,4 +44,9 @@ public readonly struct GdsPoint
     public static GdsPoint operator *(int a, GdsPoint b) => new(a * b.X, a * b.Y);
     public static GdsPoint operator /(int a, GdsPoint b) => new(a / b.X, a / b.Y);
     public static GdsPoint operator %(int a, GdsPoint b) => new(a % b.X, a % b.Y);
+
+    public override string ToString()
+    {
+        return $"({X}, {Y})";
+    }
 }

@@ -17,4 +17,10 @@ public class GdsBoundaryElement : IGdsLayeredElement
     {
         Points = Points.ToList();
     }
+
+    /// <inheritdoc />
+    public GdsBoundingBox GetBoundingBox(GdsStructure.StructureProvider structureProvider)
+    {
+        return new GdsBoundingBox(Points);
+    }
 }
