@@ -26,10 +26,11 @@ public class GdsStructureReferenceElement : IGdsElement
         if (Transformation.Angle != 0)
         {
             var (sin, cos) = MathF.SinCos((float)Transformation.Angle * GdsExtensions.Deg2Rad);
-            boundingBoxes = Points.Select(p => new GdsBoundingBox(
+            boundingBoxes = Points.Select(p => new GdsBoundingBox(new[]
+            {
                 p + boundingBox.Min.Rotate(sin, cos),
                 p + boundingBox.Max.Rotate(sin, cos)
-            ));
+            }));
         }
         else
         {
