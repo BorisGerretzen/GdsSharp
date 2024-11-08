@@ -11,13 +11,19 @@
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
         <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-        <RepositoryUrl>https://github.com/BorisGerretzen/GdsSharp</RepositoryUrl>
+        <RepositoryUrl>https://github.com/BorisGerretzen/GdsSharp.git</RepositoryUrl>
         <Authors>Boris Gerretzen</Authors>
         <PackageTags>GDSII, calma, eda, photomask, lithography, ic</PackageTags>
+        <Description>A C# library for reading, editing, and writing Calma GDSII files.</Description>
         <RepositoryType>git</RepositoryType>
-
     </PropertyGroup>
 
+    <PropertyGroup>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    </PropertyGroup>
+    
     <ItemGroup>
         <None Include="..\LICENSE">
             <Pack>True</Pack>
@@ -27,10 +33,6 @@
             <Pack>True</Pack>
             <PackagePath>\</PackagePath>
         </None>
-    </ItemGroup>
-
-    <ItemGroup>
-        <PackageReference Include="SoftCircuits.OrderedDictionary" Version="3.2.0"/>
     </ItemGroup>
 
 </Project>

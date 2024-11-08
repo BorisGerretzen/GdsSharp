@@ -61,7 +61,8 @@ public static class CircleBuilder
                 Points = pointsPerSector
                     .Select(kvp => kvp.Key % 2 == 0 ? kvp.Value : kvp.Value.Reverse<GdsPoint>())
                     .SelectMany(p => SampleEquidistant(p, numPoints / 8))
-                    .ToList()
+                    .ToList(),
+                NumPoints = numPoints
             }
         };
 

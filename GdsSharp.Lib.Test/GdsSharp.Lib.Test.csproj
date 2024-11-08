@@ -30,7 +30,8 @@
         <EmbeddedResource Include="Assets\xor.gds2"/>
         <None Remove="Assets\nand2.gds2"/>
         <EmbeddedResource Include="Assets\nand2.gds2"/>
-        <None Remove="Assets\osu018_stdcells.gds2"/>
+        <None Remove="Assets\gds3d_example.gds" />
+        <EmbeddedResource Include="Assets\gds3d_example.gds" />
     </ItemGroup>
 
 </Project>

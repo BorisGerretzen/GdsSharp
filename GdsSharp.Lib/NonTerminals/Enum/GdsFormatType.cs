@@ -1,4 +1,4 @@
-﻿namespace GdsSharp.Lib.NonTerminals;
+﻿namespace GdsSharp.Lib.NonTerminals.Enum;
 
 public enum GdsFormatType
 {

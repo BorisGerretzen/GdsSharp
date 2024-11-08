@@ -2,7 +2,7 @@ using GdsSharp.Lib.Abstractions;
 using GdsSharp.Lib.Binary;
 using GdsSharp.Lib.Terminals;
 using GdsSharp.Lib.Terminals.Abstractions;
-
+using GdsSharp.Lib.Terminals.Records;
 namespace GdsSharp.Lib;
 
 public class GdsWriter : GdsStreamOperator

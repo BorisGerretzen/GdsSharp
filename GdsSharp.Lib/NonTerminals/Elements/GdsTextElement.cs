@@ -19,4 +19,9 @@ public class GdsTextElement : IGdsLayeredElement
     public bool TemplateData { get; set; }
     public int PlexNumber { get; set; }
     public short Layer { get; set; }
+
+    public GdsBoundingBox GetBoundingBox(GdsStructure.StructureProvider structureProvider)
+    {
+        return new GdsBoundingBox();
+    }
 }

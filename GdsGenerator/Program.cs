@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using GdsSharp.Lib;
 using GdsSharp.Lib.Builders;
 using GdsSharp.Lib.NonTerminals;
 using GdsSharp.Lib.NonTerminals.Elements;
@@ -11,56 +12,53 @@ var file = new GdsFile
     Version = 600
 };
 
-var structure = new GdsStructure
+var elements = new List<GdsElement>
 {
-    Name = "Example structure",
-    Elements =
-    [
-        // Generate a line from a Bézier curve with width 20.
-        // When using BuildPolygon the curve will be a GdsBoundaryElement.
-        new BezierBuilder()
-            .AddPoint(0, 0)
-            .AddPoint(0, 1000)
-            .AddPoint(1000, 1000)
-            .AddPoint(1000, 0)
-            .BuildPolygon(200),
+    // Generate a line from a Bézier curve with width 20.
+    // When using BuildPolygon the curve will be a GdsBoundaryElement.
+    new BezierBuilder()
+        .AddPoint(0, 0)
+        .AddPoint(0, 1000)
+        .AddPoint(1000, 1000)
+        .AddPoint(1000, 0)
+        .BuildPolygon(200),
 
-        // When using BuildLine the curve will be a GdsPathElement.
-        new BezierBuilder()
-            .AddPoint(-3000, 0)
-            .AddPoint(-3000, 1000)
-            .AddPoint(-2000, 1000)
-            .AddPoint(-2000, 0)
-            .BuildLine(200),
+    // When using BuildLine the curve will be a GdsPathElement.
+    new BezierBuilder()
+        .AddPoint(-3000, 0)
+        .AddPoint(-3000, 1000)
+        .AddPoint(-2000, 1000)
+        .AddPoint(-2000, 0)
+        .BuildLine(200),
 
-        // Create a rectangle
-        RectBuilder.CreateRect(-3100, -1000, 4200, 1000),
+    // Create a rectangle
+    RectBuilder.CreateRect(-3100, -1000, 4200, 1000),
 
-        // Create a circle 
-        CircleBuilder.CreateCircle(-1000, 744, 350, 128),
+    // Create a circle 
+    CircleBuilder.CreateCircle(-1000, 744, 350, 128),
 
-        // Create a polygon by manually specifying the points
-        new GdsElement
+    // Create a polygon by manually specifying the points
+    new()
+    {
+        Element = new GdsBoundaryElement
         {
-            Element = new GdsBoundaryElement
-            {
-                Points =
-                [
-                    new GdsPoint(-1250, 0),
-                    new GdsPoint(-1250, 500),
-                    new GdsPoint(-1000, 250),
-                    new GdsPoint(-750, 500),
-                    new GdsPoint(-750, 0),
-                    new GdsPoint(-1250, 0)
-                ]
-            }
+            Points =
+            [
+                new GdsPoint(-1250, 0),
+                new GdsPoint(-1250, 500),
+                new GdsPoint(-1000, 250),
+                new GdsPoint(-750, 500),
+                new GdsPoint(-750, 0),
+                new GdsPoint(-1250, 0)
+            ],
+            NumPoints = 6
         }
-    ]
+    }
 };
 
 // Use the path builder to create a path
 // Returns an IEnumerable of GdsElement because the path may be split into multiple elements
-structure.Elements.AddRange(
+elements.AddRange(
     new PathBuilder(
             100f,
             new Vector2(-3100, -3300),
@@ -98,9 +96,15 @@ structure.Elements.AddRange(
         // Build the path in sections of 200 vertices
         // This is the 'official' maximum number of vertices per element in GDSII
         // In practice, the number of vertices per element can be much higher
-        .Build(maxVertices: 200)
+        .Build(200)
 );
 
-file.Structures.Add(structure);
+var structure = new GdsStructure
+{
+    Name = "Example structure",
+    Elements = elements
+};
+
+file.Structures = [structure];
 using var write = File.OpenWrite("example.gds");
 file.WriteTo(write);

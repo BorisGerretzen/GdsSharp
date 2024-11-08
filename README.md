@@ -2,6 +2,7 @@
 
 [![NuGet](https://img.shields.io/nuget/v/GdsSharp.svg)](https://www.nuget.org/packages/GdsSharp/)\
 A library for reading, editing, and writing [Calma GDSII](https://en.wikipedia.org/wiki/GDSII) files.
+The library supports reading and writing in a streaming fashion so it can handle large files.
 
 Some helpers are also provided for drawing shapes like circles and Bézier curves.
 Additionally, a path builder is included to create parameterized paths with multiple segments.

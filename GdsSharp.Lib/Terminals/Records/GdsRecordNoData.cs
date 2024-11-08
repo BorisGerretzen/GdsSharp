@@ -8,6 +8,7 @@ public struct GdsRecordNoData : IGdsWriteableRecord
     public required GdsRecordNoDataType Type { get; init; }
 
     public ushort Code => (ushort)Type;
+    public string CodeHex => Code.ToString("X4");
 
     public ushort GetLength()
     {

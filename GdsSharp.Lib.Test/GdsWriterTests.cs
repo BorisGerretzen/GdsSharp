@@ -1,4 +1,5 @@
 using System.Reflection;
+using GdsSharp.Lib.Lexing;
 using GdsSharp.Lib.Terminals;
 using GdsSharp.Lib.Terminals.Abstractions;
 using GdsSharp.Lib.Terminals.Records;
@@ -29,21 +30,20 @@ public class GdsWriterTests
     [TestCase("inv.gds2")]
     [TestCase("nand2.gds2")]
     [TestCase("xor.gds2")]
-    // [TestCase("osu018_stdcells.gds2")]
+    [TestCase("gds3d_example.gds")]
     public void TestWriterWritesIdentical(string manifestFile)
     {
-        var streamIn = new MemoryStream();
-        var streamOut = new MemoryStream();
+        using var streamIn = new MemoryStream();
+        using var streamOut = new MemoryStream();
 
-        var fileStream =
+        using var fileStream =
             Assembly.GetExecutingAssembly().GetManifestResourceStream($"GdsSharp.Lib.Test.Assets.{manifestFile}") ??
             throw new NullReferenceException();
         fileStream.CopyTo(streamIn);
         fileStream.Position = 0;
 
-        var parser = new GdsTokenizer(fileStream);
-        var tokens = parser.Tokenize().ToList();
-        GdsWriter.Write(tokens, streamOut);
+        using var tokenStream = new GdsTokenStream(fileStream);
+        GdsWriter.Write(tokenStream, streamOut);
 
         // remove padding
         var bytesIn = streamIn.ToArray();

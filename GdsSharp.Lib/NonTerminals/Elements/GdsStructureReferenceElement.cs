@@ -10,4 +10,17 @@ public class GdsStructureReferenceElement : IGdsElement
     public bool ExternalData { get; set; }
     public bool TemplateData { get; set; }
     public int PlexNumber { get; set; }
+
+    /// <inheritdoc />
+    public GdsBoundingBox GetBoundingBox(GdsStructure.StructureProvider structureProvider)
+    {
+        var structure = structureProvider(StructureName);
+        if (structure == null)
+            throw new KeyNotFoundException($"Structure {StructureName} not found");
+
+        var boundingBox = structure.GetBoundingBox(structureProvider);
+        if (boundingBox.IsEmpty) return boundingBox;
+        var boundingBoxes = Points.Select(p => new GdsBoundingBox(p + boundingBox.Min, p + boundingBox.Max));
+        return new GdsBoundingBox(boundingBoxes);
+    }
 }

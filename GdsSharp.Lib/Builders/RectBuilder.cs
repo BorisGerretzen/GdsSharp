@@ -29,7 +29,8 @@ public static class RectBuilder
                     new(x + width, y + height),
                     new(x, y + height),
                     new(x, y)
-                }
+                },
+                NumPoints = 5
             }
         };
 

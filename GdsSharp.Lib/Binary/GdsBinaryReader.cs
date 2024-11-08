@@ -6,7 +6,7 @@ namespace GdsSharp.Lib.Binary;
 
 public class GdsBinaryReader : BinaryReader
 {
-    public GdsBinaryReader(Stream input) : base(input)
+    public GdsBinaryReader(Stream input) : base(input, Encoding.UTF8, true)
     {
     }
 
@@ -68,5 +68,11 @@ public class GdsBinaryReader : BinaryReader
         var str = Encoding.ASCII.GetString(data);
         while (str.EndsWith('\0')) str = str[..^1]; // Remove trailing nulls
         return str;
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        // Do nothing, we don't want to close the stream
+        // Somehow setting leaveOpen to true does not work.
     }
 }

@@ -8,6 +8,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "_build", "build\_build.cspr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GdsGenerator", "GdsGenerator\GdsGenerator.csproj", "{90695895-33A3-4C42-A733-F3A90E27A69F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GdsSharp.Benchmarks", "GdsSharp.Benchmarks\GdsSharp.Benchmarks.csproj", "{B7DCE78E-B318-4D94-BB6B-40D7025CE396}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -28,5 +30,9 @@ Global
 		{90695895-33A3-4C42-A733-F3A90E27A69F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{90695895-33A3-4C42-A733-F3A90E27A69F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{90695895-33A3-4C42-A733-F3A90E27A69F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B7DCE78E-B318-4D94-BB6B-40D7025CE396}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B7DCE78E-B318-4D94-BB6B-40D7025CE396}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B7DCE78E-B318-4D94-BB6B-40D7025CE396}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B7DCE78E-B318-4D94-BB6B-40D7025CE396}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

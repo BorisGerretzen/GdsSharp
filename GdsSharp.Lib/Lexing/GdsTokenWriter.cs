@@ -5,7 +5,7 @@ using GdsSharp.Lib.NonTerminals.Enum;
 using GdsSharp.Lib.Terminals.Abstractions;
 using GdsSharp.Lib.Terminals.Records;
 
-namespace GdsSharp.Lib;
+namespace GdsSharp.Lib.Lexing;
 
 public class GdsTokenWriter
 {
@@ -49,8 +49,12 @@ public class GdsTokenWriter
 
         yield return new GdsRecordUnits { PhysicalUnits = _file.PhysicalUnits, UserUnits = _file.UserUnits };
 
-        foreach (var records in _file.Structures.SelectMany(TokenizeStructure)) yield return records;
-
+        foreach (var structure in _file.Structures)
+        {
+            foreach (var record in TokenizeStructure(structure)) 
+                yield return record;
+        }
+        
         yield return new GdsRecordNoData { Type = GdsRecordNoDataType.EndLib };
     }
 
@@ -125,7 +129,7 @@ public class GdsTokenWriter
 
         foreach (var record in TokenizeTransform(textElement.Transformation)) yield return record;
 
-        yield return new GdsRecordXy { Coordinates = textElement.Points.AsTuplePoints() };
+        yield return new GdsRecordXy { Coordinates = textElement.Points, NumPoints = textElement.Points.Count };
         yield return new GdsRecordString { Value = textElement.Text };
     }
 
@@ -137,7 +141,7 @@ public class GdsTokenWriter
 
         yield return new GdsRecordBoxType { Value = boxElement.BoxType };
 
-        yield return new GdsRecordXy { Coordinates = boxElement.Points.AsTuplePoints() };
+        yield return new GdsRecordXy { Coordinates = boxElement.Points, NumPoints = boxElement.Points.Count};
     }
 
     private IEnumerable<IGdsRecord> TokenizeNodeElement(GdsNodeElement nodeElement)
@@ -148,7 +152,7 @@ public class GdsTokenWriter
 
         yield return new GdsRecordNodeType { Value = nodeElement.NodeType };
 
-        yield return new GdsRecordXy { Coordinates = nodeElement.Points.AsTuplePoints() };
+        yield return new GdsRecordXy { Coordinates = nodeElement.Points, NumPoints = nodeElement.Points.Count};
     }
 
     private IEnumerable<IGdsRecord> TokenizeArrayReferenceElement(GdsArrayReferenceElement arrayReferenceElement)
@@ -163,7 +167,7 @@ public class GdsTokenWriter
 
         yield return new GdsRecordColRow { NumCols = (short)arrayReferenceElement.Columns, NumRows = (short)arrayReferenceElement.Rows };
 
-        yield return new GdsRecordXy { Coordinates = arrayReferenceElement.Points.AsTuplePoints() };
+        yield return new GdsRecordXy { Coordinates = arrayReferenceElement.Points, NumPoints = arrayReferenceElement.Points.Count };
     }
 
     private IEnumerable<IGdsRecord> TokenizeStructureReferenceElement(GdsStructureReferenceElement element)
@@ -176,7 +180,7 @@ public class GdsTokenWriter
 
         foreach (var record in TokenizeTransform(element.Transformation)) yield return record;
 
-        yield return new GdsRecordXy { Coordinates = element.Points.AsTuplePoints() };
+        yield return new GdsRecordXy { Coordinates = element.Points, NumPoints = element.Points.Count};
     }
 
     private IEnumerable<IGdsRecord> TokenizePathElement(GdsPathElement element)
@@ -191,7 +195,7 @@ public class GdsTokenWriter
 
         if (element.Width != 0) yield return new GdsRecordWidth { Value = element.Width };
 
-        yield return new GdsRecordXy { Coordinates = element.Points.AsTuplePoints() };
+        yield return new GdsRecordXy { Coordinates = element.Points, NumPoints = element.Points.Count};
     }
 
     private IEnumerable<IGdsRecord> TokenizeBoundaryElement(GdsBoundaryElement element)
@@ -202,7 +206,7 @@ public class GdsTokenWriter
 
         yield return new GdsRecordDataType { Value = element.DataType };
 
-        yield return new GdsRecordXy { Coordinates = element.Points.AsTuplePoints() };
+        yield return new GdsRecordXy { Coordinates = element.Points, NumPoints = element.NumPoints};
     }
 
     private IEnumerable<IGdsRecord> TokenizeElement(GdsElement element)
@@ -246,7 +250,8 @@ public class GdsTokenWriter
 
         yield return new GdsRecordStrName { Value = structure.Name };
 
-        foreach (var record in structure.Elements.SelectMany(TokenizeElement)) yield return record;
+        foreach (var record in structure.Elements.SelectMany(TokenizeElement)) 
+            yield return record;
 
         yield return new GdsRecordNoData { Type = GdsRecordNoDataType.EndStr };
     }

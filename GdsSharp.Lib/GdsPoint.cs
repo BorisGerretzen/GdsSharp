@@ -1,8 +1,8 @@
 using System.Numerics;
 
-namespace GdsSharp.Lib.NonTerminals;
+namespace GdsSharp.Lib;
 
-public struct GdsPoint
+public readonly struct GdsPoint
 {
     public GdsPoint(int x, int y)
     {
@@ -20,8 +20,14 @@ public struct GdsPoint
         Y = (int)MathF.Round(y);
     }
 
-    public int X { get; set; }
-    public int Y { get; set; }
+    public GdsPoint(double x, double y)
+    {
+        X = (int)Math.Round(x);
+        Y = (int)Math.Round(y);
+    }
+
+    public readonly int X;
+    public readonly int Y;
 
     public static GdsPoint operator +(GdsPoint a, GdsPoint b) => new(a.X + b.X, a.Y + b.Y);
     public static GdsPoint operator -(GdsPoint a, GdsPoint b) => new(a.X - b.X, a.Y - b.Y);
@@ -38,4 +44,9 @@ public struct GdsPoint
     public static GdsPoint operator *(int a, GdsPoint b) => new(a * b.X, a * b.Y);
     public static GdsPoint operator /(int a, GdsPoint b) => new(a / b.X, a / b.Y);
     public static GdsPoint operator %(int a, GdsPoint b) => new(a % b.X, a % b.Y);
+
+    public override string ToString()
+    {
+        return $"({X}, {Y})";
+    }
 }
