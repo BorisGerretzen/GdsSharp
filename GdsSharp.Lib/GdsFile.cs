@@ -1,6 +1,8 @@
+using GdsSharp.Lib.Acceleration;
 using GdsSharp.Lib.Lexing;
 using GdsSharp.Lib.NonTerminals;
 using GdsSharp.Lib.NonTerminals.Enum;
+using RBush;
 
 namespace GdsSharp.Lib;
 
@@ -66,5 +68,22 @@ public class GdsFile
             throw new KeyNotFoundException($"Structure with name '{structureName}' not found.");
 
         return structure.GetBoundingBox(GetStructure);
+    }
+    
+    public RBush<GdsElementRef> CreateSpatialIndex()
+    {
+        var tree = new RBush<GdsElementRef>();
+        var structures = Structures.ToDictionary(s => s.Name);
+        foreach (var (name, structure) in structures)
+        {
+            var index = 0;
+            foreach(var element in structure.Elements)
+            {
+                var envelope = element.Element.GetBoundingBox(structures.GetValueOrDefault).ToEnvelope();
+                tree.Insert(new GdsElementRef(envelope, name, index++));
+            }
+        }
+        
+        return tree;
     }
 }

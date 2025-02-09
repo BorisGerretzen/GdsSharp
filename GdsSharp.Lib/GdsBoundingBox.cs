@@ -1,4 +1,6 @@
-﻿namespace GdsSharp.Lib;
+﻿using RBush;
+
+namespace GdsSharp.Lib;
 
 public readonly struct GdsBoundingBox
 {
@@ -39,6 +41,11 @@ public readonly struct GdsBoundingBox
             Min = new GdsPoint(Math.Min(Min.X, boundingBox.Min.X), Math.Min(Min.Y, boundingBox.Min.Y));
             Max = new GdsPoint(Math.Max(Max.X, boundingBox.Max.X), Math.Max(Max.Y, boundingBox.Max.Y));
         }
+    }
+
+    public Envelope ToEnvelope()
+    {
+        return new Envelope(Min.X, Min.Y, Max.X, Max.Y);
     }
 
     public static GdsBoundingBox operator *(GdsBoundingBox a, double b)
