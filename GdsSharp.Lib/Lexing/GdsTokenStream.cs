@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using GdsSharp.Lib.Abstractions;
 using GdsSharp.Lib.Binary;
 using GdsSharp.Lib.Terminals;
@@ -26,8 +27,8 @@ public class GdsTokenStream : GdsStreamOperator, IDisposable, IEnumerable<IGdsRe
     /// <inheritdoc />
     public IEnumerator<IGdsRecord> GetEnumerator()
     {
-        GdsTokenReference? element;
-        while ((element = Read()) != null) yield return element.Record;
+        while (Read() is { } element) 
+            yield return element.Record;
     }
 
     /// <inheritdoc />
@@ -64,6 +65,12 @@ public class GdsTokenStream : GdsStreamOperator, IDisposable, IEnumerable<IGdsRe
         var element = Read();
         if (element is null) throw new InvalidOperationException("No more items in the queue.");
         return element;
+    }
+    
+    public bool TryDequeue([NotNullWhen(true)] out GdsTokenReference? element)
+    {
+        element = Read();
+        return element != null;
     }
 
     /// <summary>

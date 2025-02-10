@@ -2,7 +2,7 @@
 
 namespace GdsSharp.Lib.Terminals;
 
-public struct GdsDouble
+public readonly struct GdsDouble
 {
     /// <summary>
     ///     Size of a GDSII double in bytes.
@@ -12,18 +12,18 @@ public struct GdsDouble
     /// <summary>
     ///     Whether the double is negative.
     /// </summary>
-    public bool IsNegative { get; set; }
+    public bool IsNegative { get; }
 
     /// <summary>
     ///     Exponent of the double.
     ///     Stored in binary as excess 64, this property is normal.
     /// </summary>
-    public int Exponent { get; set; }
+    public int Exponent { get; }
 
     /// <summary>
     ///     Mantissa of the double.
     /// </summary>
-    public ulong Mantissa { get; set; }
+    public ulong Mantissa { get; }
 
     /// <summary>
     ///     Creates a GDSII double from a normal double.
