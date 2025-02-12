@@ -1,33 +1,45 @@
 ﻿using System.Buffers.Binary;
-using System.Runtime.CompilerServices;
 using System.Text;
 using GdsSharp.Lib.Terminals;
 
 namespace GdsSharp.Lib.Binary;
 
-public sealed class GdsBinaryReader : BinaryReader
+public class GdsBinaryReader : BinaryReader
 {
     public GdsBinaryReader(Stream input) : base(input, Encoding.UTF8, true)
     {
     }
-    
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override short ReadInt16() => BinaryPrimitives.ReadInt16BigEndian(ReadBytes(2));
-    
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override int ReadInt32() => BinaryPrimitives.ReadInt32BigEndian(ReadBytes(4));
+
+    public override short ReadInt16()
+    {
+        var data = base.ReadInt16();
+        return BitConverter.IsLittleEndian ? BinaryPrimitives.ReverseEndianness(data) : data;
+    }
+
+    public override int ReadInt32()
+    {
+        var data = base.ReadInt32();
+        return BitConverter.IsLittleEndian ? BinaryPrimitives.ReverseEndianness(data) : data;
+    }
+
     public override long ReadInt64()
     {
         var data = base.ReadInt64();
         return BitConverter.IsLittleEndian ? BinaryPrimitives.ReverseEndianness(data) : data;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override ushort ReadUInt16() => BinaryPrimitives.ReadUInt16BigEndian(ReadBytes(2));
-    
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override uint ReadUInt32() => BinaryPrimitives.ReadUInt32BigEndian(ReadBytes(4));
-    
+    public override ushort ReadUInt16()
+    {
+        var data = base.ReadUInt16();
+        return BitConverter.IsLittleEndian ? BinaryPrimitives.ReverseEndianness(data) : data;
+    }
+
+    public override uint ReadUInt32()
+    {
+        var data = base.ReadUInt32();
+        return BitConverter.IsLittleEndian ? BinaryPrimitives.ReverseEndianness(data) : data;
+    }
+
     public override ulong ReadUInt64()
     {
         var data = base.ReadUInt64();
@@ -41,7 +53,7 @@ public sealed class GdsBinaryReader : BinaryReader
 
     public override double ReadDouble()
     {
-        var data = ReadBytes(GdsDouble.Size);
+        var data = base.ReadBytes(GdsDouble.Size);
 
         if (BitConverter.IsLittleEndian)
             for (var i = 0; i < data.Length; i++)
@@ -52,12 +64,10 @@ public sealed class GdsBinaryReader : BinaryReader
 
     public string ReadAsciiString(int length)
     {
-        Span<byte> buffer = stackalloc byte[length];
-        var read = Read(buffer);
-        if (read != length)
-            throw new EndOfStreamException($"Expected {length} bytes, but only read {read} bytes.");
-        var nullIndex = buffer.IndexOf((byte)0);
-        return Encoding.ASCII.GetString(nullIndex == -1 ? buffer : buffer[..nullIndex]);
+        var data = base.ReadBytes(length);
+        var str = Encoding.ASCII.GetString(data);
+        while (str.EndsWith('\0')) str = str[..^1]; // Remove trailing nulls
+        return str;
     }
 
     protected override void Dispose(bool disposing)

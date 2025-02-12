@@ -1,4 +1,7 @@
-﻿namespace GdsSharp.Lib.Terminals.Abstractions;
+﻿using GdsSharp.Lib.Binary;
+using GdsSharp.SourceGenerators;
+
+namespace GdsSharp.Lib.Terminals.Abstractions;
 
 public abstract class GenericGdsRecord<T> : IGdsSimpleRead, IGdsSimpleWrite
 {
