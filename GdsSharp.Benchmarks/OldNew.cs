@@ -1,10 +1,13 @@
 ﻿using BenchmarkDotNet.Attributes;
 using GdsSharp.Lib;
+using GdsSharp.Lib.InternalDb;
+using GdsSharp.Lib.InternalDb.VertexStore;
 using GdsSharp.Lib.Lexing;
 using GdsSharp.Lib.Old;
 using GdsSharp.Lib.Old.Lexing;
 using GdsSharp.Lib.Parsing;
 using GdsSharp.Lib.Parsing.Consumer;
+using GdsSharp.Lib.Parsing.Models;
 
 namespace GdsSharp.Benchmarks;
 
@@ -16,7 +19,7 @@ public class OldNew
     [IterationSetup]
     public void Setup()
     {
-        _stream = File.OpenRead("Assets/example.gds");
+        _stream = File.OpenRead("Assets/output.gds");
     }
 
     [IterationCleanup]
@@ -44,5 +47,16 @@ public class OldNew
         var consumer = new OldParserConsumer();
         parser.Parse(consumer);
         return consumer.File;
+    }
+
+    [Benchmark]
+    public GdsLibrary Newest()
+    {
+        using var tokenStream = new NewGdsTokenStream(_stream!);
+        var parser = new NewGdsParser(tokenStream);
+        var vertexStore = new MemoryVertexStore();
+        var consumer = new InternalDbConsumer(vertexStore);
+        parser.Parse(consumer);
+        return consumer.Library;
     }
 }
