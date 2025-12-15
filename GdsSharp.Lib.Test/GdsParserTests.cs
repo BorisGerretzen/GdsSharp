@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
-using GdsSharp.Lib.Lexing;
-using GdsSharp.Lib.NonTerminals.Elements;
+using GdsSharp.Lib.Old;
+using GdsSharp.Lib.Old.Lexing;
 
 namespace GdsSharp.Lib.Test;
 

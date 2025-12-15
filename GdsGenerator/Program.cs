@@ -1,8 +1,9 @@
 ﻿using System.Numerics;
 using GdsSharp.Lib;
 using GdsSharp.Lib.Builders;
-using GdsSharp.Lib.NonTerminals;
-using GdsSharp.Lib.NonTerminals.Elements;
+using GdsSharp.Lib.Old;
+using GdsSharp.Lib.Old.NonTerminals;
+using GdsSharp.Lib.Old.NonTerminals.Elements;
 
 var file = new GdsFile
 {
@@ -98,13 +99,18 @@ elements.AddRange(
         // In practice, the number of vertices per element can be much higher
         .Build(200)
 );
+var structures = new List<GdsStructure>();
+file.Structures = structures;
 
-var structure = new GdsStructure
+for (var i = 0; i < 10_000; i++)
 {
-    Name = "Example structure",
-    Elements = elements
-};
+    var structure = new GdsStructure
+    {
+        Name = $"Structure_{i:D5}",
+        Elements = elements
+    };
+    structures.Add(structure);
+}
 
-file.Structures = [structure];
 using var write = File.OpenWrite("example.gds");
 file.WriteTo(write);

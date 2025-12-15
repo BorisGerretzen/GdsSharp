@@ -1,4 +1,4 @@
-﻿using GdsSharp.Lib.Terminals.Records;
+﻿using GdsSharp.Lib.Old.Terminals.Records;
 
 namespace GdsSharp.Lib;
 

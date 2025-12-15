@@ -1,5 +1,5 @@
 ﻿using System.Buffers.Binary;
-using GdsSharp.Lib.Terminals;
+using GdsSharp.Lib.Old.Terminals;
 
 namespace GdsSharp.Lib.Test.Parsing;
 

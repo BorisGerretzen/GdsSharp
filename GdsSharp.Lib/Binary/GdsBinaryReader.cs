@@ -1,12 +1,12 @@
 ﻿using System.Buffers.Binary;
 using System.Text;
-using GdsSharp.Lib.Terminals;
+using GdsSharp.Lib.Old.Terminals;
 
 namespace GdsSharp.Lib.Binary;
 
 public class GdsBinaryReader : BinaryReader
 {
-    public GdsBinaryReader(Stream input) : base(input, Encoding.UTF8, true)
+    public GdsBinaryReader(Stream input, bool leaveOpen = true) : base(input, Encoding.UTF8, leaveOpen)
     {
     }
 
