@@ -7,10 +7,10 @@ public readonly record struct GdsLibraryInfo(
     string Name,
     DateTime ModificationTime,
     DateTime AccessTime,
-    IEnumerable<string> ReferencedLibraries,
-    IEnumerable<string> Fonts,
+    IReadOnlyCollection<string> ReferencedLibraries,
+    IReadOnlyCollection<string> Fonts,
     string? AttributeDefinitionFile,
-    short Generations,
+    short? Generations,
     double UserUnits,
     double PhysicalUnits,
     GdsFormatType FormatType);

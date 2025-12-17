@@ -1,4 +1,4 @@
-﻿namespace GdsSharp.Lib.InternalDb;
+﻿namespace GdsSharp.Lib.InternalDb.Builder;
 
 public enum ShapeKind
 {

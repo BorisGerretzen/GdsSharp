@@ -3,6 +3,6 @@
 namespace GdsSharp.Lib.InternalDb;
 
 public record struct GdsTransform(
-    GdsStransInfo Strans,
+    GdsStransInfo? Strans,
     GdsPoint Origin
 );

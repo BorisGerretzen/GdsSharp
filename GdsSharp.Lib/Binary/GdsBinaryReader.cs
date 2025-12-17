@@ -4,12 +4,8 @@ using GdsSharp.Lib.Old.Terminals;
 
 namespace GdsSharp.Lib.Binary;
 
-public class GdsBinaryReader : BinaryReader
+public class GdsBinaryReader(Stream input, bool leaveOpen = true) : BinaryReader(input, Encoding.UTF8, leaveOpen)
 {
-    public GdsBinaryReader(Stream input, bool leaveOpen = true) : base(input, Encoding.UTF8, leaveOpen)
-    {
-    }
-
     public override short ReadInt16()
     {
         var data = base.ReadInt16();

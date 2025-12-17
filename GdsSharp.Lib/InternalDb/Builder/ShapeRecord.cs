@@ -1,12 +1,17 @@
-﻿namespace GdsSharp.Lib.InternalDb;
+﻿using GdsSharp.Lib.InternalDb.BoundingBox;
+using GdsSharp.Lib.Old.NonTerminals.Enum;
+
+namespace GdsSharp.Lib.InternalDb.Builder;
 
 public readonly record struct ShapeRecord(
     CellId Cell,
+    ShapeId Shape,
     ShapeKind Kind,
     short Layer,
     short DataType,
     long VertexOffset,
     int VertexCount,
     GdsBoundingBox BoundingBox,
-    int? Width
+    int? Width,
+    GdsPathType? PathType
 );

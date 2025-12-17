@@ -1,4 +1,4 @@
-﻿namespace GdsSharp.Lib.InternalDb;
+﻿namespace GdsSharp.Lib.InternalDb.BoundingBox;
 
 public static class GdsBoundingBoxExtensions
 {
@@ -6,7 +6,15 @@ public static class GdsBoundingBoxExtensions
     {
         if (box.IsEmpty) return box;
 
-        var (reflection, _, _, mag, angle) = t.Strans;
+        var reflection = false;
+        var mag = 1d;
+        var angle = 0d;
+        if (t.Strans.HasValue)
+        {
+            reflection = t.Strans.Value.Reflection;
+            mag = t.Strans.Value.Magnification ?? 1;
+            angle = t.Strans.Value.Angle ?? 0;
+        }
 
         var ang = angle * (Math.PI / 180.0);
         var cos = Math.Cos(ang);
@@ -14,10 +22,10 @@ public static class GdsBoundingBoxExtensions
 
         Span<GdsPoint> corners = stackalloc GdsPoint[4]
         {
-            new(box.Min.X, box.Min.Y),
+            box.Min,
             new(box.Min.X, box.Max.Y),
             new(box.Max.X, box.Min.Y),
-            new(box.Max.X, box.Max.Y),
+            box.Max,
         };
 
         double minX = double.PositiveInfinity, minY = double.PositiveInfinity;

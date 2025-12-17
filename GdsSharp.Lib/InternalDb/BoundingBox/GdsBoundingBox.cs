@@ -1,4 +1,4 @@
-﻿namespace GdsSharp.Lib.InternalDb;
+﻿namespace GdsSharp.Lib.InternalDb.BoundingBox;
 
 public readonly struct GdsBoundingBox
 {
@@ -23,6 +23,10 @@ public readonly struct GdsBoundingBox
         Max = new GdsPoint(maxX, maxY);
     }
     
+    /// <summary>
+    /// Returns the union of this bounding box with another bounding box.
+    /// </summary>
+    /// <returns>Bounding box that encompasses both this and the other bounding box.</returns>
     public GdsBoundingBox Union(GdsBoundingBox other)
     {
         if (IsEmpty) return other;
@@ -36,6 +40,9 @@ public readonly struct GdsBoundingBox
         return new GdsBoundingBox(new GdsPoint(minX, minY), new GdsPoint(maxX, maxY));
     }
 
+    /// <summary>
+    /// Creates a bounding box that encompasses all the given points.
+    /// </summary>
     public static GdsBoundingBox FromPoints(ReadOnlySpan<GdsPoint> points)
     {
         if (points.Length == 0)
@@ -57,11 +64,15 @@ public readonly struct GdsBoundingBox
         return new GdsBoundingBox(new GdsPoint(minX, minY), new GdsPoint(maxX, maxY));
     }
 
-    public static GdsBoundingBox operator +(GdsBoundingBox a, GdsPoint b)
+    /// <summary>
+    /// Translates the bounding box by the given vector.
+    /// </summary>
+    /// <returns>The translated bounding box.</returns>
+    public static GdsBoundingBox operator +(GdsBoundingBox box, GdsPoint vec)
     {
         return new GdsBoundingBox(
-            new GdsPoint(a.Min.X + b.X, a.Min.Y + b.Y),
-            new GdsPoint(a.Max.X + b.X, a.Max.Y + b.Y)
+            new GdsPoint(box.Min.X + vec.X, box.Min.Y + vec.Y),
+            new GdsPoint(box.Max.X + vec.X, box.Max.Y + vec.Y)
         );
     }
 }

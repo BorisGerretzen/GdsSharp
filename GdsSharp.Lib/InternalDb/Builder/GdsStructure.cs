@@ -1,6 +1,7 @@
-﻿using GdsSharp.Lib.Parsing.Models;
+﻿using GdsSharp.Lib.InternalDb.BoundingBox;
+using GdsSharp.Lib.Parsing.Models;
 
-namespace GdsSharp.Lib.InternalDb;
+namespace GdsSharp.Lib.InternalDb.Builder;
 
 public readonly record struct GdsStructure(
     GdsStructureInfo Info,

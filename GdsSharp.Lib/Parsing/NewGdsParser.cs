@@ -1,7 +1,5 @@
 ﻿using System.Buffers;
 using GdsSharp.Lib.Lexing;
-using GdsSharp.Lib.Lexing.Tokens;
-using GdsSharp.Lib.Models;
 using GdsSharp.Lib.Old.NonTerminals.Enum;
 using GdsSharp.Lib.Parsing.Models;
 
@@ -19,7 +17,7 @@ public sealed class NewGdsParser(NewGdsTokenStream tokenStream)
 
         var libNameHdr = Expect(GdsRecordTypes.LibraryName);
         var libName = tokenStream.ReadString(libNameHdr);
-
+        
         string[]? refLibs = null;
         string[]? fonts = null;
         short? generations = null;
@@ -64,7 +62,7 @@ public sealed class NewGdsParser(NewGdsTokenStream tokenStream)
             ReferencedLibraries: refLibs ?? [],
             Fonts: fonts ?? [],
             AttributeDefinitionFile: null,
-            Generations: generations ?? 3,
+            Generations: generations,
             UserUnits: userUnits,
             PhysicalUnits: physicalUnits,
             FormatType: format.HasValue ? (GdsFormatType)format.Value : GdsFormatType.GdsArchive
@@ -471,8 +469,8 @@ public sealed class NewGdsParser(NewGdsTokenStream tokenStream)
 
         var s = new GdsStransInfo(
             Reflection: (flags & 0b10000000_00000000) != 0,
-            AbsoluteAngle: (flags & 0b100) != 0,
-            AbsoluteMagnification: (flags & 0b10) != 0
+            AbsoluteMagnification: (flags & 0b100) != 0,
+            AbsoluteAngle: (flags & 0b10) != 0
         );
 
         if (tokenStream.TryPeek(out var magPeek) && magPeek.Code == GdsRecordTypes.Magnification)

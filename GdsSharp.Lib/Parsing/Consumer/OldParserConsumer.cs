@@ -1,5 +1,4 @@
-﻿using GdsSharp.Lib.Models;
-using GdsSharp.Lib.Old;
+﻿using GdsSharp.Lib.Old;
 using GdsSharp.Lib.Old.NonTerminals;
 using GdsSharp.Lib.Old.NonTerminals.Abstractions;
 using GdsSharp.Lib.Old.NonTerminals.Elements;
@@ -39,7 +38,7 @@ public sealed class OldParserConsumer : IParserConsumer
             Structures = _structures,
             ReferencedLibraries = lib.ReferencedLibraries.ToList(),
             Fonts = lib.Fonts.ToList(),
-            Generations = lib.Generations,
+            Generations = lib.Generations ?? 3,
             FormatType = lib.FormatType
         };
     }
@@ -247,8 +246,8 @@ public sealed class OldParserConsumer : IParserConsumer
         
         return new GdsStrans
         {
-            Angle = s.Angle,
-            Magnification = s.Magnification,
+            Angle = s.Angle ?? 0,
+            Magnification = s.Magnification ?? 1,
             AbsoluteAngle = s.AbsoluteAngle,
             AbsoluteMagnification = s.AbsoluteMagnification,
             Reflection = s.Reflection

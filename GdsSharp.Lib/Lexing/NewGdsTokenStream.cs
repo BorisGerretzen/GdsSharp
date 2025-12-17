@@ -1,5 +1,4 @@
 ﻿using GdsSharp.Lib.Binary;
-using GdsSharp.Lib.Lexing.Tokens;
 
 namespace GdsSharp.Lib.Lexing;
 
@@ -71,7 +70,7 @@ public sealed class NewGdsTokenStream : IDisposable
     /// </summary>
     /// <exception cref="EndOfStreamException">If no header could be read.</exception>
     public GdsTokenHeader Read() => TryRead(out var header) ? header : throw new EndOfStreamException();
-    
+
     /// <summary>
     /// Peeks a GDS token header from the stream.
     /// </summary>

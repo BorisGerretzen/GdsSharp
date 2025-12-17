@@ -4,12 +4,8 @@ using GdsSharp.Lib.Old.Terminals;
 
 namespace GdsSharp.Lib.Binary;
 
-public class GdsBinaryWriter : BinaryWriter
+public class GdsBinaryWriter(Stream output) : BinaryWriter(output)
 {
-    public GdsBinaryWriter(Stream output) : base(output)
-    {
-    }
-
     public override void Write(ushort value)
     {
         var data = BitConverter.IsLittleEndian ? BinaryPrimitives.ReverseEndianness(value) : value;

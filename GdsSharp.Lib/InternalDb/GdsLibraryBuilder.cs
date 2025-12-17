@@ -1,4 +1,6 @@
-﻿using GdsSharp.Lib.InternalDb.VertexStore;
+﻿using GdsSharp.Lib.InternalDb.BoundingBox;
+using GdsSharp.Lib.InternalDb.Builder;
+using GdsSharp.Lib.InternalDb.VertexStore;
 using GdsSharp.Lib.Old.NonTerminals.Enum;
 using GdsSharp.Lib.Parsing.Models;
 
@@ -47,20 +49,22 @@ public class GdsLibraryBuilder(IGdsVertexStoreWriter vertexWriter)
 
     public ShapeId AddBoundary(CellId cell, short layer, short dataType, ReadOnlySpan<GdsPoint> points)
     {
-        var idx = _shapeRecords.Count;
+        var id = new ShapeId(_shapeRecords.Count);
         var vertexOffset = vertexWriter.Write(points);
         var shapeRecord = new ShapeRecord(
             Cell: cell,
+            Shape: id,
             Kind: ShapeKind.Boundary,
             Layer: layer,
             DataType: dataType,
             VertexOffset: vertexOffset,
             VertexCount: points.Length,
             BoundingBox: GdsBoundingBox.FromPoints(points),
-            Width: null
+            Width: null,
+            PathType: null
         );
         _shapeRecords.Add(shapeRecord);
-        return new ShapeId(idx);
+        return id;
     }
 
     public ShapeId AddBox(CellId cell, short layer, short dataType, ReadOnlySpan<GdsPoint> points)
@@ -68,12 +72,12 @@ public class GdsLibraryBuilder(IGdsVertexStoreWriter vertexWriter)
         return AddBoundary(cell, layer, dataType, points);
     }
 
-    public ShapeId AddPath(CellId cell, short layer, short dataType, ReadOnlySpan<GdsPoint> points, int width)
+    public ShapeId AddPath(CellId cell, short layer, short dataType, ReadOnlySpan<GdsPoint> points, int? width, GdsPathType? pathType)
     {
-        var idx = _shapeRecords.Count;
+        var id = new ShapeId(_shapeRecords.Count);
         var vertexOffset = vertexWriter.Write(points);
-
-        var halfWidth = width / 2;
+        
+        var halfWidth = (width ?? 0) / 2;
         var boundingBox = GdsBoundingBox.FromPoints(points);
         boundingBox = new GdsBoundingBox(
             new GdsPoint(boundingBox.Min.X - halfWidth, boundingBox.Min.Y - halfWidth),
@@ -82,48 +86,54 @@ public class GdsLibraryBuilder(IGdsVertexStoreWriter vertexWriter)
 
         var shapeRecord = new ShapeRecord(
             Cell: cell,
+            Shape: id,
             Kind: ShapeKind.Path,
             Layer: layer,
             DataType: dataType,
             VertexOffset: vertexOffset,
             VertexCount: points.Length,
             BoundingBox: boundingBox,
-            Width: width
+            Width: width,
+            PathType: pathType
         );
         _shapeRecords.Add(shapeRecord);
-        return new ShapeId(idx);
+        return id;
     }
 
     public ShapeId AddNode(CellId cell, short layer, short dataType, ReadOnlySpan<GdsPoint> points)
     {
-        var idx = _shapeRecords.Count;
+        var id = new ShapeId(_shapeRecords.Count);
         var vertexOffset = vertexWriter.Write(points);
         var shapeRecord = new ShapeRecord(
             Cell: cell,
+            Shape: id,
             Kind: ShapeKind.Node,
             Layer: layer,
             DataType: dataType,
             VertexOffset: vertexOffset,
             VertexCount: points.Length,
             BoundingBox: GdsBoundingBox.FromPoints(points),
-            Width: null
+            Width: null,
+            PathType: null
         );
         _shapeRecords.Add(shapeRecord);
-        return new ShapeId(idx);
+        return id;
     }
     
-    public ShapeId AddText(CellId cell, short layer, short dataType, string text, PresentationInfo? presentation, GdsPathType? pathType, int? width, GdsTransform transform)
+    public ShapeId AddText(CellId cell, short layer, short textType, string text, PresentationInfo? presentation, GdsPathType? pathType, int? width, GdsTransform transform)
     {
         var id = new ShapeId(_shapeRecords.Count);
         var shapeRecord = new ShapeRecord(
             Cell: cell,
+            Shape: id,
             Kind: ShapeKind.Text,
             Layer: layer,
-            DataType: dataType,
+            DataType: textType,
             VertexOffset: -1,
             VertexCount: 0,
             BoundingBox: new GdsBoundingBox(transform.Origin, transform.Origin),
-            Width: width
+            Width: width,
+            PathType: null
         );
         _shapeRecords.Add(shapeRecord);
 
@@ -244,6 +254,6 @@ public class GdsLibraryBuilder(IGdsVertexStoreWriter vertexWriter)
             _structures[i] = structure with { BoundingBox = boundingBox.IsEmpty ? null : boundingBox };
         }
     }
-    
-    public readonly record struct ResolvedRef(int TargetId, GdsTransform Transform);
+
+    private readonly record struct ResolvedRef(int TargetId, GdsTransform Transform);
 }

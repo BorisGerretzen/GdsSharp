@@ -1,5 +1,8 @@
 namespace GdsSharp.Lib.Old.NonTerminals.Enum;
 
+/// <summary>
+/// Serialized from short
+/// </summary>
 public enum GdsPathType
 {
     Square = 0,
