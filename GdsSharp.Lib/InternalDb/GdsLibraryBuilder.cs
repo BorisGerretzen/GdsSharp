@@ -6,17 +6,48 @@ using GdsSharp.Lib.Parsing.Models;
 
 namespace GdsSharp.Lib.InternalDb;
 
+public enum ElementKind
+{
+    Boundary,
+    Path,
+    SRef,
+    ARef,
+    Text,
+    Node,
+    Box
+}
+
+public readonly record struct ElementRecord(CellId Cell, GdsElementCommon Common, ElementKind Kind, int Index, GdsBoundingBox? BoundingBox);
+
+public readonly record struct BoundaryPayload(short Layer, short DataType, long VertexOffset, int VertexCount);
+
+public readonly record struct PathPayload(short Layer, short DataType, GdsPathType? PathType, int? Width, long VertexOffset, int VertexCount);
+
+public readonly record struct SRefPayload(CellId Parent, string TargetName, GdsStransInfo? Strans, GdsPoint Origin);
+
+public readonly record struct ARefPayload(CellId Parent, string TargetName, GdsStransInfo? Strans, int Rows, int Columns, GdsPoint RowVector, GdsPoint ColumnVector, GdsPoint Origin);
+
+public readonly record struct TextPayload(short Layer, short TextType, PresentationInfo? Presentation, GdsPathType? PathType, int? Width, GdsStransInfo? Strans, GdsPoint Origin, string Text);
+
+public readonly record struct NodePayload(short Layer, short NodeType, long VertexOffset, int VertexCount);
+
+public readonly record struct BoxPayload(short Layer, short BoxType, long VertexOffset, int VertexCount);
+
 public class GdsLibraryBuilder(IGdsVertexStoreWriter vertexWriter)
 {
     private readonly List<GdsStructure> _structures = [];
-    
-    private readonly List<ShapeRecord> _shapeRecords = [];
-    private readonly List<GdsStructureReference> _structureReferences = [];
-    private readonly List<GdsArrayReference> _arrayReferences = [];
+
+    private readonly List<ElementRecord> _elements = [];
+    private readonly List<BoundaryPayload> _boundaries = [];
+    private readonly List<PathPayload> _paths = [];
+    private readonly List<SRefPayload> _structureReferences = [];
+    private readonly List<ARefPayload> _arrayReferences = [];
+    private readonly List<TextPayload> _texts = [];
+    private readonly List<NodePayload> _nodes = [];
+    private readonly List<BoxPayload> _boxes = [];
 
     private readonly List<PropertyRecord> _properties = [];
-    private readonly List<TextRecord> _textRecords = [];
-    
+
     private GdsLibraryInfo? _info;
 
     public void SetInfo(GdsLibraryInfo info)
@@ -33,50 +64,61 @@ public class GdsLibraryBuilder(IGdsVertexStoreWriter vertexWriter)
         return new CellId(idx);
     }
 
-    public StructureReferenceId AddStructureReference(CellId parentId, string targetName, GdsTransform transform)
+    public int AddStructureReference(CellId parentId, GdsElementCommon common, string targetName, GdsStransInfo? strans, GdsPoint origin)
     {
-        var idx = _structureReferences.Count;
-        _structureReferences.Add(new GdsStructureReference(parentId, targetName, transform));
-        return new StructureReferenceId(idx);
+        var elementId = _elements.Count;
+        var elementRecord = new ElementRecord(parentId, common, ElementKind.SRef, _structureReferences.Count, null);
+        _elements.Add(elementRecord);
+
+        var sref = new SRefPayload(parentId, targetName, strans, origin);
+        _structureReferences.Add(sref);
+
+        return elementId;
     }
 
-    public ArrayReferenceId AddArrayReference(CellId structureId, string targetName, GdsTransform transform, int rows, int columns, GdsPoint rowVector, GdsPoint columnVector)
+    public int AddArrayReference(CellId parentId, GdsElementCommon common, string targetName, GdsStransInfo? strans, int rows, int columns, GdsPoint rowVector, GdsPoint columnVector,
+        GdsPoint origin)
     {
-        var idx = _arrayReferences.Count;
-        _arrayReferences.Add(new GdsArrayReference(structureId, targetName, transform, rows, columns, rowVector, columnVector));
-        return new ArrayReferenceId(idx);
+        var elementId = _elements.Count;
+        var elementRecord = new ElementRecord(parentId, common, ElementKind.ARef, _arrayReferences.Count, null);
+        _elements.Add(elementRecord);
+
+        var aref = new ARefPayload(parentId, targetName, strans, rows, columns, rowVector, columnVector, origin);
+        _arrayReferences.Add(aref);
+
+        return elementId;
     }
 
-    public ShapeId AddBoundary(CellId cell, short layer, short dataType, ReadOnlySpan<GdsPoint> points)
+    public int AddBoundary(CellId cell, GdsElementCommon common, short layer, short dataType, ReadOnlySpan<GdsPoint> points)
     {
-        var id = new ShapeId(_shapeRecords.Count);
+        var elementId = _elements.Count;
+        var elementRecord = new ElementRecord(cell, common, ElementKind.Boundary, _boundaries.Count, GdsBoundingBox.FromPoints(points));
+        _elements.Add(elementRecord);
+
         var vertexOffset = vertexWriter.Write(points);
-        var shapeRecord = new ShapeRecord(
-            Cell: cell,
-            Shape: id,
-            Kind: ShapeKind.Boundary,
-            Layer: layer,
-            DataType: dataType,
-            VertexOffset: vertexOffset,
-            VertexCount: points.Length,
-            BoundingBox: GdsBoundingBox.FromPoints(points),
-            Width: null,
-            PathType: null
-        );
-        _shapeRecords.Add(shapeRecord);
-        return id;
+
+        var boundary = new BoundaryPayload(layer, dataType, vertexOffset, points.Length);
+        _boundaries.Add(boundary);
+
+        return elementId;
     }
 
-    public ShapeId AddBox(CellId cell, short layer, short dataType, ReadOnlySpan<GdsPoint> points)
+    public int AddBox(CellId cell, GdsElementCommon common, short layer, short dataType, ReadOnlySpan<GdsPoint> points)
     {
-        return AddBoundary(cell, layer, dataType, points);
-    }
+        var elementId = _elements.Count;
+        var elementRecord = new ElementRecord(cell, common, ElementKind.Box, _boxes.Count, GdsBoundingBox.FromPoints(points));
+        _elements.Add(elementRecord);
 
-    public ShapeId AddPath(CellId cell, short layer, short dataType, ReadOnlySpan<GdsPoint> points, int? width, GdsPathType? pathType)
-    {
-        var id = new ShapeId(_shapeRecords.Count);
         var vertexOffset = vertexWriter.Write(points);
-        
+
+        var box = new BoxPayload(layer, dataType, vertexOffset, points.Length);
+        _boxes.Add(box);
+
+        return elementId;
+    }
+
+    public int AddPath(CellId cell, GdsElementCommon common, short layer, short dataType, ReadOnlySpan<GdsPoint> points, int? width, GdsPathType? pathType)
+    {
         var halfWidth = (width ?? 0) / 2;
         var boundingBox = GdsBoundingBox.FromPoints(points);
         boundingBox = new GdsBoundingBox(
@@ -84,176 +126,185 @@ public class GdsLibraryBuilder(IGdsVertexStoreWriter vertexWriter)
             new GdsPoint(boundingBox.Max.X + halfWidth, boundingBox.Max.Y + halfWidth)
         );
 
-        var shapeRecord = new ShapeRecord(
-            Cell: cell,
-            Shape: id,
-            Kind: ShapeKind.Path,
-            Layer: layer,
-            DataType: dataType,
-            VertexOffset: vertexOffset,
-            VertexCount: points.Length,
-            BoundingBox: boundingBox,
-            Width: width,
-            PathType: pathType
-        );
-        _shapeRecords.Add(shapeRecord);
-        return id;
-    }
+        var elementId = _elements.Count;
+        var elementRecord = new ElementRecord(cell, common, ElementKind.Path, _paths.Count, boundingBox);
+        _elements.Add(elementRecord);
 
-    public ShapeId AddNode(CellId cell, short layer, short dataType, ReadOnlySpan<GdsPoint> points)
-    {
-        var id = new ShapeId(_shapeRecords.Count);
         var vertexOffset = vertexWriter.Write(points);
-        var shapeRecord = new ShapeRecord(
-            Cell: cell,
-            Shape: id,
-            Kind: ShapeKind.Node,
-            Layer: layer,
-            DataType: dataType,
-            VertexOffset: vertexOffset,
-            VertexCount: points.Length,
-            BoundingBox: GdsBoundingBox.FromPoints(points),
-            Width: null,
-            PathType: null
-        );
-        _shapeRecords.Add(shapeRecord);
-        return id;
-    }
-    
-    public ShapeId AddText(CellId cell, short layer, short textType, string text, PresentationInfo? presentation, GdsPathType? pathType, int? width, GdsTransform transform)
-    {
-        var id = new ShapeId(_shapeRecords.Count);
-        var shapeRecord = new ShapeRecord(
-            Cell: cell,
-            Shape: id,
-            Kind: ShapeKind.Text,
-            Layer: layer,
-            DataType: textType,
-            VertexOffset: -1,
-            VertexCount: 0,
-            BoundingBox: new GdsBoundingBox(transform.Origin, transform.Origin),
-            Width: width,
-            PathType: null
-        );
-        _shapeRecords.Add(shapeRecord);
 
-        var textRecord = new TextRecord(id, text, presentation, pathType, transform.Strans, transform.Origin);
-        _textRecords.Add(textRecord);
-        
-        return id;
+        var path = new PathPayload(layer, dataType, pathType, width, vertexOffset, points.Length);
+        _paths.Add(path);
+
+        return elementId;
     }
-    
-    public void AddElementProperty(PropertyRecord propertyRecord)
+
+    public int AddNode(CellId cell, GdsElementCommon common, short layer, short dataType, ReadOnlySpan<GdsPoint> points)
     {
+        var elementId = _elements.Count;
+        var elementRecord = new ElementRecord(cell, common, ElementKind.Node, _nodes.Count, GdsBoundingBox.FromPoints(points));
+        _elements.Add(elementRecord);
+
+        var vertexOffset = vertexWriter.Write(points);
+
+        var node = new NodePayload(layer, dataType, vertexOffset, points.Length);
+        _nodes.Add(node);
+
+        return elementId;
+    }
+
+    public int AddText(CellId cell, GdsElementCommon common, short layer, short textType, PresentationInfo? presentation, GdsPathType? pathType, int? width, GdsStransInfo? strans, GdsPoint origin,
+        string text)
+    {
+        var elementId = _elements.Count;
+        var elementRecord = new ElementRecord(cell, common, ElementKind.Text, _texts.Count, null);
+        _elements.Add(elementRecord);
+
+        var textRecord = new TextPayload(layer, textType, presentation, pathType, width, strans, origin, text);
+        _texts.Add(textRecord);
+
+        return elementId;
+    }
+
+    public void AddElementProperty(int elementId, short attribute, string value)
+    {
+        var propertyRecord = new PropertyRecord(
+            ElementId: elementId,
+            Attribute: attribute,
+            Value: value);
         _properties.Add(propertyRecord);
     }
-    
+
     public GdsLibrary Build()
     {
         if (!_info.HasValue)
             throw new InvalidOperationException("Library info must be set before building the library.");
-        
+
         BuildInitialStructureBBs();
-        ApplyReferences();
-        return new GdsLibrary(_info.Value, _structures, _shapeRecords, _structureReferences, _arrayReferences, _properties, _textRecords);
+        ComputeBBs();
+        // ApplyReferences();
+        return new GdsLibrary(_info.Value, _structures, _elements, _boundaries, _paths, _structureReferences, _arrayReferences, _texts, _nodes, _boxes, _properties);
     }
 
-    private void ApplyReferences()
+    // private void ApplyReferences()
+    // {
+    //     var structureMap = new Dictionary<string, int>(StringComparer.Ordinal);
+    //     for (var i = 0; i < _structures.Count; i++)
+    //         structureMap[_structures[i].Info.Name] = i;
+    //
+    //     var numStructures = _structures.Count;
+    //
+    //     var refsByParent = new Dictionary<int, List<ResolvedRef>>();
+    //
+    //     foreach (var r in _structureReferences)
+    //     {
+    //         var parentId = r.Parent.Id;
+    //
+    //         if (!structureMap.TryGetValue(r.TargetName, out var childId))
+    //             throw new InvalidOperationException($"Unknown structure reference target '{r.TargetName}' referenced by cell {parentId}.");
+    //
+    //         refsByParent[parentId].Add(new ResolvedRef(childId, r.Transform));
+    //         parentsByChild[childId].Add(parentId);
+    //     }
+    //
+    // }
+
+    private void ComputeBBs()
     {
+        var numStructures = _structures.Count;
         var structureMap = new Dictionary<string, int>(StringComparer.Ordinal);
         for (var i = 0; i < _structures.Count; i++)
             structureMap[_structures[i].Info.Name] = i;
-
-        var numStructures = _structures.Count;
-
-        var refsByParent = new List<ResolvedRef>[numStructures];
-        var parentsByChild = new List<int>[numStructures];
-
+        
+        var structureReferencesByParent = new List<(CellId Child, GdsStransInfo? Strans, GdsPoint Origin)>[numStructures];
+        var arrayReferencesByParent = new List<(GdsPoint RowVector, GdsPoint ColVector, GdsPoint Origin)>[numStructures];
         for (var i = 0; i < numStructures; i++)
         {
-            refsByParent[i] = [];
-            parentsByChild[i] = [];
+            structureReferencesByParent[i] = [];
+            arrayReferencesByParent[i] = [];
         }
+        
+        var children = new List<CellId>[numStructures];
+        for (var i = 0; i < numStructures; i++) children[i] = [];
 
+        var indegree = new int[numStructures];
+
+        // Build dependency graph
         foreach (var r in _structureReferences)
         {
-            if (!structureMap.TryGetValue(r.TargetName, out var childId))
-                throw new InvalidOperationException($"Unknown structure reference target '{r.TargetName}' referenced by cell {r.Parent.Id}.");
-
+            if (!structureMap.TryGetValue(r.TargetName, out var childId)) throw new InvalidOperationException($"Unknown structure reference target '{r.TargetName}'.");
             var parentId = r.Parent.Id;
-
-            refsByParent[parentId].Add(new ResolvedRef(childId, r.Transform));
-            parentsByChild[childId].Add(parentId);
+            structureReferencesByParent[parentId].Add((new CellId(childId), r.Strans, r.Origin));
+            children[parentId].Add(new CellId(childId));
+            indegree[parentId]++;
         }
 
-        ComputeStructureBoundingBoxes(refsByParent, parentsByChild);
+        foreach (var r in _arrayReferences)
+        {
+            if (!structureMap.TryGetValue(r.TargetName, out var childId)) throw new InvalidOperationException($"Unknown array reference target '{r.TargetName}'.");
+            var parentId = r.Parent.Id;
+            arrayReferencesByParent[parentId].Add((r.RowVector, r.ColumnVector, r.Origin));
+            children[parentId].Add(new CellId(childId));
+            indegree[parentId]++;
+        }
+        
+        // Topological sort zero indegree first, build bounding boxes leaves up
+        var queue = new Queue<int>();
+        for (var i = 0; i < numStructures; i++)
+        {
+            if (indegree[i] == 0)
+                queue.Enqueue(i);
+        }
+        
+        while (queue.Count > 0)
+        {
+            var current = queue.Dequeue();
+            var currentBox = _structures[current].BoundingBox;
+
+            // Process structure references
+            foreach (var (childId, strans, origin) in structureReferencesByParent[current])
+            {
+                var childBox = _structures[childId.Id].BoundingBox;
+                if (childBox is { IsEmpty: false })
+                {
+                    var transformedBox = childBox.Value.TransformBoundingBox(strans ?? GdsStransInfo.Default, origin);
+                    currentBox = currentBox?.Union(transformedBox) ?? transformedBox;
+                }
+            }
+
+            // Process array references, rowvec and colvec are pre-transformed
+            foreach (var (rowVector, colVector, origin) in arrayReferencesByParent[current])
+            {
+                var childBox = GdsBoundingBox.FromPoints([origin, colVector, rowVector]);
+                currentBox = currentBox?.Union(childBox) ?? childBox;
+            }
+
+            _structures[current] = _structures[current] with { BoundingBox = currentBox };
+
+            // Decrease indegree of children and enqueue if zero
+            foreach (var child in children[current])
+            {
+                indegree[child.Id]--;
+                if (indegree[child.Id] == 0)
+                    queue.Enqueue(child.Id);
+            }
+        }
     }
     
-    private void ComputeStructureBoundingBoxes(
-        List<ResolvedRef>[] refsByParent,
-        List<int>[] parentsByChild)
-    {
-        var numStructures = _structures.Count;
-
-        var depsRemaining = new int[numStructures];
-        for (var i = 0; i < numStructures; i++)
-            depsRemaining[i] = refsByParent[i].Count;
-
-        var finalBox = new GdsBoundingBox?[numStructures];
-
-        var q = new Queue<int>();
-        for (var i = 0; i < numStructures; i++)
-        {
-            if (depsRemaining[i] == 0) 
-                q.Enqueue(i);
-        }
-
-        var computed = 0;
-
-        while (q.TryDequeue(out var id))
-        {
-            var bbox = _structures[id].BoundingBox;
-
-            foreach (var rr in refsByParent[id])
-            {
-                var childBox = finalBox[rr.TargetId]
-                               ?? throw new InvalidOperationException("Dependency order broken: child bbox missing.");
-                bbox = rr.Transform.TransformBoundingBox(childBox);
-            }
-
-            // Store final
-            finalBox[id] = bbox;
-            _structures[id] = _structures[id] with { BoundingBox = bbox };
-
-            computed++;
-
-            // Unblock parents that depended on this
-            foreach (var parent in parentsByChild[id])
-            {
-                if (--depsRemaining[parent] == 0)
-                    q.Enqueue(parent);
-            }
-        }
-
-        if (computed != numStructures)
-            throw new InvalidOperationException("Structure reference cycle detected (recursive references). Bounding boxes cannot be resolved with a DAG evaluation.");
-    }
-
     private void BuildInitialStructureBBs()
     {
-        for(var i = 0; i < _structures.Count; i++)
+        for (var i = 0; i < _structures.Count; i++)
         {
             var structure = _structures[i];
             var boundingBox = GdsBoundingBox.Empty;
 
-            foreach (var shape in _shapeRecords.Where(s => s.Cell.Id == i))
+            foreach (var element in _elements.Where(s => s.Cell.Id == i))
             {
-                boundingBox = boundingBox.Union(shape.BoundingBox);
+                if (!element.BoundingBox.HasValue || element.BoundingBox.Value.IsEmpty) continue;
+                boundingBox = boundingBox.Union(element.BoundingBox.Value);
             }
-            
+
             _structures[i] = structure with { BoundingBox = boundingBox.IsEmpty ? null : boundingBox };
         }
     }
 
-    private readonly record struct ResolvedRef(int TargetId, GdsTransform Transform);
 }

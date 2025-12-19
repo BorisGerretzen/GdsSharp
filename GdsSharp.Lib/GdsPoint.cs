@@ -2,7 +2,7 @@ using System.Numerics;
 
 namespace GdsSharp.Lib;
 
-public readonly struct GdsPoint
+public readonly record struct GdsPoint
 {
     public GdsPoint(int x, int y)
     {

@@ -6,18 +6,27 @@ namespace GdsSharp.Lib.InternalDb;
 public class GdsLibrary(
     GdsLibraryInfo info,
     List<GdsStructure> structures,
-    List<ShapeRecord> shapeRecords,
-    List<GdsStructureReference> structureReferences,
-    List<GdsArrayReference> arrayReferences,
-    List<PropertyRecord> properties,
-    List<TextRecord> textRecords)
+    List<ElementRecord> elements,
+    List<BoundaryPayload> boundaries,
+    List<PathPayload> paths,
+    List<SRefPayload> structureReferences,
+    List<ARefPayload> arrayReferences,
+    List<TextPayload> texts,
+    List<NodePayload> nodes,
+    List<BoxPayload> boxes,
+    List<PropertyRecord> properties
+)
 {
     public GdsLibraryInfo Info { get; } = info;
 
     public IReadOnlyList<GdsStructure> Structures => structures;
-    public IReadOnlyList<ShapeRecord> ShapeRecords => shapeRecords;
-    public IReadOnlyList<GdsStructureReference> StructureReferences => structureReferences;
-    public IReadOnlyList<GdsArrayReference> ArrayReferences => arrayReferences;
+    public IReadOnlyList<ElementRecord> Elements => elements;
+    public IReadOnlyList<BoundaryPayload> Boundaries => boundaries;
+    public IReadOnlyList<PathPayload> Paths => paths;
+    public IReadOnlyList<SRefPayload> StructureReferences => structureReferences;
+    public IReadOnlyList<ARefPayload> ArrayReferences => arrayReferences;
+    public IReadOnlyList<TextPayload> Texts => texts;
+    public IReadOnlyList<NodePayload> Nodes => nodes;
+    public IReadOnlyList<BoxPayload> Boxes => boxes;
     public IReadOnlyList<PropertyRecord> Properties => properties;
-    public IReadOnlyList<TextRecord> TextRecords => textRecords;
 }

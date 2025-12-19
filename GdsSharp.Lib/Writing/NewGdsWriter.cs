@@ -77,25 +77,25 @@ public sealed class NewGdsWriter(Stream stream)
         WriteRecord(GdsRecordTypes.StructName, w => { WriteGdsString(w, info.Name); });
 
         // Write non-text first, then refs then text
-        foreach (var shape in library.ShapeRecords.Where(r => r.Cell.Id == cellId && r.Kind != ShapeKind.Text))
-        {
-            WriteShape(shape, vertexReader);
-        }
-
-        foreach (var rr in library.StructureReferences.Where(r => r.Parent.Id == cellId))
-        {
-            WriteSref(rr);
-        }
-
-        foreach (var ar in library.ArrayReferences.Where(r => r.Parent.Id == cellId))
-        {
-            WriteAref(ar);
-        }
-
-        foreach (var shape in library.ShapeRecords.Where(r => r.Cell.Id == cellId && r.Kind == ShapeKind.Text))
-        {
-            WriteText(library, shape);
-        }
+        // foreach (var shape in library.ShapeRecords.Where(r => r.Cell.Id == cellId && r.Kind != ShapeKind.Text))
+        // {
+        //     WriteShape(shape, vertexReader);
+        // }
+        //
+        // foreach (var rr in library.StructureReferences.Where(r => r.Parent.Id == cellId))
+        // {
+        //     WriteSref(rr);
+        // }
+        //
+        // foreach (var ar in library.ArrayReferences.Where(r => r.Parent.Id == cellId))
+        // {
+        //     WriteAref(ar);
+        // }
+        //
+        // foreach (var shape in library.ShapeRecords.Where(r => r.Cell.Id == cellId && r.Kind == ShapeKind.Text))
+        // {
+        //     WriteText(library, shape);
+        // }
 
         WriteRecord(GdsRecordTypes.EndStruct, payloadWriter: null);
     }
@@ -135,41 +135,41 @@ public sealed class NewGdsWriter(Stream stream)
         WriteRecord(GdsRecordTypes.EndElement, null);
     }
 
-    private void WriteText(GdsLibrary library, ShapeRecord textShape)
-    {
-        var textRecord = FindTextRecord(library, textShape);
-
-        WriteRecord(GdsRecordTypes.Text, null);
-
-        WriteLayer(textShape.Layer);
-        WriteRecord(GdsRecordTypes.TextType, w => w.Write(textShape.DataType));
-
-        if (textRecord.Presentation.HasValue)
-        {
-            WriteRecord(GdsRecordTypes.Presentation, w => { WritePresentationPacked(w, textRecord.Presentation.Value); });
-        }
-
-        if (textRecord.PathType is { } pt)
-            WriteRecord(GdsRecordTypes.PathType, w => w.Write((short)pt));
-
-        if (textShape.Width.HasValue)
-            WriteWidth(textShape.Width.Value);
-
-        if (textRecord.Strans.HasValue)
-            WriteStrans(textRecord.Strans.Value);
-
-        WriteRecord(GdsRecordTypes.Xy, w =>
-        {
-            w.Write(textRecord.Origin.X);
-            w.Write(textRecord.Origin.Y);
-        });
-
-
-        WriteRecord(GdsRecordTypes.String, w => WriteGdsString(w, textRecord.Text));
-
-        // TODO: WriteProperties(library, textShape);
-        WriteRecord(GdsRecordTypes.EndElement, null);
-    }
+    // private void WriteText(GdsLibrary library, ShapeRecord textShape)
+    // {
+    //     TextRecord textRecord = null!;//FindTextRecord(library, textShape);
+    //
+    //     WriteRecord(GdsRecordTypes.Text, null);
+    //
+    //     WriteLayer(textShape.Layer);
+    //     WriteRecord(GdsRecordTypes.TextType, w => w.Write(textShape.DataType));
+    //
+    //     if (textRecord.Presentation.HasValue)
+    //     {
+    //         WriteRecord(GdsRecordTypes.Presentation, w => { WritePresentationPacked(w, textRecord.Presentation.Value); });
+    //     }
+    //
+    //     if (textRecord.PathType is { } pt)
+    //         WriteRecord(GdsRecordTypes.PathType, w => w.Write((short)pt));
+    //
+    //     if (textShape.Width.HasValue)
+    //         WriteWidth(textShape.Width.Value);
+    //
+    //     if (textRecord.Strans.HasValue)
+    //         WriteStrans(textRecord.Strans.Value);
+    //
+    //     WriteRecord(GdsRecordTypes.Xy, w =>
+    //     {
+    //         w.Write(textRecord.Origin.X);
+    //         w.Write(textRecord.Origin.Y);
+    //     });
+    //
+    //
+    //     WriteRecord(GdsRecordTypes.String, w => WriteGdsString(w, textRecord.Text));
+    //
+    //     // TODO: WriteProperties(library, textShape);
+    //     WriteRecord(GdsRecordTypes.EndElement, null);
+    // }
 
     private void WriteSref(GdsStructureReference rr)
     {
@@ -356,8 +356,9 @@ public sealed class NewGdsWriter(Stream stream)
             _stream.Write(payload, 0, payloadLen);
     }
 
-    private static TextRecord FindTextRecord(GdsLibrary library, ShapeRecord textShape)
-    {
-        return library.TextRecords[textShape.Shape.Id];
-    }
+    // private static TextRecord FindTextRecord(GdsLibrary library, ShapeRecord textShape)
+    // {
+    //     return new TextRecord(2);
+    //     // return library.TextRecords[textShape.Shape.Id];
+    // }
 }

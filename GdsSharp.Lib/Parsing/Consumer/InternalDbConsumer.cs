@@ -14,9 +14,8 @@ public class InternalDbConsumer(IGdsVertexStoreWriter storeWriter) : IParserCons
     private GdsLibrary? _library;
 
     private CellId? _currentStructureId;
-    private ShapeId? _currentShapeId;
-    private StructureReferenceId? _currentStructureReferenceId;
-    private ArrayReferenceId? _currentArrayReferenceId;
+    private int? _currentElementId;
+    private GdsElementCommon? _currentElementCommon;
     
     public void OnBeginLibrary(in GdsLibraryInfo lib)
     {
@@ -41,92 +40,81 @@ public class InternalDbConsumer(IGdsVertexStoreWriter storeWriter) : IParserCons
 
     public void OnBeginElement(GdsElementKind kind, in GdsElementCommon? common)
     {
-        
+        _currentElementCommon = common;
     }
 
     public void OnProperty(short attr, string value)
     {
-        var property = _currentShapeId.HasValue ? PropertyRecord.ForShape(attr, value, _currentShapeId.Value) 
-            : _currentStructureReferenceId.HasValue ? PropertyRecord.ForStructureReference(attr, value, _currentStructureReferenceId.Value) 
-            : _currentArrayReferenceId.HasValue ? PropertyRecord.ForArrayReference(attr, value, _currentArrayReferenceId.Value) 
-            : throw new InvalidOperationException("No element is currently being processed.");
-        _builder.AddElementProperty(property);
+        if(!_currentElementId.HasValue) throw new InvalidOperationException("No element is currently being processed.");
+        _builder.AddElementProperty(_currentElementId.Value, attr, value);
     }
 
     public void OnEndElement()
     {
-        _currentShapeId = null;
-        _currentStructureReferenceId = null;
-        _currentArrayReferenceId = null;
+        _currentElementId = null;
+        _currentElementCommon = null;
     }
 
     public void OnBoundary(short layer, short dataType, ReadOnlySpan<GdsPoint> points)
     {
         if(!_currentStructureId.HasValue) throw new InvalidOperationException("No structure is currently being processed."); 
-        _currentShapeId = _builder.AddBoundary(_currentStructureId.Value, layer, dataType, points);
+        if(!_currentElementCommon.HasValue) throw new InvalidOperationException("Element common data is missing.");
+        _currentElementId = _builder.AddBoundary(_currentStructureId.Value, _currentElementCommon.Value, layer, dataType, points);
     }
 
     public void OnPath(short layer, short dataType, GdsPathType? pathType, int? width, ReadOnlySpan<GdsPoint> points)
     {
         if(!_currentStructureId.HasValue) throw new InvalidOperationException("No structure is currently being processed.");
-        _currentShapeId = _builder.AddPath(_currentStructureId.Value, layer, dataType, points, width, pathType);
+        if(!_currentElementCommon.HasValue) throw new InvalidOperationException("Element common data is missing.");
+        _currentElementId = _builder.AddPath(_currentStructureId.Value, _currentElementCommon.Value, layer, dataType, points, width, pathType);
     }
 
     public void OnBox(short layer, short boxType, ReadOnlySpan<GdsPoint> points)
     {
         if(!_currentStructureId.HasValue) throw new InvalidOperationException("No structure is currently being processed.");
         if(points.Length != 5) throw new InvalidOperationException("BOX must have exactly 5 points.");
-        _currentShapeId = _builder.AddBox(_currentStructureId.Value, layer, boxType, points);
+        if(points[0] != points[4]) throw new InvalidOperationException("The first and last points of a BOX must be the same.");
+        if(!_currentElementCommon.HasValue) throw new InvalidOperationException("Element common data is missing.");
+        _currentElementId = _builder.AddBox(_currentStructureId.Value, _currentElementCommon.Value, layer, boxType, points);
     }
 
     public void OnNode(short layer, short nodeType, ReadOnlySpan<GdsPoint> points)
     {
         if(!_currentStructureId.HasValue) throw new InvalidOperationException("No structure is currently being processed.");
-        _currentShapeId = _builder.AddNode(_currentStructureId.Value, layer, nodeType, points);
+        if(!_currentElementCommon.HasValue) throw new InvalidOperationException("Element common data is missing.");
+        _currentElementId = _builder.AddNode(_currentStructureId.Value, _currentElementCommon.Value, layer, nodeType, points);
     }
 
     public void OnSref(string structureName, GdsStransInfo? strans, ReadOnlySpan<GdsPoint> points)
     {
         if(!_currentStructureId.HasValue) throw new InvalidOperationException("No structure is currently being processed.");
         if (points.Length != 1) throw new InvalidOperationException("SREF must have exactly one origin point.");
+        if(!_currentElementCommon.HasValue) throw new InvalidOperationException("Element common data is missing.");
         
         var origin = points[0];
-        var transform = new GdsTransform(strans, origin);
-
-        _currentStructureReferenceId = _builder.AddStructureReference(_currentStructureId.Value, structureName, transform);
+        _currentElementId = _builder.AddStructureReference(_currentStructureId.Value, _currentElementCommon.Value, structureName, strans, origin);
     }
 
     public void OnAref(string structureName, GdsStransInfo? strans, short cols, short rows, ReadOnlySpan<GdsPoint> points)
     {
         if(!_currentStructureId.HasValue) throw new InvalidOperationException("No structure is currently being processed.");
         if (points.Length != 3) throw new InvalidOperationException("AREF must have exactly three points: origin, row vector, column vector.");
-        
+        if(!_currentElementCommon.HasValue) throw new InvalidOperationException("Element common data is missing.");
+            
         var origin = points[0];
         var rowVector = points[1];
         var columnVector = points[2];
         
-        var transform = new GdsTransform(strans, origin);
-        
-        _currentArrayReferenceId = _builder.AddArrayReference(_currentStructureId.Value, structureName, transform, cols, rows, rowVector, columnVector);
+        _currentElementId = _builder.AddArrayReference(_currentStructureId.Value, _currentElementCommon.Value, structureName, strans, rows, cols, rowVector, columnVector, origin);
     }
 
     public void OnText(short layer, short textType, PresentationInfo? presentation, GdsPathType? pathType, int? width, GdsStransInfo? strans, ReadOnlySpan<GdsPoint> points, string text)
     {
         if(points.Length != 1) throw new InvalidOperationException("TEXT must have exactly one origin point.");
         if(!_currentStructureId.HasValue) throw new InvalidOperationException("No structure is currently being processed.");
+        if(!_currentElementCommon.HasValue) throw new InvalidOperationException("Element common data is missing.");
         
         var origin = points[0];
-        var transform = new GdsTransform(strans, origin);
-        
-        _currentShapeId = _builder.AddText(
-            _currentStructureId.Value,
-            layer,
-            textType,
-            text,
-            presentation,
-            pathType,
-            width,
-            transform
-        );
+        _currentElementId = _builder.AddText(_currentStructureId.Value, _currentElementCommon.Value, layer, textType, presentation, pathType, width, strans, origin, text);
     }
 }
