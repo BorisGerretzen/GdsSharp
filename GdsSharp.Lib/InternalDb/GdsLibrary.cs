@@ -5,28 +5,35 @@ namespace GdsSharp.Lib.InternalDb;
 
 public class GdsLibrary(
     GdsLibraryInfo info,
-    List<GdsStructure> structures,
-    List<ElementRecord> elements,
-    List<BoundaryPayload> boundaries,
-    List<PathPayload> paths,
-    List<SRefPayload> structureReferences,
-    List<ARefPayload> arrayReferences,
-    List<TextPayload> texts,
-    List<NodePayload> nodes,
-    List<BoxPayload> boxes,
-    List<PropertyRecord> properties
+    GdsStructure[] structures,
+    ElementRecord[] elements,
+    BoundaryPayload[] boundaries,
+    PathPayload[] paths,
+    SRefPayload[] structureReferences,
+    ARefPayload[] arrayReferences,
+    TextPayload[] texts,
+    NodePayload[] nodes,
+    BoxPayload[] boxes,
+    PropertyRecord[] properties
 )
 {
     public GdsLibraryInfo Info { get; } = info;
 
-    public IReadOnlyList<GdsStructure> Structures => structures;
-    public IReadOnlyList<ElementRecord> Elements => elements;
-    public IReadOnlyList<BoundaryPayload> Boundaries => boundaries;
-    public IReadOnlyList<PathPayload> Paths => paths;
-    public IReadOnlyList<SRefPayload> StructureReferences => structureReferences;
-    public IReadOnlyList<ARefPayload> ArrayReferences => arrayReferences;
-    public IReadOnlyList<TextPayload> Texts => texts;
-    public IReadOnlyList<NodePayload> Nodes => nodes;
-    public IReadOnlyList<BoxPayload> Boxes => boxes;
-    public IReadOnlyList<PropertyRecord> Properties => properties;
+    public GdsStructure[] Structures => structures;
+    public ElementRecord[] Elements => elements;
+    public BoundaryPayload[] Boundaries => boundaries;
+    public PathPayload[] Paths => paths;
+    public SRefPayload[] StructureReferences => structureReferences;
+    public ARefPayload[] ArrayReferences => arrayReferences;
+    public TextPayload[] Texts => texts;
+    public NodePayload[] Nodes => nodes;
+    public BoxPayload[] Boxes => boxes;
+    public PropertyRecord[] Properties => properties;
+
+    internal Lazy<Dictionary<int, PropertyRecord[]>> PropertiesByElementIndex => new(() =>
+    {
+        return Properties
+            .GroupBy(p => p.ElementId)
+            .ToDictionary(g => g.Key, g => g.ToArray());
+    });
 }

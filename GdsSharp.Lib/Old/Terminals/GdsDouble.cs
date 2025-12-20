@@ -60,7 +60,7 @@ public struct GdsDouble
     /// </summary>
     /// <param name="data">Bytes to deserialize</param>
     /// <exception cref="ArgumentException">If not exactly <see cref="Size" /> bytes.</exception>
-    public GdsDouble(Span<byte> data)
+    public GdsDouble(ReadOnlySpan<byte> data)
     {
         if (data.Length != Size) throw new ArgumentException($"Data must be {Size} bytes long");
 

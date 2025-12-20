@@ -14,7 +14,7 @@ public sealed class NewGdsWriter(Stream stream)
 {
     private readonly Stream _stream = stream ?? throw new ArgumentNullException(nameof(stream));
     private readonly GdsBinaryWriter _writer = new(stream);
-    
+
     /// <summary>
     /// Writes the given GDSII library to the underlying stream.
     /// </summary>
@@ -29,7 +29,7 @@ public sealed class NewGdsWriter(Stream stream)
         WriteRecord(GdsRecordTypes.Header, w => { w.Write(library.Info.Version); });
         WriteRecord(GdsRecordTypes.BeginLibrary, w => { WriteTimestampPair(w, library.Info.ModificationTime, library.Info.AccessTime); });
         WriteRecord(GdsRecordTypes.LibraryName, w => { WriteGdsString(w, library.Info.Name); });
-        
+
         if (library.Info.ReferencedLibraries is { Count: > 0 } refLibs)
         {
             WriteRecord(GdsRecordTypes.ReferencedLibraries, w =>
@@ -60,158 +60,151 @@ public sealed class NewGdsWriter(Stream stream)
             w.Write(library.Info.PhysicalUnits);
         });
 
-        for (var i = 0; i < library.Structures.Count; i++)
+        var propertiesByElement = library.PropertiesByElementIndex.Value;
+        foreach (var s in library.Structures)
         {
-            var s = library.Structures[i];
-            WriteStructure(library, s, vertexReader, i);
+            WriteStructure(library, s, vertexReader, propertiesByElement);
         }
 
         WriteRecord(GdsRecordTypes.EndLibrary, payloadWriter: null);
     }
 
-    private void WriteStructure(GdsLibrary library, GdsStructure structure, IGdsVertexStoreReader vertexReader, int cellId)
+    private void WriteStructure(GdsLibrary library, GdsStructure structure, IGdsVertexStoreReader vertexReader, Dictionary<int, PropertyRecord[]> propertiesByElement)
     {
         var info = structure.Info;
 
         WriteRecord(GdsRecordTypes.BeginStruct, w => { WriteTimestampPair(w, info.CreationTime, info.ModificationTime); });
         WriteRecord(GdsRecordTypes.StructName, w => { WriteGdsString(w, info.Name); });
 
-        // Write non-text first, then refs then text
-        // foreach (var shape in library.ShapeRecords.Where(r => r.Cell.Id == cellId && r.Kind != ShapeKind.Text))
-        // {
-        //     WriteShape(shape, vertexReader);
-        // }
-        //
-        // foreach (var rr in library.StructureReferences.Where(r => r.Parent.Id == cellId))
-        // {
-        //     WriteSref(rr);
-        // }
-        //
-        // foreach (var ar in library.ArrayReferences.Where(r => r.Parent.Id == cellId))
-        // {
-        //     WriteAref(ar);
-        // }
-        //
-        // foreach (var shape in library.ShapeRecords.Where(r => r.Cell.Id == cellId && r.Kind == ShapeKind.Text))
-        // {
-        //     WriteText(library, shape);
-        // }
-
-        WriteRecord(GdsRecordTypes.EndStruct, payloadWriter: null);
-    }
-
-    private void WriteShape(ShapeRecord shape, IGdsVertexStoreReader vertexReader)
-    {
-        switch (shape.Kind)
+        var elements = library.Elements.AsSpan().Slice(structure.ElementStartIndex, structure.ElementCount);
+        foreach (var element in elements)
         {
-            case ShapeKind.Boundary:
-                WriteRecord(GdsRecordTypes.Boundary, null);
-                WriteLayer(shape.Layer);
-                WriteDataType(shape.DataType);
-                break;
+            switch (element.Kind)
+            {
+                case ElementKind.ARef:
+                {
+                    var aref = library.ArrayReferences[element.Index];
+                    WriteRecord(GdsRecordTypes.ArrayReference, null);
+                    WriteCommon(element.Common);
+                    WriteRecord(GdsRecordTypes.StructureName, w => WriteGdsString(w, aref.TargetName));
+                    WriteStrans(aref.Strans);
+                    WriteRecord(GdsRecordTypes.ColumnRow, w =>
+                    {
+                        w.Write(aref.Columns);
+                        w.Write(aref.Rows);
+                    });
+                    WriteRecord(GdsRecordTypes.Xy, w =>
+                    {
+                        WritePoint(w, aref.Origin);
+                        WritePoint(w, aref.ColumnVector);
+                        WritePoint(w, aref.RowVector);
+                    });
+                    break;
+                }
+                case ElementKind.Boundary:
+                {
+                    var boundary = library.Boundaries[element.Index];
+                    WriteRecord(GdsRecordTypes.Boundary, null);
+                    WriteCommon(element.Common);
+                    WriteLayer(boundary.Layer);
+                    WriteDataType(boundary.DataType);
+                    WriteXyFromStore(boundary.VertexOffset, boundary.VertexCount, vertexReader);
+                    break;
+                }
+                case ElementKind.Box:
+                {
+                    var box = library.Boxes[element.Index];
+                    WriteRecord(GdsRecordTypes.Box, null);
+                    WriteCommon(element.Common);
+                    WriteLayer(box.Layer);
+                    WriteRecord(GdsRecordTypes.BoxType, w => w.Write(box.BoxType));
+                    WriteXyFromStore(box.VertexOffset, box.VertexCount, vertexReader);
+                    break;
+                }
+                case ElementKind.Node:
+                {
+                    var node = library.Nodes[element.Index];
+                    WriteRecord(GdsRecordTypes.Node, null);
+                    WriteCommon(element.Common);
+                    WriteLayer(node.Layer);
+                    WriteRecord(GdsRecordTypes.NodeType, w => w.Write(node.NodeType));
+                    WriteXyFromStore(node.VertexOffset, node.VertexCount, vertexReader);
+                    break;
+                }
+                case ElementKind.Path:
+                {
+                    var path = library.Paths[element.Index];
+                    WriteRecord(GdsRecordTypes.Path, null);
+                    WriteCommon(element.Common);
+                    WriteLayer(path.Layer);
+                    WriteDataType(path.DataType);
+                    if (path.PathType is { } pt)
+                        WritePathType(pt);
+                    if (path.Width is { } w)
+                        WriteWidth(w);
+                    WriteXyFromStore(path.VertexOffset, path.VertexCount, vertexReader);
+                    break;
+                }
+                case ElementKind.SRef:
+                {
+                    var sref = library.StructureReferences[element.Index];
+                    WriteRecord(GdsRecordTypes.StructureReference, null);
+                    WriteCommon(element.Common);
+                    WriteRecord(GdsRecordTypes.StructureName, w => WriteGdsString(w, sref.TargetName));
+                    WriteStrans(sref.Strans);
+                    WriteRecord(GdsRecordTypes.Xy, w => { WritePoint(w, sref.Origin); });
+                    break;
+                }
+                case ElementKind.Text:
+                {
+                    var textRecord = library.Texts[element.Index];
+                    WriteRecord(GdsRecordTypes.Text, null);
+                    WriteCommon(element.Common);
+                    WriteLayer(textRecord.Layer);
+                    WriteRecord(GdsRecordTypes.TextType, w => w.Write(textRecord.TextType));
+                    if (textRecord.Presentation.HasValue) WriteRecord(GdsRecordTypes.Presentation, w => WritePresentationPacked(w, textRecord.Presentation.Value));
 
-            case ShapeKind.Path:
-                WriteRecord(GdsRecordTypes.Path, null);
-                WriteLayer(shape.Layer);
-                WriteDataType(shape.DataType);
-                if(shape.PathType is {} pt)
-                    WritePathType(pt);
-                if (shape.Width is { } w)
-                    WriteWidth(w);
-                break;
+                    if (textRecord.PathType is { } pt)
+                        WritePathType(pt);
+                    if (textRecord.Width is { } w)
+                        WriteWidth(w);
+                    WriteStrans(textRecord.Strans);
+                    WriteRecord(GdsRecordTypes.Xy, w => { WritePoint(w, textRecord.Origin); });
+                    WriteRecord(GdsRecordTypes.String, w => WriteGdsString(w, textRecord.Text));
+                    break;
+                }
+                default:
+                    throw new InvalidDataException($"Unsupported element kind for writer: {element.Kind}");
+            }
 
-            case ShapeKind.Node:
-                WriteRecord(GdsRecordTypes.Node, null);
-                WriteLayer(shape.Layer);
-                WriteRecord(GdsRecordTypes.NodeType, w => w.Write(shape.DataType)); 
-                break;
-            
-            case ShapeKind.Text:
-            default:
-                throw new InvalidDataException($"Unsupported shape kind for writer: {shape.Kind}");
+            if (propertiesByElement.TryGetValue(element.Index, out var props))
+                foreach (var property in props)
+                {
+                    WriteRecord(GdsRecordTypes.PropertyAttribute, w => w.Write(property.Attribute));
+                    WriteRecord(GdsRecordTypes.PropertyValue, w => WriteGdsString(w, property.Value));
+                }
+
+            WriteRecord(GdsRecordTypes.EndElement, null);
         }
 
-        WriteXyFromStore(shape, vertexReader);
-        WriteRecord(GdsRecordTypes.EndElement, null);
+        WriteRecord(GdsRecordTypes.EndStruct, null);
     }
 
-    // private void WriteText(GdsLibrary library, ShapeRecord textShape)
-    // {
-    //     TextRecord textRecord = null!;//FindTextRecord(library, textShape);
-    //
-    //     WriteRecord(GdsRecordTypes.Text, null);
-    //
-    //     WriteLayer(textShape.Layer);
-    //     WriteRecord(GdsRecordTypes.TextType, w => w.Write(textShape.DataType));
-    //
-    //     if (textRecord.Presentation.HasValue)
-    //     {
-    //         WriteRecord(GdsRecordTypes.Presentation, w => { WritePresentationPacked(w, textRecord.Presentation.Value); });
-    //     }
-    //
-    //     if (textRecord.PathType is { } pt)
-    //         WriteRecord(GdsRecordTypes.PathType, w => w.Write((short)pt));
-    //
-    //     if (textShape.Width.HasValue)
-    //         WriteWidth(textShape.Width.Value);
-    //
-    //     if (textRecord.Strans.HasValue)
-    //         WriteStrans(textRecord.Strans.Value);
-    //
-    //     WriteRecord(GdsRecordTypes.Xy, w =>
-    //     {
-    //         w.Write(textRecord.Origin.X);
-    //         w.Write(textRecord.Origin.Y);
-    //     });
-    //
-    //
-    //     WriteRecord(GdsRecordTypes.String, w => WriteGdsString(w, textRecord.Text));
-    //
-    //     // TODO: WriteProperties(library, textShape);
-    //     WriteRecord(GdsRecordTypes.EndElement, null);
-    // }
-
-    private void WriteSref(GdsStructureReference rr)
+    private void WriteCommon(GdsElementCommon common)
     {
-        WriteRecord(GdsRecordTypes.StructureReference, null);
+        if (common.ExternalData.HasValue || common.TemplateData.HasValue)
+            WriteRecord(GdsRecordTypes.ElementFlags, w =>
+            {
+                short payload = 0;
+                if (common.ExternalData.GetValueOrDefault()) payload |= 0b10;
+                if (common.TemplateData.GetValueOrDefault()) payload |= 0b1;
+                w.Write(payload);
+            });
 
-        WriteRecord(GdsRecordTypes.StructureName, w => WriteGdsString(w, rr.TargetName));
-
-        WriteStrans(rr.Transform.Strans);
-
-        // XY: one origin point
-        WriteRecord(GdsRecordTypes.Xy, w =>
+        if (common.PlexNumber.HasValue)
         {
-            w.Write(rr.Transform.Origin.X);
-            w.Write(rr.Transform.Origin.Y);
-        });
-
-        WriteRecord(GdsRecordTypes.EndElement, null);
-    }
-
-    private void WriteAref(GdsArrayReference ar)
-    {
-        WriteRecord(GdsRecordTypes.ArrayReference, null);
-
-        WriteRecord(GdsRecordTypes.StructureName, w => WriteGdsString(w, ar.TargetName));
-
-        WriteStrans(ar.Transform.Strans);
-
-        WriteRecord(GdsRecordTypes.ColumnRow, w =>
-        {
-            w.Write(ar.Columns);
-            w.Write(ar.Rows);
-        });
-
-        // XY: 3 points (origin, point on col axis, point on row axis)
-        WriteRecord(GdsRecordTypes.Xy, w =>
-        {
-            WritePoint(w, ar.Transform.Origin);
-            WritePoint(w, ar.ColumnVector);
-            WritePoint(w, ar.RowVector);
-        });
-
-        WriteRecord(GdsRecordTypes.EndElement, null);
+            WriteRecord(GdsRecordTypes.Plex, w => w.Write(common.PlexNumber.Value));
+        }
     }
 
     private void WriteLayer(short layer)
@@ -223,25 +216,18 @@ public sealed class NewGdsWriter(Stream stream)
     private void WriteWidth(int width)
         => WriteRecord(GdsRecordTypes.Width, w => w.Write(width));
 
-    private void WriteXyFromStore(ShapeRecord shape, IGdsVertexStoreReader vertexReader)
+    private void WriteXyFromStore(long vertexOffset, int vertexCount, IGdsVertexStoreReader vertexReader)
     {
-        var n = shape.VertexCount;
-        var rented = ArrayPool<GdsPoint>.Shared.Rent(n);
-
+        var arr = ArrayPool<GdsPoint>.Shared.Rent(vertexCount);
         try
         {
-            // Fill from store using a span (fine here, not in the lambda)
-            var got = vertexReader.Read(shape.VertexOffset, rented.AsSpan(0, n));
-            if (got != n)
-                throw new InvalidDataException($"Vertex store returned {got} points, expected {n} for shape at offset {shape.VertexOffset}.");
-
-            // Capture only heap stuff in the lambda
-            var arr = rented;
-            var count = n;
+            var got = vertexReader.Read(vertexOffset, arr.AsSpan(0, vertexCount));
+            if (got != vertexCount)
+                throw new InvalidDataException($"Vertex store returned {got} points, expected {vertexCount} for shape at offset {vertexOffset}.");
 
             WriteRecord(GdsRecordTypes.Xy, w =>
             {
-                for (var i = 0; i < count; i++)
+                for (var i = 0; i < vertexCount; i++)
                 {
                     var p = arr[i];
                     w.Write(p.X);
@@ -251,16 +237,15 @@ public sealed class NewGdsWriter(Stream stream)
         }
         finally
         {
-            ArrayPool<GdsPoint>.Shared.Return(rented);
+            ArrayPool<GdsPoint>.Shared.Return(arr);
         }
     }
-
 
     private void WriteStrans(GdsStransInfo? val)
     {
         if (!val.HasValue) return;
         var s = val.Value;
-        
+
         WriteRecord(GdsRecordTypes.Strans, w =>
         {
             ushort flags = 0;
@@ -269,7 +254,7 @@ public sealed class NewGdsWriter(Stream stream)
             if (s.AbsoluteMagnification) flags |= 0b10;
             w.Write(flags);
         });
-        
+
         if (s.Magnification.HasValue) WriteRecord(GdsRecordTypes.Magnification, w => w.Write(s.Magnification.Value));
         if (s.Angle.HasValue) WriteRecord(GdsRecordTypes.Angle, w => w.Write(s.Angle.Value));
     }
@@ -282,14 +267,12 @@ public sealed class NewGdsWriter(Stream stream)
 
     private static void WriteTimestamp(GdsBinaryWriter w, DateTime dt)
     {
-        var u = dt.Kind == DateTimeKind.Utc ? dt : dt.ToUniversalTime();
-
-        w.Write((short)u.Year);
-        w.Write((short)u.Month);
-        w.Write((short)u.Day);
-        w.Write((short)u.Hour);
-        w.Write((short)u.Minute);
-        w.Write((short)u.Second);
+        w.Write((short)dt.Year);
+        w.Write((short)dt.Month);
+        w.Write((short)dt.Day);
+        w.Write((short)dt.Hour);
+        w.Write((short)dt.Minute);
+        w.Write((short)dt.Second);
     }
 
     private static void WritePoint(GdsBinaryWriter w, GdsPoint p)
@@ -331,34 +314,27 @@ public sealed class NewGdsWriter(Stream stream)
 
     private void WriteRecord(ushort code, Action<GdsBinaryWriter>? payloadWriter)
     {
-        byte[] payload;
-        int payloadLen;
+        if (!_stream.CanSeek) throw new InvalidOperationException("Underlying stream must support seeking to write GDS records.");
 
-        if (payloadWriter is null)
-        {
-            payload = [];
-            payloadLen = 0;
-        }
-        else
-        {
-            using var ms = new MemoryStream();
-            var temp = new GdsBinaryWriter(ms);
-            payloadWriter(temp);
-            payload = ms.ToArray();
-            payloadLen = payload.Length;
-        }
+        // Save first position, write placeholder length
+        var start = _stream.Position;
 
-        var recordLen = checked((ushort)(4 + payloadLen));
-        _writer.Write(recordLen);
+        _writer.Write((ushort)0);
         _writer.Write(code);
 
-        if (payloadLen > 0)
-            _stream.Write(payload, 0, payloadLen);
-    }
+        payloadWriter?.Invoke(_writer);
 
-    // private static TextRecord FindTextRecord(GdsLibrary library, ShapeRecord textShape)
-    // {
-    //     return new TextRecord(2);
-    //     // return library.TextRecords[textShape.Shape.Id];
-    // }
+        var end = _stream.Position;
+        var recordLenLong = end - start;
+        if (recordLenLong > ushort.MaxValue)
+            throw new InvalidDataException($"GDS record {code} too large: {recordLenLong} bytes (max {ushort.MaxValue}).");
+
+        var recordLen = (ushort)recordLenLong;
+
+        // Rewind and write actual length
+        var save = _stream.Position;
+        _stream.Position = start;
+        _writer.Write(recordLen);
+        _stream.Position = save;
+    }
 }
