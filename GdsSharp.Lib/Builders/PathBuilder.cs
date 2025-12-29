@@ -1,5 +1,5 @@
 ﻿using System.Numerics;
-using GdsSharp.Lib.Old.NonTerminals.Elements;
+using GdsSharp.Lib.Obsolete.NonTerminals.Elements;
 
 namespace GdsSharp.Lib.Builders;
 
@@ -122,19 +122,19 @@ public class PathBuilder
     {
         if (maxVertices < 4)
             throw new ArgumentException("maxVerticesPerElement must be at least 4 to form a valid polygon.", nameof(maxVertices));
-        
+
         var ap = GetPathPoints();
 
-        foreach (var points in ap.Chunk(maxVertices/2))
+        foreach (var points in ap.Chunk(maxVertices / 2))
         {
             var allPoints = new GdsPoint[points.Length * 2];
-            for(var i = 0; i < points.Length; i++)
+            for (var i = 0; i < points.Length; i++)
             {
                 allPoints[i] = new GdsPoint(points[i].Point + points[i].Width * points[i].Normal);
                 allPoints[allPoints.Length - i - 1] = new GdsPoint(points[i].Point - points[i].Width * points[i].Normal);
             }
-            
-            
+
+
             yield return new GdsElement
             {
                 Element = new GdsBoundaryElement
@@ -145,6 +145,7 @@ public class PathBuilder
             };
         }
     }
+
     /// <summary>
     ///     Generates a list of points for each segment in the path.
     /// </summary>
@@ -156,7 +157,7 @@ public class PathBuilder
         var currentWidth = _initialWidth;
 
         var unitYAngle = Vector2.UnitY.Angle();
-        
+
         foreach (var segment in _pathSegments)
         {
             Vector2? lastPosition = null;

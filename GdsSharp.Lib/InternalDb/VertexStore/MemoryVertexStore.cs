@@ -1,15 +1,13 @@
 ﻿namespace GdsSharp.Lib.InternalDb.VertexStore;
 
-public class MemoryVertexStore : IGdsVertexStoreWriter, IGdsVertexStoreReader
+/// <summary>
+/// Creates a new memory vertex store for storing GDS points in memory.
+/// Pick a suitable initial capacity to avoid resizing.
+/// </summary>
+/// <param name="initialCapacity">The initial capacity of the vertex store.</param>
+public class MemoryVertexStore(int? initialCapacity = null) : IGdsVertexStoreWriter, IGdsVertexStoreReader
 {
-    private readonly List<GdsPoint> _points = [];
-
-    public int Write(ReadOnlySpan<GdsPoint> points)
-    {
-        var offset = _points.Count;
-        _points.AddRange(points.ToArray());
-        return offset;
-    }
+    private readonly List<GdsPoint> _points = new(initialCapacity ?? 0);
 
     public int Read(long pointIndex, Span<GdsPoint> destination)
     {
@@ -24,5 +22,12 @@ public class MemoryVertexStore : IGdsVertexStoreWriter, IGdsVertexStoreReader
         }
 
         return (int)pointsToRead;
+    }
+
+    public int Write(ReadOnlySpan<GdsPoint> points)
+    {
+        var offset = _points.Count;
+        _points.AddRange(points);
+        return offset;
     }
 }

@@ -1,13 +1,11 @@
 ﻿using BenchmarkDotNet.Attributes;
-using GdsSharp.Lib;
 using GdsSharp.Lib.InternalDb;
 using GdsSharp.Lib.InternalDb.VertexStore;
-using GdsSharp.Lib.Lexing;
-using GdsSharp.Lib.Old;
-using GdsSharp.Lib.Old.Lexing;
-using GdsSharp.Lib.Parsing;
-using GdsSharp.Lib.Parsing.Consumer;
-using GdsSharp.Lib.Parsing.Models;
+using GdsSharp.Lib.Obsolete;
+using GdsSharp.Lib.Obsolete.Lexing;
+using GdsSharp.Lib.Reading;
+using GdsSharp.Lib.Reading.Consumer;
+using GdsSharp.Lib.Reading.TokenStream;
 
 namespace GdsSharp.Benchmarks;
 
@@ -15,7 +13,7 @@ namespace GdsSharp.Benchmarks;
 public class OldNew
 {
     private Stream? _stream;
-    
+
     [IterationSetup]
     public void Setup()
     {

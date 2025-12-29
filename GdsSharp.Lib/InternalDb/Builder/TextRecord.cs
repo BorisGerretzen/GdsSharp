@@ -1,5 +1,5 @@
-﻿using GdsSharp.Lib.Old.NonTerminals.Enum;
-using GdsSharp.Lib.Parsing.Models;
+﻿using GdsSharp.Lib.Obsolete.NonTerminals.Enum;
+using GdsSharp.Lib.Reading.Models;
 
 namespace GdsSharp.Lib.InternalDb.Builder;
 

@@ -1,5 +1,5 @@
 ﻿using System.Numerics;
-using GdsSharp.Lib.Old.NonTerminals.Elements;
+using GdsSharp.Lib.Obsolete.NonTerminals.Elements;
 
 namespace GdsSharp.Lib.Builders;
 

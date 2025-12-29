@@ -1,10 +1,10 @@
 ﻿using System.Reflection;
 using FluentAssertions;
-using GdsSharp.Lib.Lexing;
-using GdsSharp.Lib.Old;
-using GdsSharp.Lib.Old.Lexing;
-using GdsSharp.Lib.Parsing;
-using GdsSharp.Lib.Parsing.Consumer;
+using GdsSharp.Lib.Obsolete;
+using GdsSharp.Lib.Obsolete.Lexing;
+using GdsSharp.Lib.Reading;
+using GdsSharp.Lib.Reading.Consumer;
+using GdsSharp.Lib.Reading.TokenStream;
 
 namespace GdsSharp.Lib.Test;
 
@@ -23,18 +23,18 @@ public class IntegrationTests
         using var tokenStream = new GdsTokenStream(fileStream);
         var parser = new GdsParser(tokenStream);
         var file = parser.Parse();
-        
+
         using var ms = new MemoryStream();
         file.WriteTo(ms);
         ms.Position = 0;
-        
+
         using var tokenStreamNew = new GdsTokenStream(ms);
         var parserNew = new GdsParser(tokenStreamNew);
         var fileNew = parserNew.Parse();
-        
+
         file.Materialize();
         fileNew.Materialize();
-        
+
         file.Should().BeEquivalentTo(fileNew);
     }
 
@@ -43,12 +43,11 @@ public class IntegrationTests
     [TestCase("nand2.gds2")]
     [TestCase("xor.gds2")]
     [TestCase("gds3d_example.gds")]
-
     public void TestOutputEquality(string manifestFile)
     {
         byte[] bytesOld;
         byte[] bytesNew;
-        
+
         using (var fileStream =
                Assembly.GetExecutingAssembly().GetManifestResourceStream($"GdsSharp.Lib.Test.Assets.{manifestFile}") ??
                throw new NullReferenceException())
@@ -61,6 +60,7 @@ public class IntegrationTests
             file.WriteTo(ms);
             bytesOld = ms.ToArray();
         }
+
         Console.WriteLine("NEW");
         using (var fileStream =
                Assembly.GetExecutingAssembly().GetManifestResourceStream($"GdsSharp.Lib.Test.Assets.{manifestFile}") ??
@@ -75,10 +75,10 @@ public class IntegrationTests
             file.WriteTo(ms);
             bytesNew = ms.ToArray();
         }
-        
+
         bytesNew.Should().BeEquivalentTo(bytesOld);
     }
-    
+
     [TestCase("example.cal")]
     [TestCase("inv.gds2")]
     [TestCase("nand2.gds2")]
@@ -97,7 +97,7 @@ public class IntegrationTests
             old = parser.Parse();
             old.Materialize();
         }
-        
+
         using (var fileStream =
                Assembly.GetExecutingAssembly().GetManifestResourceStream($"GdsSharp.Lib.Test.Assets.{manifestFile}") ??
                throw new NullReferenceException())
@@ -122,21 +122,21 @@ public class IntegrationTests
         @new.Fonts.Should().BeEquivalentTo(old.Fonts);
         @new.Generations.Should().Be(old.Generations);
         @new.FormatType.Should().Be(old.FormatType);
-        
+
         if (old.Structures.Any())
         {
             var sOld = old.Structures.First();
             var sNew = @new.Structures.First();
-            
+
             sNew.Name.Should().Be(sOld.Name);
             sNew.CreationTime.Should().Be(sOld.CreationTime);
             sNew.ModificationTime.Should().Be(sOld.ModificationTime);
             sNew.Should().BeEquivalentTo(sOld);
-            
-            foreach(var (eOld, eNew) in sOld.Elements.Zip(sNew.Elements))
+
+            foreach (var (eOld, eNew) in sOld.Elements.Zip(sNew.Elements))
             {
                 eNew.Should().BeEquivalentTo(eOld);
-                
+
                 eNew.Properties.Should().BeEquivalentTo(eOld.Properties);
                 eNew.Element.Should().BeEquivalentTo(eOld.Element);
             }

@@ -1,4 +1,4 @@
-﻿using GdsSharp.Lib.Parsing.Models;
+﻿using GdsSharp.Lib.Reading.Models;
 
 namespace GdsSharp.Lib.InternalDb;
 

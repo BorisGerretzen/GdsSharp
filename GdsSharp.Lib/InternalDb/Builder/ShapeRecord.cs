@@ -1,5 +1,5 @@
 ﻿using GdsSharp.Lib.InternalDb.BoundingBox;
-using GdsSharp.Lib.Old.NonTerminals.Enum;
+using GdsSharp.Lib.Obsolete.NonTerminals.Enum;
 
 namespace GdsSharp.Lib.InternalDb.Builder;
 

@@ -1,4 +1,4 @@
-﻿using GdsSharp.Lib.Old.Terminals.Records;
+﻿using GdsSharp.Lib.Obsolete.Terminals.Records;
 
 namespace GdsSharp.Lib;
 
@@ -8,7 +8,8 @@ public class ParseException : Exception
     {
     }
 
-    public ParseException(GdsRecordNoDataType expected, GdsRecordNoDataType actual, long offset) : base($"Expected token {expected} but found {actual} at offset {offset:X} ({offset}).")
+    public ParseException(GdsRecordNoDataType expected, GdsRecordNoDataType actual, long offset) : base(
+        $"Expected token {expected} but found {actual} at offset {offset:X} ({offset}).")
     {
     }
 

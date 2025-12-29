@@ -1,9 +1,9 @@
 using System.Reflection;
-using GdsSharp.Lib.Old;
-using GdsSharp.Lib.Old.Lexing;
-using GdsSharp.Lib.Old.Terminals;
-using GdsSharp.Lib.Old.Terminals.Abstractions;
-using GdsSharp.Lib.Old.Terminals.Records;
+using GdsSharp.Lib.Obsolete;
+using GdsSharp.Lib.Obsolete.Lexing;
+using GdsSharp.Lib.Obsolete.Terminals;
+using GdsSharp.Lib.Obsolete.Terminals.Abstractions;
+using GdsSharp.Lib.Obsolete.Terminals.Records;
 
 namespace GdsSharp.Lib.Test;
 

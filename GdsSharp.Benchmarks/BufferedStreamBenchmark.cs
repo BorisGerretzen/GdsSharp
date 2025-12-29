@@ -1,14 +1,14 @@
 ﻿using BenchmarkDotNet.Attributes;
-using GdsSharp.Lib;
 using GdsSharp.Lib.Builders;
-using GdsSharp.Lib.Old;
-using GdsSharp.Lib.Old.NonTerminals;
-using GdsSharp.Lib.Old.NonTerminals.Elements;
+using GdsSharp.Lib.Obsolete;
+using GdsSharp.Lib.Obsolete.NonTerminals;
+using GdsSharp.Lib.Obsolete.NonTerminals.Elements;
 
 namespace GdsSharp.Benchmarks;
 
 public class BufferedStreamBenchmark
 {
+    private Stream _stream = null!;
 
     [GlobalSetup]
     public void Setup()
@@ -37,69 +37,67 @@ public class BufferedStreamBenchmark
         using var fs = new FileStream("example.gds", FileMode.Create, FileAccess.Write);
         file.WriteTo(fs);
     }
-    
+
     [GlobalCleanup]
     public void Cleanup()
     {
         File.Delete("example.gds");
     }
-    
-    private Stream _stream = null!;
-    
+
     [IterationSetup]
     public void IterationSetup()
     {
         _stream = new FileStream("example.gds", FileMode.Open, FileAccess.Read);
     }
-    
+
     [IterationCleanup]
     public void IterationCleanup()
     {
         _stream.Dispose();
     }
-    
+
     [Benchmark]
     public GdsFile NoBuffer()
     {
         var file = GdsFile.From(_stream);
 
         file.Structures = file.Structures.ToList();
-        foreach(var structure in file.Structures)
+        foreach (var structure in file.Structures)
         {
             structure.Elements = structure.Elements.ToList();
             foreach (var element in structure.Elements)
             {
-                if (element is not {Element: GdsBoundaryElement b}) continue;
-                
+                if (element is not { Element: GdsBoundaryElement b }) continue;
+
                 b.Points = b.Points.ToList();
             }
         }
-        
+
         return file;
     }
-    
-        
+
+
     [Benchmark]
-    [Arguments(4*1024)]
-    [Arguments(32*1024)]
+    [Arguments(4 * 1024)]
+    [Arguments(32 * 1024)]
     public GdsFile Buffer(int size)
     {
         var bufferedStream = new BufferedStream(_stream, size);
-        
+
         var file = GdsFile.From(bufferedStream);
 
         file.Structures = file.Structures.ToList();
-        foreach(var structure in file.Structures)
+        foreach (var structure in file.Structures)
         {
             structure.Elements = structure.Elements.ToList();
             foreach (var element in structure.Elements)
             {
-                if (element is not {Element: GdsBoundaryElement b}) continue;
-                
+                if (element is not { Element: GdsBoundaryElement b }) continue;
+
                 b.Points = b.Points.ToList();
             }
         }
-        
+
         return file;
     }
 }

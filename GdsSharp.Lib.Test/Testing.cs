@@ -1,8 +1,8 @@
 ﻿using System.Reflection;
 using GdsSharp.Lib.InternalDb.VertexStore;
-using GdsSharp.Lib.Lexing;
-using GdsSharp.Lib.Parsing;
-using GdsSharp.Lib.Parsing.Consumer;
+using GdsSharp.Lib.Reading;
+using GdsSharp.Lib.Reading.Consumer;
+using GdsSharp.Lib.Reading.TokenStream;
 
 namespace GdsSharp.Lib.Test;
 

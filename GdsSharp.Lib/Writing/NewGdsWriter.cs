@@ -1,19 +1,30 @@
 ﻿using System.Buffers;
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
 using System.Text;
 using GdsSharp.Lib.Binary;
 using GdsSharp.Lib.InternalDb;
 using GdsSharp.Lib.InternalDb.Builder;
 using GdsSharp.Lib.InternalDb.VertexStore;
-using GdsSharp.Lib.Lexing;
-using GdsSharp.Lib.Old.NonTerminals.Enum;
-using GdsSharp.Lib.Parsing.Models;
+using GdsSharp.Lib.Obsolete.NonTerminals.Enum;
+using GdsSharp.Lib.Reading.Models;
+using GdsSharp.Lib.Reading.TokenStream;
 
 namespace GdsSharp.Lib.Writing;
 
-public sealed class NewGdsWriter(Stream stream)
+public sealed class NewGdsWriter
 {
-    private readonly Stream _stream = stream ?? throw new ArgumentNullException(nameof(stream));
-    private readonly GdsBinaryWriter _writer = new(stream);
+    private readonly GdsWriteBuffer _buffer;
+
+    private readonly Stream _output;
+    private readonly BufferedGdsBinaryWriter _writer;
+
+    public NewGdsWriter(Stream output)
+    {
+        _output = output;
+        _buffer = new GdsWriteBuffer();
+        _writer = new BufferedGdsBinaryWriter(_buffer);
+    }
 
     /// <summary>
     /// Writes the given GDSII library to the underlying stream.
@@ -225,15 +236,15 @@ public sealed class NewGdsWriter(Stream stream)
             if (got != vertexCount)
                 throw new InvalidDataException($"Vertex store returned {got} points, expected {vertexCount} for shape at offset {vertexOffset}.");
 
-            WriteRecord(GdsRecordTypes.Xy, w =>
-            {
-                for (var i = 0; i < vertexCount; i++)
+            WriteRecord(GdsRecordTypes.Xy,
+                w =>
                 {
-                    var p = arr[i];
-                    w.Write(p.X);
-                    w.Write(p.Y);
-                }
-            });
+                    var asBytes = MemoryMarshal.AsBytes(arr.AsSpan(0, vertexCount));
+                    var ints = MemoryMarshal.Cast<byte, int>(asBytes);
+                    for (var i = 0; i < ints.Length; i++)
+                        ints[i] = BinaryPrimitives.ReverseEndianness(ints[i]);
+                    w.Write(asBytes);
+                });
         }
         finally
         {
@@ -259,13 +270,13 @@ public sealed class NewGdsWriter(Stream stream)
         if (s.Angle.HasValue) WriteRecord(GdsRecordTypes.Angle, w => w.Write(s.Angle.Value));
     }
 
-    private static void WriteTimestampPair(GdsBinaryWriter w, DateTime a, DateTime b)
+    private static void WriteTimestampPair(BufferedGdsBinaryWriter w, DateTime a, DateTime b)
     {
         WriteTimestamp(w, a);
         WriteTimestamp(w, b);
     }
 
-    private static void WriteTimestamp(GdsBinaryWriter w, DateTime dt)
+    private static void WriteTimestamp(BufferedGdsBinaryWriter w, DateTime dt)
     {
         w.Write((short)dt.Year);
         w.Write((short)dt.Month);
@@ -275,13 +286,13 @@ public sealed class NewGdsWriter(Stream stream)
         w.Write((short)dt.Second);
     }
 
-    private static void WritePoint(GdsBinaryWriter w, GdsPoint p)
+    private static void WritePoint(BufferedGdsBinaryWriter w, GdsPoint p)
     {
         w.Write(p.X);
         w.Write(p.Y);
     }
 
-    private static void WritePresentationPacked(GdsBinaryWriter w, PresentationInfo p)
+    private static void WritePresentationPacked(BufferedGdsBinaryWriter w, PresentationInfo p)
     {
         ushort packed = 0;
         packed |= (ushort)((p.Font & 0b11) << 4);
@@ -290,7 +301,7 @@ public sealed class NewGdsWriter(Stream stream)
         w.Write(packed);
     }
 
-    private static void WriteGdsString(GdsBinaryWriter w, string s)
+    private static void WriteGdsString(BufferedGdsBinaryWriter w, string s)
     {
         var bytes = Encoding.ASCII.GetBytes(s);
         w.Write(bytes);
@@ -298,7 +309,7 @@ public sealed class NewGdsWriter(Stream stream)
             w.Write((byte)0);
     }
 
-    private static void WriteFixedString(GdsBinaryWriter w, string s, int length)
+    private static void WriteFixedString(BufferedGdsBinaryWriter w, string s, int length)
     {
         var bytes = Encoding.ASCII.GetBytes(s);
         if (bytes.Length > length) Array.Resize(ref bytes, length);
@@ -312,29 +323,21 @@ public sealed class NewGdsWriter(Stream stream)
         WriteRecord(GdsRecordTypes.PathType, w => w.Write((short)pathType));
     }
 
-    private void WriteRecord(ushort code, Action<GdsBinaryWriter>? payloadWriter)
+
+    private void WriteRecord(ushort code, Action<BufferedGdsBinaryWriter>? payloadWriter)
     {
-        if (!_stream.CanSeek) throw new InvalidOperationException("Underlying stream must support seeking to write GDS records.");
-
-        // Save first position, write placeholder length
-        var start = _stream.Position;
-
-        _writer.Write((ushort)0);
+        _writer.Reset();
+        _writer.Write((ushort)0); // Placeholder for length
         _writer.Write(code);
 
-        payloadWriter?.Invoke(_writer);
+        if (payloadWriter != null)
+            payloadWriter(_writer);
 
-        var end = _stream.Position;
-        var recordLenLong = end - start;
-        if (recordLenLong > ushort.MaxValue)
-            throw new InvalidDataException($"GDS record {code} too large: {recordLenLong} bytes (max {ushort.MaxValue}).");
+        // writeback length in buffer and flush
+        var length = (ushort)_writer.BytesWritten;
+        var span = _buffer.WrittenSpanMutable;
+        BinaryPrimitives.WriteUInt16BigEndian(span[..2], length);
 
-        var recordLen = (ushort)recordLenLong;
-
-        // Rewind and write actual length
-        var save = _stream.Position;
-        _stream.Position = start;
-        _writer.Write(recordLen);
-        _stream.Position = save;
+        _output.Write(span);
     }
 }

@@ -22,7 +22,7 @@ public readonly struct GdsBoundingBox
         Min = new GdsPoint(minX, minY);
         Max = new GdsPoint(maxX, maxY);
     }
-    
+
     /// <summary>
     /// Returns the union of this bounding box with another bounding box.
     /// </summary>
@@ -47,8 +47,8 @@ public readonly struct GdsBoundingBox
     {
         if (points.Length == 0)
             return Empty;
-        
-        var minX = points[0].X; 
+
+        var minX = points[0].X;
         var minY = points[0].Y;
         var maxX = points[0].X;
         var maxY = points[0].Y;
