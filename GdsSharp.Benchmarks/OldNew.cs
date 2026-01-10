@@ -1,6 +1,6 @@
 ﻿using BenchmarkDotNet.Attributes;
-using GdsSharp.Lib.InternalDb;
-using GdsSharp.Lib.InternalDb.VertexStore;
+using GdsSharp.Lib.Library;
+using GdsSharp.Lib.Library.VertexStore;
 using GdsSharp.Lib.Obsolete;
 using GdsSharp.Lib.Obsolete.Lexing;
 using GdsSharp.Lib.Reading;
@@ -53,7 +53,7 @@ public class OldNew
         using var tokenStream = new NewGdsTokenStream(_stream!);
         var parser = new NewGdsParser(tokenStream);
         var vertexStore = new MemoryVertexStore();
-        var consumer = new InternalDbConsumer(vertexStore);
+        var consumer = new GdsLibraryBuilderConsumer(vertexStore);
         parser.Parse(consumer);
         return consumer.Library;
     }

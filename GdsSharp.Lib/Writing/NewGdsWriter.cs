@@ -2,10 +2,9 @@
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using System.Text;
-using GdsSharp.Lib.Binary;
-using GdsSharp.Lib.InternalDb;
-using GdsSharp.Lib.InternalDb.Builder;
-using GdsSharp.Lib.InternalDb.VertexStore;
+using GdsSharp.Lib.Library;
+using GdsSharp.Lib.Library.Builder;
+using GdsSharp.Lib.Library.VertexStore;
 using GdsSharp.Lib.Obsolete.NonTerminals.Enum;
 using GdsSharp.Lib.Reading.Models;
 using GdsSharp.Lib.Reading.TokenStream;
@@ -32,7 +31,7 @@ public sealed class NewGdsWriter
     /// <param name="library">Library to write.</param>
     /// <param name="vertexReader">Reader for the vertex store of the library.</param>
     /// <exception cref="ArgumentNullException">If vertexReader or library are null.</exception>
-    public void Write(GdsLibrary library, IGdsVertexStoreReader vertexReader)
+    public void Write(GdsLibrary library, IGdsVertexStore vertexReader)
     {
         if (library is null) throw new ArgumentNullException(nameof(library));
         if (vertexReader is null) throw new ArgumentNullException(nameof(vertexReader));
@@ -80,7 +79,7 @@ public sealed class NewGdsWriter
         WriteRecord(GdsRecordTypes.EndLibrary, payloadWriter: null);
     }
 
-    private void WriteStructure(GdsLibrary library, GdsStructure structure, IGdsVertexStoreReader vertexReader, Dictionary<int, PropertyRecord[]> propertiesByElement)
+    private void WriteStructure(GdsLibrary library, GdsStructure structure, IGdsVertexStore vertexReader, Dictionary<int, PropertyRecord[]> propertiesByElement)
     {
         var info = structure.Info;
 
@@ -227,7 +226,7 @@ public sealed class NewGdsWriter
     private void WriteWidth(int width)
         => WriteRecord(GdsRecordTypes.Width, w => w.Write(width));
 
-    private void WriteXyFromStore(long vertexOffset, int vertexCount, IGdsVertexStoreReader vertexReader)
+    private void WriteXyFromStore(long vertexOffset, int vertexCount, IGdsVertexStore vertexReader)
     {
         var arr = ArrayPool<GdsPoint>.Shared.Rent(vertexCount);
         try

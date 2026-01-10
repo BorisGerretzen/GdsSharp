@@ -34,5 +34,9 @@
             <PackagePath>\</PackagePath>
         </None>
     </ItemGroup>
+    
+    <ItemGroup>
+      <Folder Include="Builder\" />
+    </ItemGroup>
 
 </Project>
