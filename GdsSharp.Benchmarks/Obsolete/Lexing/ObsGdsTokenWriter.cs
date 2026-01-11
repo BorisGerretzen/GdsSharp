@@ -7,11 +7,11 @@ using GdsSharp.Lib.Obsolete.Terminals.Records;
 
 namespace GdsSharp.Lib.Obsolete.Lexing;
 
-public class GdsTokenWriter
+public class ObsGdsTokenWriter
 {
     private readonly GdsFile _file;
 
-    public GdsTokenWriter(GdsFile file)
+    public ObsGdsTokenWriter(GdsFile file)
     {
         _file = file;
     }

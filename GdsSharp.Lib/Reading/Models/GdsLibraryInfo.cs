@@ -13,4 +13,18 @@ public readonly record struct GdsLibraryInfo(
     short? Generations,
     double UserUnits,
     double PhysicalUnits,
-    GdsFormatType FormatType);
+    GdsFormatType? FormatType)
+{
+    public static readonly GdsLibraryInfo Default = new(
+        Version: 700,
+        Name: "DefaultLibrary",
+        ModificationTime: DateTime.Now,
+        AccessTime: DateTime.Now,
+        ReferencedLibraries: [],
+        Fonts: [],
+        AttributeDefinitionFile: null,
+        Generations: null,
+        UserUnits: 1,
+        PhysicalUnits: 1e-8,
+        FormatType: GdsFormatType.GdsArchive);
+}

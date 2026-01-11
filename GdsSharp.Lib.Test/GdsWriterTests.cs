@@ -1,32 +1,15 @@
 using System.Reflection;
+using GdsSharp.Lib.Library.VertexStore;
 using GdsSharp.Lib.Obsolete;
-using GdsSharp.Lib.Obsolete.Lexing;
-using GdsSharp.Lib.Obsolete.Terminals;
-using GdsSharp.Lib.Obsolete.Terminals.Abstractions;
-using GdsSharp.Lib.Obsolete.Terminals.Records;
+using GdsSharp.Lib.Reading;
+using GdsSharp.Lib.Reading.Consumer;
+using GdsSharp.Lib.Reading.TokenStream;
+using GdsSharp.Lib.Writing;
 
 namespace GdsSharp.Lib.Test;
 
 public class GdsWriterTests
 {
-    [Test]
-    public void TestWriterWritesHeaders()
-    {
-        var records = new List<IGdsWriteableRecord>
-        {
-            new GdsRecordAngle
-            {
-                Value = 1.2345d
-            }
-        };
-
-        var stream = new MemoryStream();
-        GdsWriter.Write(records, stream);
-        var bytes = stream.ToArray();
-
-        Assert.That(bytes, Has.Length.EqualTo(records.First().GetLength() + GdsHeader.RecordSize));
-    }
-
     [TestCase("example.cal")]
     [TestCase("inv.gds2")]
     [TestCase("nand2.gds2")]
@@ -44,7 +27,13 @@ public class GdsWriterTests
         fileStream.Position = 0;
 
         using var tokenStream = new GdsTokenStream(fileStream);
-        GdsWriter.Write(tokenStream, streamOut);
+        var vertexStore = new MemoryVertexStore();
+        var consumer = new GdsLibraryBuilderConsumer(vertexStore);
+        var parser = new GdsParser(tokenStream);
+        parser.Parse(consumer);
+
+        var writer = new GdsWriter(streamOut);
+        writer.Write(consumer.Library, vertexStore);
 
         // remove padding
         var bytesIn = streamIn.ToArray();
@@ -52,8 +41,12 @@ public class GdsWriterTests
         bytesIn = bytesIn.SkipLast(paddingLength).ToArray();
 
         var bytesOut = streamOut.ToArray();
+        
+        // write to disk for manual inspection
+        File.WriteAllBytes($"new_{manifestFile}", bytesOut);
 
         // Check within 1 because sometimes floating point numbers are slightly different
+        Assert.That(bytesOut, Has.Length.EqualTo(bytesIn.Length));
         Assert.That(bytesOut, Is.EqualTo(bytesIn).Within(1));
     }
 }

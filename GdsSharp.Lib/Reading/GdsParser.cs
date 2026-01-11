@@ -5,7 +5,7 @@ using GdsSharp.Lib.Reading.TokenStream;
 
 namespace GdsSharp.Lib.Reading;
 
-public sealed class NewGdsParser(NewGdsTokenStream tokenStream)
+public sealed class GdsParser(GdsTokenStream tokenStream)
 {
     public void Parse(IParserConsumer consumer)
     {
@@ -65,7 +65,7 @@ public sealed class NewGdsParser(NewGdsTokenStream tokenStream)
             Generations: generations,
             UserUnits: userUnits,
             PhysicalUnits: physicalUnits,
-            FormatType: format.HasValue ? (GdsFormatType)format.Value : GdsFormatType.GdsArchive
+            FormatType: format.HasValue ? (GdsFormatType)format.Value : null
         );
         consumer.OnBeginLibrary(in libraryInfo);
 
@@ -156,8 +156,8 @@ public sealed class NewGdsParser(NewGdsTokenStream tokenStream)
 
     private GdsElementCommon? ReadGdsElementCommonOptionals()
     {
-        bool? external = false;
-        bool? template = false;
+        bool? external = null;
+        bool? template = null;
         int? plex = null;
 
         while (tokenStream.TryPeek(out var p))

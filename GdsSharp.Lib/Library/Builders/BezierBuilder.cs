@@ -1,7 +1,6 @@
 ﻿using System.Numerics;
-using GdsSharp.Lib.Obsolete.NonTerminals.Elements;
 
-namespace GdsSharp.Lib.Obsolete.Builders;
+namespace GdsSharp.Lib.Library.Builders;
 
 /// <summary>
 /// Helper class for building Bézier curves.
@@ -56,36 +55,24 @@ public class BezierBuilder
     }
 
     /// <summary>
-    /// Builds a path from the added control points.
+    /// Builds a line path from the added control points.
     /// </summary>
-    /// <remarks>Often <see cref="BuildPolygon"/> is a better option than this as it offers a better outline of the curve.</remarks>
-    /// <param name="width">Width of the created path.</param>
     /// <param name="numVertices">Number of path elements.</param>
-    /// <returns>A GdsPath element.</returns>
-    public GdsElement BuildLine(int width, int numVertices = 64)
+    /// <returns>Array of points representing the path.</returns>
+    public GdsPoint[] BuildLinePoints(int numVertices = 64)
     {
-        var points = GeneratePoints(numVertices)
+        return GeneratePoints(numVertices)
             .Select(p => new GdsPoint(p.Point))
-            .ToList();
-        var element = new GdsElement
-        {
-            Element = new GdsPathElement
-            {
-                Points = points,
-                Width = width
-            }
-        };
-
-        return element;
+            .ToArray();
     }
 
     /// <summary>
-    ///     Builds the Bézier curve as a polygon.
+    /// Builds the Bézier curve as a polygon.
     /// </summary>
     /// <param name="width">Width of the line.</param>
     /// <param name="numVertices">Number of vertices to use for the polygon.</param>
-    /// <returns>GdsBoundaryElement.</returns>
-    public GdsElement BuildPolygon(int width, int numVertices = 64)
+    /// <returns>Array of points representing the polygon boundary.</returns>
+    public GdsPoint[] BuildPolygonPoints(int width, int numVertices = 64)
     {
         var halfWidth = width / 2.0f;
 
@@ -120,16 +107,7 @@ public class BezierBuilder
         // Close the polygon
         offsetPoints[^1] = offsetPoints[0];
 
-        var element = new GdsElement
-        {
-            Element = new GdsBoundaryElement
-            {
-                Points = offsetPoints.ToList(),
-                NumPoints = offsetPoints.Length
-            }
-        };
-
-        return element;
+        return offsetPoints;
     }
 
     private IEnumerable<(Vector2 Point, Vector2 Tangent)> GeneratePoints(int numVertices)
@@ -148,7 +126,7 @@ public class BezierBuilder
     }
 
     /// <summary>
-    ///     Evaluates the Bézier curve at a given t.
+    /// Evaluates the Bézier curve at a given t.
     /// </summary>
     /// <param name="t">[0,1]</param>
     /// <returns>Position on the curve at <see cref="t" />.</returns>
@@ -168,7 +146,7 @@ public class BezierBuilder
     }
 
     /// <summary>
-    ///     Evaluates the tangent of the Bézier curve at a given t.
+    /// Evaluates the tangent of the Bézier curve at a given t.
     /// </summary>
     /// <param name="t">[0,1]</param>
     /// <returns>Tangent vector of the curve at <see cref="t" />.</returns>
@@ -212,3 +190,4 @@ public class BezierBuilder
         return ni;
     }
 }
+

@@ -4,7 +4,7 @@ using GdsSharp.Lib.Obsolete.Terminals.Abstractions;
 
 namespace GdsSharp.Lib.Obsolete;
 
-public class GdsWriter : GdsStreamOperator
+public class ObsGdsWriter : GdsStreamOperator
 {
     public static void Write(IEnumerable<IGdsRecord> records, Stream stream)
     {

@@ -11,14 +11,14 @@ using GdsSharp.Lib.Reading.TokenStream;
 
 namespace GdsSharp.Lib.Writing;
 
-public sealed class NewGdsWriter
+public sealed class GdsWriter
 {
     private readonly GdsWriteBuffer _buffer;
 
     private readonly Stream _output;
     private readonly BufferedGdsBinaryWriter _writer;
 
-    public NewGdsWriter(Stream output)
+    public GdsWriter(Stream output)
     {
         _output = output;
         _buffer = new GdsWriteBuffer();
@@ -63,7 +63,11 @@ public sealed class NewGdsWriter
             WriteRecord(GdsRecordTypes.Generations, w => { w.Write(library.Info.Generations.Value); });
         }
 
-        WriteRecord(GdsRecordTypes.Format, w => { w.Write((short)library.Info.FormatType); });
+        if (library.Info.FormatType.HasValue)
+        {
+            WriteRecord(GdsRecordTypes.Format, w => { w.Write((short)library.Info.FormatType); });
+        }
+        
         WriteRecord(GdsRecordTypes.Units, w =>
         {
             w.Write(library.Info.UserUnits);
@@ -200,20 +204,22 @@ public sealed class NewGdsWriter
         WriteRecord(GdsRecordTypes.EndStruct, null);
     }
 
-    private void WriteCommon(GdsElementCommon common)
+    private void WriteCommon(GdsElementCommon? common)
     {
-        if (common.ExternalData.HasValue || common.TemplateData.HasValue)
+        if (!common.HasValue) return;
+        var c = common.Value;
+        if (c.ExternalData.HasValue || c.TemplateData.HasValue)
             WriteRecord(GdsRecordTypes.ElementFlags, w =>
             {
                 short payload = 0;
-                if (common.ExternalData.GetValueOrDefault()) payload |= 0b10;
-                if (common.TemplateData.GetValueOrDefault()) payload |= 0b1;
+                if (c.ExternalData.GetValueOrDefault()) payload |= 0b10;
+                if (c.TemplateData.GetValueOrDefault()) payload |= 0b1;
                 w.Write(payload);
             });
 
-        if (common.PlexNumber.HasValue)
+        if (c.PlexNumber.HasValue)
         {
-            WriteRecord(GdsRecordTypes.Plex, w => w.Write(common.PlexNumber.Value));
+            WriteRecord(GdsRecordTypes.Plex, w => w.Write(c.PlexNumber.Value));
         }
     }
 

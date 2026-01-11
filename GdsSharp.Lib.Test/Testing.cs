@@ -18,8 +18,8 @@ public class Testing
         using var fileStream =
             Assembly.GetExecutingAssembly().GetManifestResourceStream($"GdsSharp.Lib.Test.Assets.{manifestFile}") ??
             throw new NullReferenceException();
-        using var tokenStream = new NewGdsTokenStream(fileStream);
-        var parser = new NewGdsParser(tokenStream);
+        using var tokenStream = new GdsTokenStream(fileStream);
+        var parser = new GdsParser(tokenStream);
         var store = new MemoryVertexStore();
         var consumer = new GdsLibraryBuilderConsumer(store);
         parser.Parse(consumer);

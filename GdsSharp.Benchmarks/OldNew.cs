@@ -30,8 +30,8 @@ public class OldNew
     [Benchmark]
     public GdsFile Old()
     {
-        using var tokenStream = new GdsTokenStream(_stream!);
-        var parser = new GdsParser(tokenStream);
+        using var tokenStream = new ObsGdsTokenStream(_stream!);
+        var parser = new ObsGdsParser(tokenStream);
         var f = parser.Parse();
         f.Materialize();
         return f;
@@ -40,8 +40,8 @@ public class OldNew
     [Benchmark]
     public GdsFile New()
     {
-        using var tokenStream = new NewGdsTokenStream(_stream!);
-        var parser = new NewGdsParser(tokenStream);
+        using var tokenStream = new GdsTokenStream(_stream!);
+        var parser = new GdsParser(tokenStream);
         var consumer = new OldParserConsumer();
         parser.Parse(consumer);
         return consumer.File;
@@ -50,8 +50,8 @@ public class OldNew
     [Benchmark]
     public GdsLibrary Newest()
     {
-        using var tokenStream = new NewGdsTokenStream(_stream!);
-        var parser = new NewGdsParser(tokenStream);
+        using var tokenStream = new GdsTokenStream(_stream!);
+        var parser = new GdsParser(tokenStream);
         var vertexStore = new MemoryVertexStore();
         var consumer = new GdsLibraryBuilderConsumer(vertexStore);
         parser.Parse(consumer);

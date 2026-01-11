@@ -1,6 +1,8 @@
 ﻿using System.Reflection;
-using GdsSharp.Lib.Obsolete;
-using GdsSharp.Lib.Obsolete.Lexing;
+using GdsSharp.Lib.Library.VertexStore;
+using GdsSharp.Lib.Reading;
+using GdsSharp.Lib.Reading.Consumer;
+using GdsSharp.Lib.Reading.TokenStream;
 
 namespace GdsSharp.Lib.Test;
 
@@ -17,8 +19,10 @@ public class GdsParserTests
             Assembly.GetExecutingAssembly().GetManifestResourceStream($"GdsSharp.Lib.Test.Assets.{manifestFile}") ??
             throw new NullReferenceException();
         using var stream = new GdsTokenStream(fileStream);
+
+        var vertexStore = new MemoryVertexStore();
+        var consumer = new GdsLibraryBuilderConsumer(vertexStore);
         var parser = new GdsParser(stream);
-        var file = parser.Parse();
-        file.Materialize();
+        parser.Parse(consumer);
     }
 }

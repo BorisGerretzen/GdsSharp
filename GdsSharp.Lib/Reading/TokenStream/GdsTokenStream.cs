@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace GdsSharp.Lib.Reading.TokenStream;
 
-public sealed class NewGdsTokenStream : IDisposable
+public sealed class GdsTokenStream : IDisposable
 {
     private readonly byte[] _hdr4 = new byte[4];
     private readonly BufferedGdsReader _reader;
@@ -12,7 +12,7 @@ public sealed class NewGdsTokenStream : IDisposable
     private int _currentRecordBytesRead;
     private int _expectedRecordBytes;
 
-    public NewGdsTokenStream(Stream stream, bool leaveOpen = false)
+    public GdsTokenStream(Stream stream, bool leaveOpen = false)
     {
         ArgumentNullException.ThrowIfNull(stream);
         if (!stream.CanSeek)

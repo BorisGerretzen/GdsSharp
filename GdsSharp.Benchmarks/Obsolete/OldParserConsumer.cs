@@ -39,7 +39,7 @@ public sealed class OldParserConsumer : IParserConsumer
             ReferencedLibraries = lib.ReferencedLibraries.ToList(),
             Fonts = lib.Fonts.ToList(),
             Generations = lib.Generations ?? 3,
-            FormatType = lib.FormatType
+            FormatType = lib.FormatType ?? GdsFormatType.GdsArchive
         };
     }
 

@@ -26,15 +26,15 @@ public class GdsFile
 
     public static GdsFile From(Stream stream)
     {
-        using var tokenStream = new GdsTokenStream(stream);
-        var parser = new GdsParser(tokenStream);
+        using var tokenStream = new ObsGdsTokenStream(stream);
+        var parser = new ObsGdsParser(tokenStream);
         return parser.Parse();
     }
 
     public void WriteTo(Stream stream)
     {
-        var tokenWriter = new GdsTokenWriter(this);
-        GdsWriter.Write(tokenWriter.Tokenize(), stream);
+        var tokenWriter = new ObsGdsTokenWriter(this);
+        ObsGdsWriter.Write(tokenWriter.Tokenize(), stream);
     }
 
     /// <summary>

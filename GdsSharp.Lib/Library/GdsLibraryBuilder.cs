@@ -22,13 +22,8 @@ public class GdsLibraryBuilder(IGdsVertexStore vertexWriter)
     private readonly List<TextPayload> _texts = [];
     private CellId? _currentStructureId;
 
-    private GdsLibraryInfo? _info;
-
-    public void SetInfo(GdsLibraryInfo info)
-    {
-        _info = info;
-    }
-
+    public GdsLibraryInfo? Info { get; set; }
+    
     public CellId AddStructure(GdsStructureInfo structureInfo)
     {
         var idx = _structures.Count;
@@ -41,7 +36,7 @@ public class GdsLibraryBuilder(IGdsVertexStore vertexWriter)
         return _currentStructureId.Value;
     }
 
-    public int AddStructureReference(GdsElementCommon common, string targetName, GdsStransInfo? strans, GdsPoint origin)
+    public int AddStructureReference(GdsElementCommon? common, string targetName, GdsStransInfo? strans, GdsPoint origin)
     {
         if (!_currentStructureId.HasValue)
             throw new InvalidOperationException("No current structure. Call AddStructure before adding elements.");
@@ -57,7 +52,7 @@ public class GdsLibraryBuilder(IGdsVertexStore vertexWriter)
         return elementId;
     }
 
-    public int AddArrayReference(GdsElementCommon common, string targetName, GdsStransInfo? strans, int rows, int columns, GdsPoint rowVector,
+    public int AddArrayReference(GdsElementCommon? common, string targetName, GdsStransInfo? strans, int rows, int columns, GdsPoint rowVector,
         GdsPoint columnVector,
         GdsPoint origin)
     {
@@ -75,7 +70,7 @@ public class GdsLibraryBuilder(IGdsVertexStore vertexWriter)
         return elementId;
     }
 
-    public int AddBoundary(GdsElementCommon common, short layer, short dataType, ReadOnlySpan<GdsPoint> points)
+    public int AddBoundary(GdsElementCommon? common, short layer, short dataType, ReadOnlySpan<GdsPoint> points)
     {
         if (!_currentStructureId.HasValue)
             throw new InvalidOperationException("No current structure. Call AddStructure before adding elements.");
@@ -95,7 +90,7 @@ public class GdsLibraryBuilder(IGdsVertexStore vertexWriter)
         return elementId;
     }
 
-    public int AddBox(GdsElementCommon common, short layer, short dataType, ReadOnlySpan<GdsPoint> points)
+    public int AddBox(GdsElementCommon? common, short layer, short dataType, ReadOnlySpan<GdsPoint> points)
     {
         if (!_currentStructureId.HasValue)
             throw new InvalidOperationException("No current structure. Call AddStructure before adding elements.");
@@ -115,7 +110,7 @@ public class GdsLibraryBuilder(IGdsVertexStore vertexWriter)
         return elementId;
     }
 
-    public int AddPath(GdsElementCommon common, short layer, short dataType, ReadOnlySpan<GdsPoint> points, int? width, GdsPathType? pathType)
+    public int AddPath(GdsElementCommon? common, short layer, short dataType, ReadOnlySpan<GdsPoint> points, int? width, GdsPathType? pathType)
     {
         if (!_currentStructureId.HasValue)
             throw new InvalidOperationException("No current structure. Call AddStructure before adding elements.");
@@ -142,7 +137,7 @@ public class GdsLibraryBuilder(IGdsVertexStore vertexWriter)
         return elementId;
     }
 
-    public int AddNode(GdsElementCommon common, short layer, short dataType, ReadOnlySpan<GdsPoint> points)
+    public int AddNode(GdsElementCommon? common, short layer, short dataType, ReadOnlySpan<GdsPoint> points)
     {
         if (!_currentStructureId.HasValue)
             throw new InvalidOperationException("No current structure. Call AddStructure before adding elements.");
@@ -162,7 +157,7 @@ public class GdsLibraryBuilder(IGdsVertexStore vertexWriter)
         return elementId;
     }
 
-    public int AddText(GdsElementCommon common, short layer, short textType, PresentationInfo? presentation, GdsPathType? pathType, int? width, GdsStransInfo? strans,
+    public int AddText(GdsElementCommon? common, short layer, short textType, PresentationInfo? presentation, GdsPathType? pathType, int? width, GdsStransInfo? strans,
         GdsPoint origin,
         string text)
     {
@@ -193,11 +188,11 @@ public class GdsLibraryBuilder(IGdsVertexStore vertexWriter)
 
     public GdsLibrary Build()
     {
-        if (!_info.HasValue)
+        if (!Info.HasValue)
             throw new InvalidOperationException("Library info must be set before building the library.");
 
         ComputeReferenceBoundingBoxes();
-        return new GdsLibrary(_info.Value, _structures.ToArray(), _elements.ToArray(), _boundaries.ToArray(), _paths.ToArray(), _structureReferences.ToArray(),
+        return new GdsLibrary(Info.Value, _structures.ToArray(), _elements.ToArray(), _boundaries.ToArray(), _paths.ToArray(), _structureReferences.ToArray(),
             _arrayReferences.ToArray(), _texts.ToArray(), _nodes.ToArray(), _boxes.ToArray(), _properties.ToArray());
     }
 

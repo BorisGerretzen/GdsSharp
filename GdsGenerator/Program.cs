@@ -1,116 +1,109 @@
 ﻿using System.Numerics;
 using GdsSharp.Lib;
-using GdsSharp.Lib.Builders;
-using GdsSharp.Lib.Old;
-using GdsSharp.Lib.Old.NonTerminals;
-using GdsSharp.Lib.Old.NonTerminals.Elements;
+using GdsSharp.Lib.Library;
+using GdsSharp.Lib.Library.Builders;
+using GdsSharp.Lib.Library.VertexStore;
+using GdsSharp.Lib.Reading.Models;
+using GdsSharp.Lib.Writing;
 
-var file = new GdsFile
+// Create a vertex store to hold all polygon/path vertices
+var vertexStore = new MemoryVertexStore();
+
+// Create the library builder
+var builder = new GdsLibraryBuilder(vertexStore);
+
+// Set library information
+builder.Info = GdsLibraryInfo.Default with
 {
-    LibraryName = "RandomObjects",
-    UserUnits = 1,
-    PhysicalUnits = 1e-8,
-    Version = 600
+    Name = "RandomObjects"
 };
 
-var elements = new List<GdsElement>
-{
-    // Generate a line from a Bézier curve with width 20.
-    // When using BuildPolygon the curve will be a GdsBoundaryElement.
-    new BezierBuilder()
-        .AddPoint(0, 0)
-        .AddPoint(0, 1000)
-        .AddPoint(1000, 1000)
-        .AddPoint(1000, 0)
-        .BuildPolygon(200),
+// Add a structure
+builder.AddStructure(new GdsStructureInfo(
+    Name: "MainStructure",
+    CreationTime: DateTime.Now,
+    ModificationTime: DateTime.Now
+));
 
-    // When using BuildLine the curve will be a GdsPathElement.
-    new BezierBuilder()
-        .AddPoint(-3000, 0)
-        .AddPoint(-3000, 1000)
-        .AddPoint(-2000, 1000)
-        .AddPoint(-2000, 0)
-        .BuildLine(200),
+// Generate a Bézier curve as a polygon with width 200
+var bezierBuilder1 = new BezierBuilder()
+    .AddPoint(0, 0)
+    .AddPoint(0, 1000)
+    .AddPoint(1000, 1000)
+    .AddPoint(1000, 0);
+builder.AddBezierBoundary(layer: 1, dataType: 0, bezierBuilder1, width: 200);
 
-    // Create a rectangle
-    RectBuilder.CreateRect(-3100, -1000, 4200, 1000),
+// Generate another Bézier curve as a path
+var bezierBuilder2 = new BezierBuilder()
+    .AddPoint(-3000, 0)
+    .AddPoint(-3000, 1000)
+    .AddPoint(-2000, 1000)
+    .AddPoint(-2000, 0);
+builder.AddBezierPath(layer: 1, dataType: 0, bezierBuilder2, width: 200);
 
-    // Create a circle 
-    CircleBuilder.CreateCircle(-1000, 744, 350, 128),
+// Create a rectangle
+builder.AddRectangle(layer: 1, dataType: 0, x: -3100, y: -1000, width: 4200, height: 1000);
 
-    // Create a polygon by manually specifying the points
-    new()
-    {
-        Element = new GdsBoundaryElement
-        {
-            Points =
-            [
-                new GdsPoint(-1250, 0),
-                new GdsPoint(-1250, 500),
-                new GdsPoint(-1000, 250),
-                new GdsPoint(-750, 500),
-                new GdsPoint(-750, 0),
-                new GdsPoint(-1250, 0)
-            ],
-            NumPoints = 6
-        }
-    }
-};
+// Create a circle
+builder.AddCircle(layer: 1, dataType: 0, x: -1000, y: 744, radius: 350, numPoints: 128);
 
-// Use the path builder to create a path
-// Returns an IEnumerable of GdsElement because the path may be split into multiple elements
-elements.AddRange(
-    new PathBuilder(
-            100f,
-            new Vector2(-3100, -3300),
-            Vector2.UnitX)
-        // Straight ahead for 2000 units
-        .Straight(2000)
-
-        // Bend 45 degrees to the left with a radius of 500 units
-        .BendDeg(-45, 500)
-
-        // Generate shape like <=>
-        .Straight(100, widthEnd: 250)
-        .Straight(100)
-        .Straight(100, widthEnd: 100)
-
-        // Some more bends
-        .BendDeg(-45, 500)
-        .Straight(100)
-        .Straight(200, 250)
-        .BendDeg(180, 300)
-        .BendDeg(-180, 300)
-
-        // Example of using a function to change the width
-        .BendDeg(-180, 900, f => MathF.Cos(f * 50) * 100 + 150)
-
-        // PathBuilder also supports Bézier curves
-        .Bezier(b => b
-                .AddPoint(0, 0)
-                .AddPoint(0, 1000)
-                .AddPoint(2000, 1000)
-                .AddPoint(1000, 0),
-            t => 250 - (250 - 50) * t)
-        .Straight(800)
-
-        // Build the path in sections of 200 vertices
-        // This is the 'official' maximum number of vertices per element in GDSII
-        // In practice, the number of vertices per element can be much higher
-        .Build(200)
+// Create a polygon by manually specifying the points
+builder.AddBoundary(
+    common: default,
+    layer: 1,
+    dataType: 0,
+    points:
+    [
+        new GdsPoint(-1250, 0),
+        new GdsPoint(-1250, 500),
+        new GdsPoint(-1000, 250),
+        new GdsPoint(-750, 500),
+        new GdsPoint(-750, 0),
+        new GdsPoint(-1250, 0)
+    ]
 );
-var structures = new List<GdsStructure>();
-file.Structures = structures;
 
-for (var i = 0; i < 10_000; i++)
-{
-    var structure = new GdsStructure
-    {
-        Name = $"Structure_{i:D5}",
-        Elements = elements
-    };
-    structures.Add(structure);
-}
+// Use the path builder to create a complex path
+var pathBuilder = new PathBuilder(
+    initialWidth: 100f,
+    initialPosition: new Vector2(-3100, -3300),
+    initialHeading: Vector2.UnitX)
+    
+    // Straight ahead for 2000 units
+    .Straight(2000)
+    
+    // Bend 45 degrees to the left with a radius of 500 units
+    .BendDeg(-45, 500)
+    
+    // Generate shape like <=>
+    .Straight(100, widthEnd: 250)
+    .Straight(100)
+    .Straight(100, widthEnd: 100)
+    
+    // Some more bends
+    .BendDeg(-45, 500)
+    .Straight(100)
+    .Straight(200, widthEnd: 250)
+    .BendDeg(180, 300)
+    .BendDeg(-180, 300)
+    
+    // Example of using a function to change the width
+    .BendDeg(-180, 900, f => MathF.Cos(f * 50) * 100 + 150)
+    
+    // PathBuilder also supports Bézier curves
+    .Bezier(b => b
+            .AddPoint(0, 0)
+            .AddPoint(0, 1000)
+            .AddPoint(2000, 1000)
+            .AddPoint(1000, 0),
+        t => 250 - (250 - 50) * t)
+    .Straight(800);
 
-using var write = File.OpenWrite("example.gds");
-file.WriteTo(write);
+// Add the path - it will be split into chunks of 200 vertices
+builder.AddPath(layer: 1, dataType: 0, pathBuilder, maxVertices: 200);
+
+// Build and Write to file
+var library = builder.Build();
+using var writeStream = File.OpenWrite("example.gds");
+var writer = new GdsWriter(writeStream);
+writer.Write(library, vertexStore);

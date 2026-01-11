@@ -9,11 +9,11 @@ using GdsSharp.Lib.Obsolete.Terminals.Records;
 
 namespace GdsSharp.Lib.Obsolete;
 
-public class GdsParser
+public class ObsGdsParser
 {
-    private readonly GdsTokenStream _queue;
+    private readonly ObsGdsTokenStream _queue;
 
-    public GdsParser(GdsTokenStream tokens)
+    public ObsGdsParser(ObsGdsTokenStream tokens)
     {
         _queue = tokens;
     }

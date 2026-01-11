@@ -6,11 +6,11 @@ using GdsSharp.Lib.Obsolete.Terminals.Records;
 
 namespace GdsSharp.Lib.Obsolete.Lexing;
 
-public class GdsTokenStream : GdsStreamOperator, IDisposable, IEnumerable<IGdsRecord>
+public class ObsGdsTokenStream : GdsStreamOperator, IDisposable, IEnumerable<IGdsRecord>
 {
     private readonly GdsBinaryReader _reader;
 
-    public GdsTokenStream(Stream stream)
+    public ObsGdsTokenStream(Stream stream)
     {
         _reader = new GdsBinaryReader(stream);
     }
