@@ -1,6 +1,6 @@
 ﻿namespace GdsSharp.Lib.Reading.TokenStream;
 
-public readonly record struct GdsTokenHeader(ushort Length, ushort Code, long Offset, long PayloadOffset)
+public readonly record struct GdsTokenHeader(ushort Length, ushort Code, long Offset)
 {
     public int PayloadLength => Length - 4;
 };

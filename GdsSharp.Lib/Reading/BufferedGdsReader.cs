@@ -1,7 +1,6 @@
 ﻿using System.Buffers;
 using System.Buffers.Binary;
 using System.Text;
-using GdsSharp.Lib.Obsolete.Terminals;
 
 namespace GdsSharp.Lib.Reading;
 
@@ -16,6 +15,9 @@ public sealed class BufferedGdsReader : IDisposable
     private int _len;
     private int _pos;
 
+    // 1. New field to track the underlying stream position manually
+    private long _streamPosition;
+
     public BufferedGdsReader(Stream stream, bool leaveOpen = true, int bufferSize = 64 * 1024)
     {
         _stream = stream ?? throw new ArgumentNullException(nameof(stream));
@@ -24,9 +26,24 @@ public sealed class BufferedGdsReader : IDisposable
 
         _leaveOpen = leaveOpen;
         _buffer = ArrayPool<byte>.Shared.Rent(bufferSize);
+
+        // Initialize our tracker.
+        // If the stream is not seekable, Position might throw or return 0.
+        // We attempt to sync if possible.
+        if (_stream.CanSeek)
+            try
+            {
+                _streamPosition = _stream.Position;
+            }
+            catch
+            {
+                _streamPosition = 0;
+            }
+        else
+            _streamPosition = 0;
     }
 
-    public long Position => _stream.Position - (_len - _pos);
+    public long Position => _streamPosition - (_len - _pos);
 
     public void Dispose()
     {
@@ -63,15 +80,11 @@ public sealed class BufferedGdsReader : IDisposable
         return new GdsDouble(span).AsDouble();
     }
 
-    /// <summary>
-    ///     Reads an ASCII string of exactly <paramref name="length" /> bytes and trims trailing '\0' padding.
-    /// </summary>
     public string ReadAsciiString(int length)
     {
         if (length < 0) throw new ArgumentOutOfRangeException(nameof(length));
         if (length == 0) return string.Empty;
 
-        // Try get from buffer
         if (TryGetContiguousSpan(length, out var s))
         {
             var trimmed = TrimTrailingNulls(s);
@@ -79,7 +92,6 @@ public sealed class BufferedGdsReader : IDisposable
             return Encoding.ASCII.GetString(trimmed);
         }
 
-        // If not buffered rent a temp array.
         var tmp = ArrayPool<byte>.Shared.Rent(length);
         try
         {
@@ -93,19 +105,13 @@ public sealed class BufferedGdsReader : IDisposable
         }
     }
 
-    /// <summary>
-    ///     Reads exactly length of the <paramref name="destination" /> span.
-    ///     Useful for bulk reads.
-    /// </summary>
     public void ReadExactly(Span<byte> destination)
     {
         if (destination.Length == 0) return;
 
-        // Consume from current buffer first.
         var remaining = destination.Length;
         var written = 0;
 
-        // Keep filling buffer and copying until done.
         while (remaining > 0)
         {
             if (_pos == _len)
@@ -119,22 +125,23 @@ public sealed class BufferedGdsReader : IDisposable
         }
     }
 
-    /// <summary>
-    ///     Skips forward by <paramref name="numBytes" /> bytes.
-    /// </summary>
     public void Skip(int numBytes)
     {
         if (numBytes < 0) throw new ArgumentOutOfRangeException(nameof(numBytes));
         if (numBytes == 0) return;
 
+        // Consume buffered data first
         var inBuf = Math.Min(numBytes, _len - _pos);
         _pos += inBuf;
         numBytes -= inBuf;
+
         if (numBytes == 0) return;
 
+        // Skip in underlying stream
         if (_stream.CanSeek)
         {
-            _stream.Seek(numBytes, SeekOrigin.Current);
+            // Seek returns the new position, allowing us to sync perfectly
+            _streamPosition = _stream.Seek(numBytes, SeekOrigin.Current);
             _pos = 0;
             _len = 0;
             return;
@@ -146,6 +153,9 @@ public sealed class BufferedGdsReader : IDisposable
             var toTake = Math.Min(numBytes, scratch.Length);
             var read = _stream.Read(scratch[..toTake]);
             if (read <= 0) throw new EndOfStreamException();
+
+            // Update tracker
+            _streamPosition += read;
             numBytes -= read;
         }
 
@@ -164,12 +174,6 @@ public sealed class BufferedGdsReader : IDisposable
         return span;
     }
 
-    /// <summary>
-    ///     Tries to get a contiguous span of <paramref name="count" /> bytes from the buffer, filling/compacting as needed.
-    /// </summary>
-    /// <param name="count">Number of bytes requested.</param>
-    /// <param name="span">Returned span if successful.</param>
-    /// <returns>False if no span could be read.</returns>
     private bool TryGetContiguousSpan(int count, out ReadOnlySpan<byte> span)
     {
         if (_len - _pos >= count)
@@ -178,14 +182,12 @@ public sealed class BufferedGdsReader : IDisposable
             return true;
         }
 
-        // Can only provide span of up to buffer size.
         if (count > _buffer.Length)
         {
             span = default;
             return false;
         }
 
-        // Compact and try again.
         Compact();
         FillBufferAtleast(count);
 
@@ -202,7 +204,12 @@ public sealed class BufferedGdsReader : IDisposable
     private void FillBuffer()
     {
         _pos = 0;
-        _len = _stream.Read(_buffer, 0, _buffer.Length);
+        var read = _stream.Read(_buffer, 0, _buffer.Length);
+
+        // Update tracker
+        _streamPosition += read;
+
+        _len = read;
         if (_len == 0) throw new EndOfStreamException();
     }
 
@@ -211,6 +218,10 @@ public sealed class BufferedGdsReader : IDisposable
         if (_len - _pos >= needed) return;
 
         var read = _stream.Read(_buffer, _len, _buffer.Length - _len);
+
+        // Update tracker
+        _streamPosition += read;
+
         _len += read;
         if (_len - _pos < needed)
             throw new EndOfStreamException();

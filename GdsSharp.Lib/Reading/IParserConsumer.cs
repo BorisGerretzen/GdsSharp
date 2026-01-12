@@ -1,4 +1,4 @@
-﻿using GdsSharp.Lib.Obsolete.NonTerminals.Enum;
+﻿using GdsSharp.Lib.Reading.Enum;
 using GdsSharp.Lib.Reading.Models;
 
 namespace GdsSharp.Lib.Reading;

@@ -1,6 +1,4 @@
-﻿using GdsSharp.Lib.Obsolete.Terminals;
-
-namespace GdsSharp.Lib.Writing;
+﻿namespace GdsSharp.Lib.Writing;
 
 public sealed class BufferedGdsBinaryWriter(GdsWriteBuffer buffer)
 {

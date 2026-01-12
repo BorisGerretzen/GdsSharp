@@ -1,6 +1,6 @@
 ﻿using System.Buffers.Binary;
 
-namespace GdsSharp.Lib.Obsolete.Terminals;
+namespace GdsSharp.Lib;
 
 public struct GdsDouble
 {
@@ -56,7 +56,7 @@ public struct GdsDouble
     }
 
     /// <summary>
-    ///     Creates a GDSII double from a byte array.
+    ///     Creates a GDSII double from its binary representation.
     /// </summary>
     /// <param name="data">Bytes to deserialize</param>
     /// <exception cref="ArgumentException">If not exactly <see cref="Size" /> bytes.</exception>
@@ -78,31 +78,9 @@ public struct GdsDouble
     public double AsDouble()
     {
         if (Mantissa == 0 && Exponent == 0) return 0.0f;
-
         var val = (Mantissa & 0x00FFFFFFFFFFFFFF) / (double)0x0100000000000000;
-
         var retVal = val * Math.Pow(16, Exponent);
-
         return IsNegative ? -retVal : retVal;
-    }
-
-    /// <summary>
-    ///     Converts the GdsDouble to it's binary representation.
-    /// </summary>
-    /// <returns><see cref="Size" /> bytes.</returns>
-    public byte[] AsBytes()
-    {
-        var bytes = new byte[Size];
-        if (Mantissa == 0 && Exponent == 0) return bytes;
-
-        bytes[0] = (byte)(IsNegative ? 0b10000000 : 0);
-        bytes[0] |= (byte)(Exponent + 64);
-        var uint1 = (uint)(Mantissa >> 24);
-        BinaryPrimitives.WriteUInt32BigEndian(bytes.AsSpan()[1..], uint1);
-        bytes[5] = (byte)(Mantissa >> 16);
-        bytes[6] = (byte)(Mantissa >> 8);
-        bytes[7] = (byte)Mantissa;
-        return bytes;
     }
 
     public void WriteTo(Span<byte> destination)

@@ -5,7 +5,7 @@ using System.Text;
 using GdsSharp.Lib.Library;
 using GdsSharp.Lib.Library.Builder;
 using GdsSharp.Lib.Library.VertexStore;
-using GdsSharp.Lib.Obsolete.NonTerminals.Enum;
+using GdsSharp.Lib.Reading.Enum;
 using GdsSharp.Lib.Reading.Models;
 using GdsSharp.Lib.Reading.TokenStream;
 
@@ -67,7 +67,7 @@ public sealed class GdsWriter
         {
             WriteRecord(GdsRecordTypes.Format, w => { w.Write((short)library.Info.FormatType); });
         }
-        
+
         WriteRecord(GdsRecordTypes.Units, w =>
         {
             w.Write(library.Info.UserUnits);
@@ -91,8 +91,11 @@ public sealed class GdsWriter
         WriteRecord(GdsRecordTypes.StructName, w => { WriteGdsString(w, info.Name); });
 
         var elements = library.Elements.AsSpan().Slice(structure.ElementStartIndex, structure.ElementCount);
-        foreach (var element in elements)
+
+        for (var i = 0; i < elements.Length; i++)
         {
+            var element = elements[i];
+            var elementIndex = structure.ElementStartIndex + i;
             switch (element.Kind)
             {
                 case ElementKind.ARef:
@@ -104,8 +107,8 @@ public sealed class GdsWriter
                     WriteStrans(aref.Strans);
                     WriteRecord(GdsRecordTypes.ColumnRow, w =>
                     {
-                        w.Write(aref.Columns);
-                        w.Write(aref.Rows);
+                        w.Write((short)aref.Columns);
+                        w.Write((short)aref.Rows);
                     });
                     WriteRecord(GdsRecordTypes.Xy, w =>
                     {
@@ -191,7 +194,7 @@ public sealed class GdsWriter
                     throw new InvalidDataException($"Unsupported element kind for writer: {element.Kind}");
             }
 
-            if (propertiesByElement.TryGetValue(element.Index, out var props))
+            if (propertiesByElement.TryGetValue(elementIndex, out var props))
                 foreach (var property in props)
                 {
                     WriteRecord(GdsRecordTypes.PropertyAttribute, w => w.Write(property.Attribute));
@@ -266,8 +269,8 @@ public sealed class GdsWriter
         {
             ushort flags = 0;
             if (s.Reflection) flags |= 0b10000000_00000000;
-            if (s.AbsoluteAngle) flags |= 0b100;
-            if (s.AbsoluteMagnification) flags |= 0b10;
+            if (s.AbsoluteMagnification) flags |= 0b100;
+            if (s.AbsoluteAngle) flags |= 0b10;
             w.Write(flags);
         });
 

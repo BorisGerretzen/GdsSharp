@@ -1,6 +1,5 @@
 using System.Buffers.Binary;
 using System.Text;
-using GdsSharp.Lib.Obsolete.Terminals;
 
 namespace GdsSharp.Lib.Obsolete.Binary;
 
@@ -50,7 +49,9 @@ public class GdsBinaryWriter(Stream output) : BinaryWriter(output)
     public override void Write(double value)
     {
         var data = new GdsDouble(value);
-        base.Write(data.AsBytes());
+        var bytes = new byte[GdsDouble.Size];
+        data.WriteTo(bytes);
+        base.Write(bytes);
     }
 
     public void Reset()

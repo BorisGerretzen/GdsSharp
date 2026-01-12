@@ -1,7 +1,7 @@
-﻿using GdsSharp.Lib.Obsolete.NonTerminals.Enum;
+﻿using GdsSharp.Lib.Reading.Enum;
 using GdsSharp.Lib.Reading.Models;
 
-namespace GdsSharp.Lib.Library;
+namespace GdsSharp.Lib.Library.Builder.Payload;
 
 public readonly record struct TextPayload(
     short Layer,

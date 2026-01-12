@@ -40,9 +40,4 @@ public readonly struct GdsBoundingBox
             Max = new GdsPoint(Math.Max(Max.X, boundingBox.Max.X), Math.Max(Max.Y, boundingBox.Max.Y));
         }
     }
-
-    public static GdsBoundingBox operator *(GdsBoundingBox a, double b)
-    {
-        return new GdsBoundingBox(new GdsPoint(a.Min.X * b, a.Min.Y * b), new GdsPoint(a.Max.X * b, a.Max.Y * b));
-    }
 }

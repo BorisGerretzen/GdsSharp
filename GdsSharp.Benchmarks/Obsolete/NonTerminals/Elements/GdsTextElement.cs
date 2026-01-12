@@ -1,5 +1,5 @@
 using GdsSharp.Lib.Obsolete.NonTerminals.Abstractions;
-using GdsSharp.Lib.Obsolete.NonTerminals.Enum;
+using GdsSharp.Lib.Reading.Enum;
 
 namespace GdsSharp.Lib.Obsolete.NonTerminals.Elements;
 

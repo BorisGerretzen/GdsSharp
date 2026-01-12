@@ -13,14 +13,20 @@ public class Testing
     [TestCase("nand2.gds2")]
     [TestCase("xor.gds2")]
     [TestCase("gds3d_example.gds")]
+    [TestCase("Proprietary.prop.gds")]
     public void Test(string manifestFile)
+    {
+        for (var i = 0; i < 100; i++) ParseFile(manifestFile);
+    }
+
+    private static void ParseFile(string manifestFile)
     {
         using var fileStream =
             Assembly.GetExecutingAssembly().GetManifestResourceStream($"GdsSharp.Lib.Test.Assets.{manifestFile}") ??
             throw new NullReferenceException();
         using var tokenStream = new GdsTokenStream(fileStream);
         var parser = new GdsParser(tokenStream);
-        var store = new MemoryVertexStore();
+        var store = new MemoryVertexStore(20_000_000);
         var consumer = new GdsLibraryBuilderConsumer(store);
         parser.Parse(consumer);
         var library = consumer.Library;

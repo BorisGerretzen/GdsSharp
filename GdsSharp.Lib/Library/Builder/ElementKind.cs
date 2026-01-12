@@ -1,4 +1,4 @@
-﻿namespace GdsSharp.Lib.Library;
+﻿namespace GdsSharp.Lib.Library.Builder;
 
 public enum ElementKind
 {

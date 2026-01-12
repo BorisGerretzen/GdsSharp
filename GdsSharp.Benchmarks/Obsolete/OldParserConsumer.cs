@@ -2,7 +2,7 @@
 using GdsSharp.Lib.Obsolete.NonTerminals;
 using GdsSharp.Lib.Obsolete.NonTerminals.Abstractions;
 using GdsSharp.Lib.Obsolete.NonTerminals.Elements;
-using GdsSharp.Lib.Obsolete.NonTerminals.Enum;
+using GdsSharp.Lib.Reading.Enum;
 using GdsSharp.Lib.Reading.Models;
 
 namespace GdsSharp.Lib.Reading.Consumer;

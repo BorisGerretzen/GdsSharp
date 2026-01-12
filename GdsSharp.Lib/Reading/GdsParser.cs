@@ -1,5 +1,5 @@
 ﻿using System.Buffers;
-using GdsSharp.Lib.Obsolete.NonTerminals.Enum;
+using GdsSharp.Lib.Reading.Enum;
 using GdsSharp.Lib.Reading.Models;
 using GdsSharp.Lib.Reading.TokenStream;
 
@@ -46,8 +46,7 @@ public sealed class GdsParser(GdsTokenStream tokenStream)
                     break;
 
                 default:
-                    tokenStream.SkipPayload(h);
-                    break;
+                    throw new InvalidDataException($"Unexpected record code 0x{h.Code:X} at 0x{h.Offset:X}.");
             }
         }
 

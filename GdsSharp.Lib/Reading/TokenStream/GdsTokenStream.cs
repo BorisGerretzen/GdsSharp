@@ -94,7 +94,7 @@ public sealed class GdsTokenStream : IDisposable
         _expectedRecordBytes = length;
         _currentRecordBytesRead = 4;
 
-        header = new GdsTokenHeader(length, code, pos, _reader.Position);
+        header = new GdsTokenHeader(length, code, pos);
         return true;
     }
 

@@ -2,10 +2,10 @@
 using GdsSharp.Lib.Obsolete.NonTerminals;
 using GdsSharp.Lib.Obsolete.NonTerminals.Abstractions;
 using GdsSharp.Lib.Obsolete.NonTerminals.Elements;
-using GdsSharp.Lib.Obsolete.NonTerminals.Enum;
 using GdsSharp.Lib.Obsolete.Terminals;
 using GdsSharp.Lib.Obsolete.Terminals.Abstractions;
 using GdsSharp.Lib.Obsolete.Terminals.Records;
+using GdsSharp.Lib.Reading.Enum;
 
 namespace GdsSharp.Lib.Obsolete;
 

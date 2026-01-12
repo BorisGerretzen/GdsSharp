@@ -1,6 +1,6 @@
 using System.Numerics;
 using GdsSharp.Lib.Library.Builders;
-using GdsSharp.Lib.Obsolete.NonTerminals.Enum;
+using GdsSharp.Lib.Reading.Enum;
 using GdsSharp.Lib.Reading.Models;
 
 namespace GdsSharp.Lib.Library;
@@ -173,4 +173,3 @@ public static class GdsLibraryBuilderExtensions
         return new PathBuilder(initialWidth, initialPosition, initialHeading);
     }
 }
-

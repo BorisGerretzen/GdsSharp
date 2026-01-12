@@ -1,7 +1,9 @@
-﻿using GdsSharp.Lib.Library.BoundingBox;
+﻿using System.Runtime.InteropServices;
+using GdsSharp.Lib.Library.BoundingBox;
 using GdsSharp.Lib.Library.Builder;
+using GdsSharp.Lib.Library.Builder.Payload;
 using GdsSharp.Lib.Library.VertexStore;
-using GdsSharp.Lib.Obsolete.NonTerminals.Enum;
+using GdsSharp.Lib.Reading.Enum;
 using GdsSharp.Lib.Reading.Models;
 
 namespace GdsSharp.Lib.Library;
@@ -18,21 +20,21 @@ public class GdsLibraryBuilder(IGdsVertexStore vertexWriter)
 
     private readonly List<PropertyRecord> _properties = [];
     private readonly List<SRefPayload> _structureReferences = [];
-    private readonly List<GdsStructure> _structures = [];
+    private readonly List<MutGdsStructure> _structures = [];
     private readonly List<TextPayload> _texts = [];
     private CellId? _currentStructureId;
 
     public GdsLibraryInfo? Info { get; set; }
-    
+
     public CellId AddStructure(GdsStructureInfo structureInfo)
     {
         var idx = _structures.Count;
         _currentStructureId = new CellId(idx);
-        _structures.Add(new GdsStructure(
-            Info: structureInfo,
+        _structures.Add(new MutGdsStructure(
+            structureInfo,
             _elements.Count,
             0,
-            BoundingBox: null));
+            null));
         return _currentStructureId.Value;
     }
 
@@ -192,36 +194,35 @@ public class GdsLibraryBuilder(IGdsVertexStore vertexWriter)
             throw new InvalidOperationException("Library info must be set before building the library.");
 
         ComputeReferenceBoundingBoxes();
-        return new GdsLibrary(Info.Value, _structures.ToArray(), _elements.ToArray(), _boundaries.ToArray(), _paths.ToArray(), _structureReferences.ToArray(),
+
+        var immutableStructures = new GdsStructure[_structures.Count];
+        for (var i = 0; i < _structures.Count; i++) immutableStructures[i] = MutGdsStructure.ToGdsStructure(_structures[i]);
+
+        return new GdsLibrary(Info.Value, immutableStructures, _elements.ToArray(), _boundaries.ToArray(), _paths.ToArray(), _structureReferences.ToArray(),
             _arrayReferences.ToArray(), _texts.ToArray(), _nodes.ToArray(), _boxes.ToArray(), _properties.ToArray());
     }
 
     private void IncrementStructureElementCount()
     {
-        var structure = _structures[_currentStructureId!.Value.Id];
-        structure = structure with { ElementCount = structure.ElementCount + 1 };
-        _structures[_currentStructureId!.Value.Id] = structure;
+        ref var structure = ref CollectionsMarshal.AsSpan(_structures)[_currentStructureId!.Value.Id];
+        structure.ElementCount++;
     }
 
     private void UpdateStructureBoundingBox(CellId cellId, GdsBoundingBox? boundingBox)
     {
-        var structure = _structures[cellId.Id];
-        if (boundingBox.HasValue)
-        {
-            structure = structure with
-            {
-                BoundingBox = structure.BoundingBox?.Union(boundingBox.Value) ?? boundingBox
-            };
-            _structures[cellId.Id] = structure;
-        }
+        if (!boundingBox.HasValue) return;
+
+        ref var structure = ref CollectionsMarshal.AsSpan(_structures)[cellId.Id];
+        structure.BoundingBox = structure.BoundingBox?.Union(boundingBox.Value) ?? boundingBox;
     }
 
     private void ComputeReferenceBoundingBoxes()
     {
         var numStructures = _structures.Count;
+        var structuresSpan = CollectionsMarshal.AsSpan(_structures);
         var structureMap = new Dictionary<string, int>(StringComparer.Ordinal);
-        for (var i = 0; i < _structures.Count; i++)
-            structureMap[_structures[i].Info.Name] = i;
+        for (var i = 0; i < structuresSpan.Length; i++)
+            structureMap[structuresSpan[i].Info.Name] = i;
 
         var structureReferencesByParent = new List<(CellId Child, GdsStransInfo? Strans, GdsPoint Origin)>?[numStructures];
         var arrayReferencesByParent = new List<(GdsPoint RowVector, GdsPoint ColVector, GdsPoint Origin)>?[numStructures];
@@ -264,14 +265,15 @@ public class GdsLibraryBuilder(IGdsVertexStore vertexWriter)
         while (queue.Count > 0)
         {
             var current = queue.Dequeue();
-            var currentBox = _structures[current].BoundingBox;
+            var currentBox = structuresSpan[current].BoundingBox;
+            ref var currentStructure = ref structuresSpan[current];
 
             // Process structure references
             if (structureReferencesByParent[current] is { } srefs)
             {
                 foreach (var (childId, strans, origin) in srefs)
                 {
-                    var childBox = _structures[childId.Id].BoundingBox;
+                    var childBox = structuresSpan[childId.Id].BoundingBox;
                     if (childBox is { IsEmpty: false })
                     {
                         var transformedBox = childBox.Value.TransformBoundingBox(strans ?? GdsStransInfo.Default, origin);
@@ -290,7 +292,7 @@ public class GdsLibraryBuilder(IGdsVertexStore vertexWriter)
                 }
             }
 
-            _structures[current] = _structures[current] with { BoundingBox = currentBox };
+            currentStructure.BoundingBox = currentBox;
 
             // Decrease dependencies of parents
             foreach (var parentId in parents[current])
@@ -305,5 +307,22 @@ public class GdsLibraryBuilder(IGdsVertexStore vertexWriter)
 
         if (numProcessed != numStructures)
             throw new InvalidOperationException("Cyclic structure references detected when computing bounding boxes.");
+    }
+
+    private struct MutGdsStructure(GdsStructureInfo info, int elementStartIndex, int elementCount, GdsBoundingBox? boundingBox)
+    {
+        public readonly GdsStructureInfo Info = info;
+        public readonly int ElementStartIndex = elementStartIndex;
+        public int ElementCount = elementCount;
+        public GdsBoundingBox? BoundingBox = boundingBox;
+
+        public static GdsStructure ToGdsStructure(MutGdsStructure s)
+        {
+            return new GdsStructure(
+                s.Info,
+                s.ElementStartIndex,
+                s.ElementCount,
+                s.BoundingBox);
+        }
     }
 }

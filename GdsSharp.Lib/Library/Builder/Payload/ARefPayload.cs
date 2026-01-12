@@ -1,7 +1,6 @@
-﻿using GdsSharp.Lib.Library.Builder;
-using GdsSharp.Lib.Reading.Models;
+﻿using GdsSharp.Lib.Reading.Models;
 
-namespace GdsSharp.Lib.Library;
+namespace GdsSharp.Lib.Library.Builder.Payload;
 
 public readonly record struct ARefPayload(
     CellId Parent,

@@ -4,6 +4,9 @@ namespace GdsSharp.Lib;
 
 public readonly record struct GdsPoint
 {
+    public readonly int X;
+    public readonly int Y;
+
     public GdsPoint(int x, int y)
     {
         X = x;
@@ -19,15 +22,6 @@ public readonly record struct GdsPoint
         X = (int)MathF.Round(x);
         Y = (int)MathF.Round(y);
     }
-
-    public GdsPoint(double x, double y)
-    {
-        X = (int)Math.Round(x);
-        Y = (int)Math.Round(y);
-    }
-
-    public readonly int X;
-    public readonly int Y;
 
     public static GdsPoint operator +(GdsPoint a, GdsPoint b) => new(a.X + b.X, a.Y + b.Y);
     public static GdsPoint operator -(GdsPoint a, GdsPoint b) => new(a.X - b.X, a.Y - b.Y);

@@ -1,7 +1,7 @@
 ﻿using GdsSharp.Lib.Library;
 using GdsSharp.Lib.Library.Builder;
 using GdsSharp.Lib.Library.VertexStore;
-using GdsSharp.Lib.Obsolete.NonTerminals.Enum;
+using GdsSharp.Lib.Reading.Enum;
 using GdsSharp.Lib.Reading.Models;
 
 namespace GdsSharp.Lib.Reading.Consumer;
@@ -92,11 +92,11 @@ public class GdsLibraryBuilderConsumer(IGdsVertexStore storeWriter) : IParserCon
     public void OnAref(string structureName, GdsStransInfo? strans, short cols, short rows, ReadOnlySpan<GdsPoint> points)
     {
         if (!_currentStructureId.HasValue) throw new InvalidOperationException("No structure is currently being processed.");
-        if (points.Length != 3) throw new InvalidOperationException("AREF must have exactly three points: origin, row vector, column vector.");
+        if (points.Length != 3) throw new InvalidOperationException("AREF must have exactly three points: origin, column vector, row vector.");
 
         var origin = points[0];
-        var rowVector = points[1];
-        var columnVector = points[2];
+        var columnVector = points[1];
+        var rowVector = points[2];
 
         _currentElementId = _builder.AddArrayReference(_currentElementCommon, structureName, strans, rows, cols, rowVector, columnVector, origin);
     }

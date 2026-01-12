@@ -1,27 +1,19 @@
-﻿namespace GdsSharp.Lib.Library.BoundingBox;
+﻿using System.Numerics;
+using System.Runtime.InteropServices;
 
-public readonly struct GdsBoundingBox
+namespace GdsSharp.Lib.Library.BoundingBox;
+
+public readonly struct GdsBoundingBox(GdsPoint min, GdsPoint max)
 {
-    public GdsPoint Min { get; }
-    public GdsPoint Max { get; }
+    public readonly GdsPoint Min = min;
+    public readonly GdsPoint Max = max;
 
     public bool IsEmpty => Min.X > Max.X || Min.Y > Max.Y;
 
-    public static GdsBoundingBox Empty => new(
+    public static readonly GdsBoundingBox Empty = new(
         new GdsPoint(int.MaxValue, int.MaxValue),
         new GdsPoint(int.MinValue, int.MinValue)
     );
-
-    public GdsBoundingBox(GdsPoint a, GdsPoint b)
-    {
-        var minX = Math.Min(a.X, b.X);
-        var minY = Math.Min(a.Y, b.Y);
-        var maxX = Math.Max(a.X, b.X);
-        var maxY = Math.Max(a.Y, b.Y);
-
-        Min = new GdsPoint(minX, minY);
-        Max = new GdsPoint(maxX, maxY);
-    }
 
     /// <summary>
     /// Returns the union of this bounding box with another bounding box.
@@ -40,25 +32,64 @@ public readonly struct GdsBoundingBox
         return new GdsBoundingBox(new GdsPoint(minX, minY), new GdsPoint(maxX, maxY));
     }
 
-    /// <summary>
-    /// Creates a bounding box that encompasses all the given points.
-    /// </summary>
+
     public static GdsBoundingBox FromPoints(ReadOnlySpan<GdsPoint> points)
     {
         if (points.Length == 0)
             return Empty;
 
-        var minX = points[0].X;
-        var minY = points[0].Y;
-        var maxX = points[0].X;
-        var maxY = points[0].Y;
+        // 1. Reinterpret the span of points as a flat span of integers.
+        // Memory layout becomes: [X1, Y1, X2, Y2, X3, Y3...]
+        // Note: Assuming GdsPoint is struct { int X; int Y; }
+        var rawValues = MemoryMarshal.Cast<GdsPoint, int>(points);
 
-        foreach (var p in points)
+        var minX = int.MaxValue;
+        var minY = int.MaxValue;
+        var maxX = int.MinValue;
+        var maxY = int.MinValue;
+
+        var i = 0;
+
+        // 2. SIMD Loop
+        // Process chunks of integers at once (e.g., 4 points / 8 ints on AVX2)
+        if (Vector.IsHardwareAccelerated && rawValues.Length >= Vector<int>.Count)
         {
-            if (p.X < minX) minX = p.X;
-            if (p.Y < minY) minY = p.Y;
-            if (p.X > maxX) maxX = p.X;
-            if (p.Y > maxY) maxY = p.Y;
+            var vMin = new Vector<int>(int.MaxValue);
+            var vMax = new Vector<int>(int.MinValue);
+
+            // Loop until we can't fill a full vector
+            for (; i <= rawValues.Length - Vector<int>.Count; i += Vector<int>.Count)
+            {
+                var v = new Vector<int>(rawValues.Slice(i));
+                vMin = Vector.Min(vMin, v);
+                vMax = Vector.Max(vMax, v);
+            }
+
+            // 3. Reduce the vectors
+            // vMin now contains [minX_sub1, minY_sub1, minX_sub2, minY_sub2...]
+            // We separate the even lanes (X) and odd lanes (Y).
+            for (var j = 0; j < Vector<int>.Count; j += 2)
+            {
+                minX = Math.Min(minX, vMin[j]);
+                minY = Math.Min(minY, vMin[j + 1]);
+
+                maxX = Math.Max(maxX, vMax[j]);
+                maxY = Math.Max(maxY, vMax[j + 1]);
+            }
+        }
+
+        // 4. Scalar Tail Loop
+        // Process any remaining integers that didn't fit in the vector
+        for (; i < rawValues.Length; i += 2)
+        {
+            var x = rawValues[i];
+            var y = rawValues[i + 1];
+
+            if (x < minX) minX = x;
+            if (x > maxX) maxX = x;
+
+            if (y < minY) minY = y;
+            if (y > maxY) maxY = y;
         }
 
         return new GdsBoundingBox(new GdsPoint(minX, minY), new GdsPoint(maxX, maxY));
