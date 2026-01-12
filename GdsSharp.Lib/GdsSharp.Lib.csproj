@@ -25,6 +25,11 @@
     </PropertyGroup>
     
     <ItemGroup>
+        <InternalsVisibleTo Include="GdsSharp.Lib.Test" />
+        <InternalsVisibleTo Include="GdsSharp.Benchmarks" />
+    </ItemGroup>
+    
+    <ItemGroup>
         <None Include="..\LICENSE">
             <Pack>True</Pack>
             <PackagePath>\</PackagePath>

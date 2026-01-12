@@ -1,11 +1,13 @@
-﻿namespace GdsSharp.Lib.Library.VertexStore;
+﻿using GdsSharp.Lib.Library.VertexStore;
+
+namespace GdsSharp.Lib.Test.Library.VertexStore;
 
 /// <summary>
 /// Creates a new memory vertex store for storing GDS points in memory.
 /// Pick a suitable initial capacity to avoid resizing.
 /// </summary>
 /// <param name="initialCapacity">The initial capacity of the vertex store.</param>
-public class MemoryVertexStore(int? initialCapacity = null) : IGdsVertexStore
+public class ReferenceVertexStore(int? initialCapacity = null) : IGdsVertexStore
 {
     private readonly List<GdsPoint> _points = new(initialCapacity ?? 0);
 

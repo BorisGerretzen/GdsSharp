@@ -20,7 +20,7 @@ public class GdsParserTests
             throw new NullReferenceException();
         using var stream = new GdsTokenStream(fileStream);
 
-        var vertexStore = new MemoryVertexStore();
+        var vertexStore = new ChunkedVertexStore();
         var consumer = new GdsLibraryBuilderConsumer(vertexStore);
         var parser = new GdsParser(stream);
         parser.Parse(consumer);

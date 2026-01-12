@@ -1,6 +1,6 @@
 ﻿using System.Buffers.Binary;
 
-namespace GdsSharp.Lib;
+namespace GdsSharp.Benchmarks.Obsolete;
 
 public struct GdsDouble
 {
@@ -46,10 +46,9 @@ public struct GdsDouble
 
         var fexp = Math.Log2(value) / 4;
         if (double.IsNaN(fexp)) fexp = 0;
-
         var exp = (int)Math.Ceiling(fexp);
-        if (Math.Abs(fexp - exp) < 1e-6) exp++;
-
+        if (value >= Math.Pow(16, exp)) exp++;
+        
         var mantissa = (ulong)(value / Math.Pow(16, exp - 14));
         Exponent = exp;
         Mantissa = mantissa;

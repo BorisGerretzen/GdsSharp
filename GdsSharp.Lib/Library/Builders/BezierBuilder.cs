@@ -8,7 +8,7 @@ namespace GdsSharp.Lib.Library.Builders;
 public class BezierBuilder
 {
     private static readonly float[] Factorial =
-    {
+    [
         1.0f,
         1.0f,
         2.0f,
@@ -26,7 +26,7 @@ public class BezierBuilder
         87178291200.0f,
         1307674368000.0f,
         20922789888000.0f
-    };
+    ];
 
     private readonly List<GdsPoint> _controlPoints = [];
 

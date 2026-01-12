@@ -20,14 +20,14 @@ public static class CircleBuilder
 
         var pointsPerSector = new Dictionary<int, List<GdsPoint>>
         {
-            { 0, new() },
-            { 1, new() },
-            { 2, new() },
-            { 3, new() },
-            { 4, new() },
-            { 5, new() },
-            { 6, new() },
-            { 7, new() }
+            { 0, [] },
+            { 1, [] },
+            { 2, [] },
+            { 3, [] },
+            { 4, [] },
+            { 5, [] },
+            { 6, [] },
+            { 7, [] }
         };
 
         var currentX = 0;

@@ -11,8 +11,7 @@ public sealed class BufferedGdsBinaryWriter(GdsWriteBuffer buffer)
 
     public void Write(double value)
     {
-        var gdsDouble = new GdsDouble(value);
-        gdsDouble.WriteTo(buffer.GetSpan(GdsDouble.Size));
+        GdsDoubleConverter.ToGdsBytes(value, buffer.GetSpan(GdsDoubleConverter.GdsDoubleSize));
     }
 
     public void Write(ReadOnlySpan<byte> bytes) => buffer.WriteBytes(bytes);

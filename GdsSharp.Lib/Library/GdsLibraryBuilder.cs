@@ -8,7 +8,7 @@ using GdsSharp.Lib.Reading.Models;
 
 namespace GdsSharp.Lib.Library;
 
-public class GdsLibraryBuilder(IGdsVertexStore vertexWriter)
+public class GdsLibraryBuilder(IGdsVertexStore vertexStore)
 {
     private readonly List<ARefPayload> _arrayReferences = [];
     private readonly List<BoundaryPayload> _boundaries = [];
@@ -81,7 +81,7 @@ public class GdsLibraryBuilder(IGdsVertexStore vertexWriter)
         var elementRecord = new ElementRecord(common, ElementKind.Boundary, _boundaries.Count, GdsBoundingBox.FromPoints(points));
         _elements.Add(elementRecord);
 
-        var vertexOffset = vertexWriter.Write(points);
+        var vertexOffset = vertexStore.Write(points);
 
         var boundary = new BoundaryPayload(layer, dataType, vertexOffset, points.Length);
         _boundaries.Add(boundary);
@@ -101,7 +101,7 @@ public class GdsLibraryBuilder(IGdsVertexStore vertexWriter)
         var elementRecord = new ElementRecord(common, ElementKind.Box, _boxes.Count, GdsBoundingBox.FromPoints(points));
         _elements.Add(elementRecord);
 
-        var vertexOffset = vertexWriter.Write(points);
+        var vertexOffset = vertexStore.Write(points);
 
         var box = new BoxPayload(layer, dataType, vertexOffset, points.Length);
         _boxes.Add(box);
@@ -128,7 +128,7 @@ public class GdsLibraryBuilder(IGdsVertexStore vertexWriter)
         var elementRecord = new ElementRecord(common, ElementKind.Path, _paths.Count, boundingBox);
         _elements.Add(elementRecord);
 
-        var vertexOffset = vertexWriter.Write(points);
+        var vertexOffset = vertexStore.Write(points);
 
         var path = new PathPayload(layer, dataType, pathType, width, vertexOffset, points.Length);
         _paths.Add(path);
@@ -148,7 +148,7 @@ public class GdsLibraryBuilder(IGdsVertexStore vertexWriter)
         var elementRecord = new ElementRecord(common, ElementKind.Node, _nodes.Count, GdsBoundingBox.FromPoints(points));
         _elements.Add(elementRecord);
 
-        var vertexOffset = vertexWriter.Write(points);
+        var vertexOffset = vertexStore.Write(points);
 
         var node = new NodePayload(layer, dataType, vertexOffset, points.Length);
         _nodes.Add(node);
@@ -198,7 +198,7 @@ public class GdsLibraryBuilder(IGdsVertexStore vertexWriter)
         var immutableStructures = new GdsStructure[_structures.Count];
         for (var i = 0; i < _structures.Count; i++) immutableStructures[i] = MutGdsStructure.ToGdsStructure(_structures[i]);
 
-        return new GdsLibrary(Info.Value, immutableStructures, _elements.ToArray(), _boundaries.ToArray(), _paths.ToArray(), _structureReferences.ToArray(),
+        return new GdsLibrary(vertexStore, Info.Value, immutableStructures, _elements.ToArray(), _boundaries.ToArray(), _paths.ToArray(), _structureReferences.ToArray(),
             _arrayReferences.ToArray(), _texts.ToArray(), _nodes.ToArray(), _boxes.ToArray(), _properties.ToArray());
     }
 

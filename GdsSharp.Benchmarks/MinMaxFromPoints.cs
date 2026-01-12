@@ -1,45 +1,52 @@
 ﻿using System.Numerics;
 using System.Runtime.InteropServices;
+using BenchmarkDotNet.Attributes;
+using GdsSharp.Benchmarks.Obsolete;
+using GdsSharp.Lib;
 
-namespace GdsSharp.Lib.Library.BoundingBox;
+namespace GdsSharp.Benchmarks;
 
-public readonly struct GdsBoundingBox(GdsPoint min, GdsPoint max)
+public class MinMaxFromPoints
 {
-    public readonly GdsPoint Min = min;
-    public readonly GdsPoint Max = max;
+    private readonly GdsPoint[] _points = new GdsPoint[1000];
 
-    public bool IsEmpty => Min.X > Max.X || Min.Y > Max.Y;
-
-    public static readonly GdsBoundingBox Empty = new(
-        new GdsPoint(int.MaxValue, int.MaxValue),
-        new GdsPoint(int.MinValue, int.MinValue)
-    );
-
-    /// <summary>
-    /// Returns the union of this bounding box with another bounding box.
-    /// </summary>
-    /// <returns>Bounding box that encompasses both this and the other bounding box.</returns>
-    public GdsBoundingBox Union(GdsBoundingBox other)
+    [GlobalSetup]
+    public void GlobalSetup()
     {
-        if (IsEmpty) return other;
-        if (other.IsEmpty) return this;
+        var random = new Random();
+        for (int i = 0; i < _points.Length; i++)
+        {
+            _points[i] = new GdsPoint(
+                random.Next(-10000, 10000),
+                random.Next(-10000, 10000)
+            );
+        }
+    }
 
-        var minX = Math.Min(Min.X, other.Min.X);
-        var minY = Math.Min(Min.Y, other.Min.Y);
-        var maxX = Math.Max(Max.X, other.Max.X);
-        var maxY = Math.Max(Max.Y, other.Max.Y);
+    [Benchmark]
+    public GdsBoundingBox NaiveMinMax()
+    {
+        var minX = int.MaxValue;
+        var minY = int.MaxValue;
+        var maxX = int.MinValue;
+        var maxY = int.MinValue;
+
+        foreach (var point in _points)
+        {
+            if (point.X < minX) minX = point.X;
+            if (point.Y < minY) minY = point.Y;
+            if (point.X > maxX) maxX = point.X;
+            if (point.Y > maxY) maxY = point.Y;
+        }
 
         return new GdsBoundingBox(new GdsPoint(minX, minY), new GdsPoint(maxX, maxY));
     }
 
-
-    public static GdsBoundingBox FromPoints(ReadOnlySpan<GdsPoint> points)
+    [Benchmark]
+    public GdsBoundingBox Simd()
     {
-        if (points.Length == 0)
-            return Empty;
-
-        // Memory layout becomes: [X1, Y1, X2, Y2, X3, Y3...]
-        var rawValues = MemoryMarshal.Cast<GdsPoint, int>(points);
+        // Memory layout: [X1, Y1, X2, Y2, X3, Y3...]
+        var rawValues = MemoryMarshal.Cast<GdsPoint, int>(_points);
 
         var minX = int.MaxValue;
         var minY = int.MaxValue;
@@ -86,17 +93,5 @@ public readonly struct GdsBoundingBox(GdsPoint min, GdsPoint max)
         }
 
         return new GdsBoundingBox(new GdsPoint(minX, minY), new GdsPoint(maxX, maxY));
-    }
-
-    /// <summary>
-    /// Translates the bounding box by the given vector.
-    /// </summary>
-    /// <returns>The translated bounding box.</returns>
-    public static GdsBoundingBox operator +(GdsBoundingBox box, GdsPoint vec)
-    {
-        return new GdsBoundingBox(
-            new GdsPoint(box.Min.X + vec.X, box.Min.Y + vec.Y),
-            new GdsPoint(box.Max.X + vec.X, box.Max.Y + vec.Y)
-        );
     }
 }

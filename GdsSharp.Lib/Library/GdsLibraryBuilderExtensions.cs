@@ -31,7 +31,7 @@ public static class GdsLibraryBuilderExtensions
         GdsElementCommon? common = null)
     {
         var points = bezierBuilder.BuildPolygonPoints(width, numVertices);
-        return builder.AddBoundary(common ?? default, layer, dataType, points);
+        return builder.AddBoundary(common, layer, dataType, points);
     }
 
     /// <summary>
@@ -57,7 +57,7 @@ public static class GdsLibraryBuilderExtensions
         GdsElementCommon? common = null)
     {
         var points = bezierBuilder.BuildLinePoints(numVertices);
-        return builder.AddPath(common ?? default, layer, dataType, points, width, pathType);
+        return builder.AddPath(common, layer, dataType, points, width, pathType);
     }
 
     /// <summary>
@@ -83,7 +83,7 @@ public static class GdsLibraryBuilderExtensions
         GdsElementCommon? common = null)
     {
         var points = CircleBuilder.CreateCirclePoints(x, y, radius, numPoints);
-        return builder.AddBoundary(common ?? default, layer, dataType, points);
+        return builder.AddBoundary(common, layer, dataType, points);
     }
 
     /// <summary>
@@ -109,7 +109,7 @@ public static class GdsLibraryBuilderExtensions
         GdsElementCommon? common = null)
     {
         var points = RectBuilder.CreateRectPoints(x, y, width, height);
-        return builder.AddBoundary(common ?? default, layer, dataType, points);
+        return builder.AddBoundary(common, layer, dataType, points);
     }
 
     /// <summary>
@@ -141,35 +141,5 @@ public static class GdsLibraryBuilderExtensions
         }
 
         return elementIds;
-    }
-
-    /// <summary>
-    /// Creates a new BezierBuilder and configures it using the provided action.
-    /// </summary>
-    /// <param name="builder">The library builder.</param>
-    /// <param name="configure">Action to configure the BezierBuilder.</param>
-    /// <returns>Configured BezierBuilder.</returns>
-    public static BezierBuilder CreateBezier(this GdsLibraryBuilder builder, Action<BezierBuilder> configure)
-    {
-        var bezierBuilder = new BezierBuilder();
-        configure(bezierBuilder);
-        return bezierBuilder;
-    }
-
-    /// <summary>
-    /// Creates a new PathBuilder with the specified initial parameters.
-    /// </summary>
-    /// <param name="builder">The library builder.</param>
-    /// <param name="initialWidth">Initial width of the path.</param>
-    /// <param name="initialPosition">Initial position (optional).</param>
-    /// <param name="initialHeading">Initial heading direction (optional).</param>
-    /// <returns>New PathBuilder instance.</returns>
-    public static PathBuilder CreatePath(
-        this GdsLibraryBuilder builder,
-        float initialWidth,
-        Vector2? initialPosition = null,
-        Vector2? initialHeading = null)
-    {
-        return new PathBuilder(initialWidth, initialPosition, initialHeading);
     }
 }

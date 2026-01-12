@@ -1,6 +1,6 @@
 ﻿namespace GdsSharp.Lib.Reading.TokenStream;
 
-public class GdsRecordTypes
+internal class GdsRecordTypes
 {
     public const ushort Header = 0x0002;
     public const ushort BeginLibrary = 0x0102;

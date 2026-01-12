@@ -10,7 +10,7 @@ public class PathBuilder
     private readonly Vector2 _initialHeading;
     private readonly Vector2 _initialPosition;
     private readonly float _initialWidth;
-    private readonly List<GdsPathSegment> _pathSegments = new();
+    private readonly List<GdsPathSegment> _pathSegments = [];
 
     /// <summary>
     /// Creates a new PathBuilder.
@@ -157,7 +157,7 @@ public class PathBuilder
     /// Generates a list of points for each segment in the path.
     /// </summary>
     /// <returns>List of points per segment.</returns>
-    protected IEnumerable<GdsPathPoint> GetPathPoints()
+    private IEnumerable<GdsPathPoint> GetPathPoints()
     {
         var position = _initialPosition;
         var heading = _initialHeading;
@@ -206,7 +206,7 @@ public class PathBuilder
     /// <param name="Derivative">Function that defines the derivative of the segment.</param>
     /// <param name="Width">Function that defines the width of the segment.</param>
     /// <param name="Vertices">Number of vertices of the segment.</param>
-    protected record struct GdsPathSegment(Func<float, Vector2> Path, Func<float, Vector2> Derivative, Func<float, float?>? Width, int Vertices);
+    private record struct GdsPathSegment(Func<float, Vector2> Path, Func<float, Vector2> Derivative, Func<float, float?>? Width, int Vertices);
 
     /// <summary>
     /// Represents a single point in the path.
@@ -214,6 +214,6 @@ public class PathBuilder
     /// <param name="Point">The coordinates of the point.</param>
     /// <param name="Normal">The normal of the point.</param>
     /// <param name="Width">The width at the point.</param>
-    protected record struct GdsPathPoint(Vector2 Point, Vector2 Normal, float Width);
+    private record struct GdsPathPoint(Vector2 Point, Vector2 Normal, float Width);
 }
 

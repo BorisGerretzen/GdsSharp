@@ -25,30 +25,15 @@ public readonly record struct GdsPoint
 
     public static GdsPoint operator +(GdsPoint a, GdsPoint b) => new(a.X + b.X, a.Y + b.Y);
     public static GdsPoint operator -(GdsPoint a, GdsPoint b) => new(a.X - b.X, a.Y - b.Y);
-    public static GdsPoint operator *(GdsPoint a, GdsPoint b) => new(a.X * b.X, a.Y * b.Y);
-    public static GdsPoint operator /(GdsPoint a, GdsPoint b) => new(a.X / b.X, a.Y / b.Y);
-    public static GdsPoint operator %(GdsPoint a, GdsPoint b) => new(a.X % b.X, a.Y % b.Y);
     public static GdsPoint operator +(GdsPoint a, int b) => new(a.X + b, a.Y + b);
     public static GdsPoint operator -(GdsPoint a, int b) => new(a.X - b, a.Y - b);
     public static GdsPoint operator *(GdsPoint a, int b) => new(a.X * b, a.Y * b);
-    public static GdsPoint operator /(GdsPoint a, int b) => new(a.X / b, a.Y / b);
-    public static GdsPoint operator %(GdsPoint a, int b) => new(a.X % b, a.Y % b);
     public static GdsPoint operator +(int a, GdsPoint b) => new(a + b.X, a + b.Y);
     public static GdsPoint operator -(int a, GdsPoint b) => new(a - b.X, a - b.Y);
     public static GdsPoint operator *(int a, GdsPoint b) => new(a * b.X, a * b.Y);
-    public static GdsPoint operator /(int a, GdsPoint b) => new(a / b.X, a / b.Y);
-    public static GdsPoint operator %(int a, GdsPoint b) => new(a % b.X, a % b.Y);
 
     public override string ToString()
     {
         return $"({X}, {Y})";
-    }
-
-    public GdsPoint Rotate(float sin, float cos)
-    {
-        return new GdsPoint(
-            cos * X - sin * Y,
-            sin * X + cos * Y
-        );
     }
 }

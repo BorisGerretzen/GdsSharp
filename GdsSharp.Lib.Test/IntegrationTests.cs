@@ -17,7 +17,6 @@ public class IntegrationTests
     [TestCase("nand2.gds2")]
     [TestCase("xor.gds2")]
     [TestCase("gds3d_example.gds")]
-    [TestCase("Proprietary.prop.gds")]
     public void TestWriterRoundtrip(string manifestFile)
     {
         using var streamIn = new MemoryStream();
@@ -30,7 +29,7 @@ public class IntegrationTests
         fileStream.Position = 0;
 
         using var tokenStream = new GdsTokenStream(fileStream);
-        var vertexStore = new MemoryVertexStore();
+        var vertexStore = new ChunkedVertexStore();
         var consumer = new GdsLibraryBuilderConsumer(vertexStore);
         var parser = new GdsParser(tokenStream);
         parser.Parse(consumer);
@@ -88,7 +87,7 @@ public class IntegrationTests
     /// <summary>
     ///     Writes a library to a stream, then reads it back using the parser.
     /// </summary>
-    private static (GdsLibrary Library, MemoryVertexStore VertexStore) WriteAndReadBack(GdsLibrary library,
+    private static (GdsLibrary Library, ChunkedVertexStore VertexStore) WriteAndReadBack(GdsLibrary library,
         IGdsVertexStore vertexStore)
     {
         using var stream = new MemoryStream();
@@ -98,7 +97,7 @@ public class IntegrationTests
         stream.Position = 0;
 
         using var tokenStream = new GdsTokenStream(stream);
-        var readVertexStore = new MemoryVertexStore();
+        var readVertexStore = new ChunkedVertexStore();
         var consumer = new GdsLibraryBuilderConsumer(readVertexStore);
         var parser = new GdsParser(tokenStream);
         parser.Parse(consumer);
@@ -109,11 +108,11 @@ public class IntegrationTests
     /// <summary>
     ///     Creates a minimal library with one structure.
     /// </summary>
-    private static (GdsLibraryBuilder Builder, MemoryVertexStore VertexStore) CreateMinimalLibrary(
+    private static (GdsLibraryBuilder Builder, ChunkedVertexStore VertexStore) CreateMinimalLibrary(
         string libraryName = "TestLibrary",
         string structureName = "TestStructure")
     {
-        var vertexStore = new MemoryVertexStore();
+        var vertexStore = new ChunkedVertexStore();
         var builder = new GdsLibraryBuilder(vertexStore)
         {
             Info = GdsLibraryInfo.Default with
@@ -260,7 +259,7 @@ public class IntegrationTests
         var creationTime = new DateTime(2024, 3, 10, 8, 15, 20);
         var modificationTime = new DateTime(2024, 3, 11, 9, 20, 25);
 
-        var vertexStore = new MemoryVertexStore();
+        var vertexStore = new ChunkedVertexStore();
         var builder = new GdsLibraryBuilder(vertexStore)
         {
             Info = GdsLibraryInfo.Default with { Name = "TestLib" }
@@ -282,7 +281,7 @@ public class IntegrationTests
     [Test]
     public void TestMultipleStructures_AllArePreserved()
     {
-        var vertexStore = new MemoryVertexStore();
+        var vertexStore = new ChunkedVertexStore();
         var builder = new GdsLibraryBuilder(vertexStore)
         {
             Info = GdsLibraryInfo.Default with { Name = "TestLib" }
@@ -635,7 +634,7 @@ public class IntegrationTests
     [Test]
     public void TestSRef_TargetNameIsPreserved()
     {
-        var vertexStore = new MemoryVertexStore();
+        var vertexStore = new ChunkedVertexStore();
         var builder = new GdsLibraryBuilder(vertexStore)
         {
             Info = GdsLibraryInfo.Default with { Name = "TestLib" }
@@ -659,7 +658,7 @@ public class IntegrationTests
     [Test]
     public void TestSRef_OriginIsPreserved()
     {
-        var vertexStore = new MemoryVertexStore();
+        var vertexStore = new ChunkedVertexStore();
         var builder = new GdsLibraryBuilder(vertexStore)
         {
             Info = GdsLibraryInfo.Default with { Name = "TestLib" }
@@ -680,7 +679,7 @@ public class IntegrationTests
     [Test]
     public void TestSRef_StransIsPreserved()
     {
-        var vertexStore = new MemoryVertexStore();
+        var vertexStore = new ChunkedVertexStore();
         var builder = new GdsLibraryBuilder(vertexStore)
         {
             Info = GdsLibraryInfo.Default with { Name = "TestLib" }
@@ -712,7 +711,7 @@ public class IntegrationTests
     [Test]
     public void TestARef_TargetNameIsPreserved()
     {
-        var vertexStore = new MemoryVertexStore();
+        var vertexStore = new ChunkedVertexStore();
         var builder = new GdsLibraryBuilder(vertexStore)
         {
             Info = GdsLibraryInfo.Default with { Name = "TestLib" }
@@ -735,7 +734,7 @@ public class IntegrationTests
     [Test]
     public void TestARef_RowsAndColumnsArePreserved()
     {
-        var vertexStore = new MemoryVertexStore();
+        var vertexStore = new ChunkedVertexStore();
         var builder = new GdsLibraryBuilder(vertexStore)
         {
             Info = GdsLibraryInfo.Default with { Name = "TestLib" }
@@ -758,7 +757,7 @@ public class IntegrationTests
     [Test]
     public void TestARef_VectorsAndOriginArePreserved()
     {
-        var vertexStore = new MemoryVertexStore();
+        var vertexStore = new ChunkedVertexStore();
         var builder = new GdsLibraryBuilder(vertexStore)
         {
             Info = GdsLibraryInfo.Default with { Name = "TestLib" }
@@ -782,7 +781,7 @@ public class IntegrationTests
     [Test]
     public void TestARef_StransIsPreserved()
     {
-        var vertexStore = new MemoryVertexStore();
+        var vertexStore = new ChunkedVertexStore();
         var builder = new GdsLibraryBuilder(vertexStore)
         {
             Info = GdsLibraryInfo.Default with { Name = "TestLib" }

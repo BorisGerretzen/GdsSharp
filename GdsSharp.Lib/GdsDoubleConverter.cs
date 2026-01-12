@@ -2,9 +2,9 @@
 
 namespace GdsSharp.Lib;
 
-public static class GdsDoubleConverter
+internal static class GdsDoubleConverter
 {
-    private const int GdsDoubleSize = 8;
+    public const int GdsDoubleSize = 8;
     private const ulong SignMask = 0x8000_0000_0000_0000;
 
     private const int GdsBias = 64;

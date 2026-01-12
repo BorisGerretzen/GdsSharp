@@ -5,7 +5,7 @@ using GdsSharp.Lib.Reading.TokenStream;
 
 namespace GdsSharp.Lib.Reading;
 
-public sealed class GdsParser(GdsTokenStream tokenStream)
+public sealed class GdsParser(GdsTokenStream tokenStream) : IDisposable
 {
     public void Parse(IParserConsumer consumer)
     {
@@ -565,5 +565,10 @@ public sealed class GdsParser(GdsTokenStream tokenStream)
             HorizontalJustification: (short)horizontalPresentation,
             VerticalJustification: (short)verticalPresentation
         );
+    }
+
+    public void Dispose()
+    {
+        tokenStream.Dispose();
     }
 }

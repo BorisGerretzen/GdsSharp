@@ -1,4 +1,5 @@
 ﻿using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Order;
 using GdsSharp.Benchmarks.Obsolete;
 using GdsSharp.Benchmarks.Obsolete.Lexing;
 using GdsSharp.Lib.Library;
@@ -9,28 +10,16 @@ using GdsSharp.Lib.Reading.TokenStream;
 
 namespace GdsSharp.Benchmarks;
 
-[MemoryDiagnoser]
+[MemoryDiagnoser, Orderer(SummaryOrderPolicy.Declared)]
 public class OldNew
 {
-    private Stream? _stream;
-
-    [IterationSetup]
-    public void Setup()
-    {
-        _stream = File.OpenRead("Assets/output.gds");
-    }
-
-    [IterationCleanup]
-    public void Cleanup()
-    {
-        _stream?.Dispose();
-        _stream = null;
-    }
-
-    [Benchmark]
+    private const string AssetPath = "Assets/Proprietary/prop.gds";
+    
+    [Benchmark(Baseline = true)]
     public GdsFile Old()
     {
-        using var tokenStream = new ObsGdsTokenStream(_stream!);
+        using var fs = File.OpenRead(AssetPath);
+        using var tokenStream = new ObsGdsTokenStream(fs);
         var parser = new ObsGdsParser(tokenStream);
         var f = parser.Parse();
         f.Materialize();
@@ -38,21 +27,35 @@ public class OldNew
     }
 
     [Benchmark]
-    public GdsFile New()
+    public GdsFile NewParserOldStructure()
     {
-        using var tokenStream = new GdsTokenStream(_stream!);
-        var parser = new GdsParser(tokenStream);
+        using var fs = File.OpenRead(AssetPath);
+        var tokenStream = new GdsTokenStream(fs);
+        using var parser = new GdsParser(tokenStream);
         var consumer = new OldParserConsumer();
         parser.Parse(consumer);
         return consumer.File;
     }
-
+    
     [Benchmark]
-    public GdsLibrary Newest()
+    public GdsLibrary New()
     {
-        using var tokenStream = new GdsTokenStream(_stream!);
-        var parser = new GdsParser(tokenStream);
-        var vertexStore = new MemoryVertexStore();
+        using var fs = File.OpenRead(AssetPath);
+        var tokenStream = new GdsTokenStream(fs);
+        using var parser = new GdsParser(tokenStream);
+        var vertexStore = new ChunkedVertexStore();
+        var consumer = new GdsLibraryBuilderConsumer(vertexStore);
+        parser.Parse(consumer);
+        return consumer.Library;
+    }
+    
+    [Benchmark]
+    public GdsLibrary NewDiskBacked()
+    {
+        using var fs = File.OpenRead(AssetPath);
+        var tokenStream = new GdsTokenStream(fs);
+        using var parser = new GdsParser(tokenStream);
+        var vertexStore = new DiskVertexStore();
         var consumer = new GdsLibraryBuilderConsumer(vertexStore);
         parser.Parse(consumer);
         return consumer.Library;

@@ -3,11 +3,14 @@ using GdsSharp.Lib;
 using GdsSharp.Lib.Library;
 using GdsSharp.Lib.Library.Builders;
 using GdsSharp.Lib.Library.VertexStore;
+using GdsSharp.Lib.Reading;
+using GdsSharp.Lib.Reading.Consumer;
 using GdsSharp.Lib.Reading.Models;
+using GdsSharp.Lib.Reading.TokenStream;
 using GdsSharp.Lib.Writing;
 
 // Create a vertex store to hold all polygon/path vertices
-var vertexStore = new MemoryVertexStore();
+var vertexStore = new ChunkedVertexStore();
 
 // Create the library builder
 var builder = new GdsLibraryBuilder(vertexStore);

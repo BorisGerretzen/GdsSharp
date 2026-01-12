@@ -11,7 +11,6 @@ public sealed class GdsWriteBuffer(int initialCapacity = ushort.MaxValue)
     public int Length => _pos;
 
     public Span<byte> WrittenSpanMutable => _buffer.AsSpan(0, _pos);
-    public ReadOnlySpan<byte> WrittenSpan => _buffer.AsSpan(0, _pos);
 
     public void Clear() => _pos = 0;
 

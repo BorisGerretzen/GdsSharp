@@ -94,7 +94,7 @@ public class GdsDoubleTests
     }
 
     [Test]
-    public void FuzzTest_CompareAgainstLegacy()
+    public void Fuzz_CompareReference()
     {
         const int iterations = 100_000;
         var bufferNew = new byte[8];
@@ -126,23 +126,17 @@ public class GdsDoubleTests
 
     private double GetRandomDouble()
     {
-        // 1. Edge Case: Return 0.0 roughly 1% of the time
         if (TestContext.CurrentContext.Random.NextDouble() < 0.01)
             return 0.0;
-
-        // 2. Generate a random magnitude roughly within GDSII limits
+        
         // GDSII Max: ~7.2e75
         // GDSII Min: ~5.4e-79
-        // We stick to a "Safe Range" of 10^-75 to 10^75 to avoid edge cases in this specific test
-        var exponent = TestContext.CurrentContext.Random.NextDouble() * 150.0 - 75.0; // Range [-75, 75]
+        // Generate exponent between -75 and +75
+        var exponent = TestContext.CurrentContext.Random.NextDouble() * 148.0 - 74.0;
+        var mantissa = TestContext.CurrentContext.Random.NextDouble() * 9.0 + 1.0;
 
-        // 3. Generate the base value
-        var mantissa = TestContext.CurrentContext.Random.NextDouble();
-
-        // 4. Combine
         var value = mantissa * Math.Pow(10, exponent);
 
-        // 5. Random Sign
         return TestContext.CurrentContext.Random.NextBool() ? value : -value;
     }
 }

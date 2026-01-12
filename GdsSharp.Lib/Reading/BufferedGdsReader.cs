@@ -4,7 +4,7 @@ using System.Text;
 
 namespace GdsSharp.Lib.Reading;
 
-public sealed class BufferedGdsReader : IDisposable
+internal sealed class BufferedGdsReader : IDisposable
 {
     private readonly bool _leaveOpen;
     private readonly Stream _stream;
@@ -15,7 +15,6 @@ public sealed class BufferedGdsReader : IDisposable
     private int _len;
     private int _pos;
 
-    // 1. New field to track the underlying stream position manually
     private long _streamPosition;
 
     public BufferedGdsReader(Stream stream, bool leaveOpen = true, int bufferSize = 64 * 1024)
@@ -27,10 +26,8 @@ public sealed class BufferedGdsReader : IDisposable
         _leaveOpen = leaveOpen;
         _buffer = ArrayPool<byte>.Shared.Rent(bufferSize);
 
-        // Initialize our tracker.
-        // If the stream is not seekable, Position might throw or return 0.
-        // We attempt to sync if possible.
         if (_stream.CanSeek)
+        {
             try
             {
                 _streamPosition = _stream.Position;
@@ -39,8 +36,11 @@ public sealed class BufferedGdsReader : IDisposable
             {
                 _streamPosition = 0;
             }
+        }
         else
+        {
             _streamPosition = 0;
+        }
     }
 
     public long Position => _streamPosition - (_len - _pos);
@@ -76,8 +76,7 @@ public sealed class BufferedGdsReader : IDisposable
 
     public double ReadDouble()
     {
-        var span = GetContiguousSpan(GdsDouble.Size);
-        return new GdsDouble(span).AsDouble();
+        return GdsDoubleConverter.FromGdsBytes(GetContiguousSpan(GdsDoubleConverter.GdsDoubleSize));
     }
 
     public string ReadAsciiString(int length)
@@ -140,7 +139,6 @@ public sealed class BufferedGdsReader : IDisposable
         // Skip in underlying stream
         if (_stream.CanSeek)
         {
-            // Seek returns the new position, allowing us to sync perfectly
             _streamPosition = _stream.Seek(numBytes, SeekOrigin.Current);
             _pos = 0;
             _len = 0;
@@ -154,7 +152,6 @@ public sealed class BufferedGdsReader : IDisposable
             var read = _stream.Read(scratch[..toTake]);
             if (read <= 0) throw new EndOfStreamException();
 
-            // Update tracker
             _streamPosition += read;
             numBytes -= read;
         }
@@ -206,9 +203,7 @@ public sealed class BufferedGdsReader : IDisposable
         _pos = 0;
         var read = _stream.Read(_buffer, 0, _buffer.Length);
 
-        // Update tracker
         _streamPosition += read;
-
         _len = read;
         if (_len == 0) throw new EndOfStreamException();
     }
@@ -219,9 +214,7 @@ public sealed class BufferedGdsReader : IDisposable
 
         var read = _stream.Read(_buffer, _len, _buffer.Length - _len);
 
-        // Update tracker
         _streamPosition += read;
-
         _len += read;
         if (_len - _pos < needed)
             throw new EndOfStreamException();

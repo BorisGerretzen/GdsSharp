@@ -1,5 +1,6 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
+using GdsSharp.Benchmarks.Obsolete;
 using GdsSharp.Lib;
 
 namespace GdsSharp.Benchmarks;
@@ -23,10 +24,8 @@ public class GdsDoubleBenchmark
 
         var random = new Random(42);
 
-        // Pre-generate data to avoid benchmarking Random
         for (var i = 0; i < N; i++)
         {
-            // Create random double (Approx range 10^-75 to 10^75)
             var exponent = random.NextDouble() * 150.0 - 75.0;
             var mantissa = random.NextDouble();
             var val = mantissa * Math.Pow(10, exponent);
@@ -37,11 +36,7 @@ public class GdsDoubleBenchmark
             GdsDoubleConverter.ToGdsBytes(_values[i], _dataInputs[i]);
         }
     }
-
-    // --------------------------------------------------------
-    // WRITE BENCHMARKS (Double -> Bytes)
-    // --------------------------------------------------------
-
+    
     [Benchmark(Baseline = true)]
     public void Write_Legacy()
     {
@@ -57,10 +52,6 @@ public class GdsDoubleBenchmark
     {
         for (var i = 0; i < N; i++) GdsDoubleConverter.ToGdsBytes(_values[i], _buffer);
     }
-
-    // --------------------------------------------------------
-    // READ BENCHMARKS (Bytes -> Double)
-    // --------------------------------------------------------
 
     [Benchmark]
     public void Read_Legacy()
