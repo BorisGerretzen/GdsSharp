@@ -1,9 +1,9 @@
 using System.Linq.Expressions;
 using System.Reflection;
-using GdsSharp.Lib.Obsolete.Terminals.Abstractions;
-using GdsSharp.Lib.Obsolete.Terminals.Records;
+using GdsSharp.Benchmarks.Obsolete.Terminals.Abstractions;
+using GdsSharp.Benchmarks.Obsolete.Terminals.Records;
 
-namespace GdsSharp.Lib.Obsolete.Binary;
+namespace GdsSharp.Benchmarks.Obsolete.Binary;
 
 public class GdsStreamOperator
 {

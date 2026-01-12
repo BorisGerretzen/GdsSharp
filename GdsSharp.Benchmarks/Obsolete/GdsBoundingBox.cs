@@ -1,4 +1,6 @@
-﻿namespace GdsSharp.Lib.Obsolete;
+﻿using GdsSharp.Lib;
+
+namespace GdsSharp.Benchmarks.Obsolete;
 
 public readonly struct GdsBoundingBox
 {

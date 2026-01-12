@@ -1,7 +1,8 @@
-using GdsSharp.Lib.Obsolete.NonTerminals.Abstractions;
+using GdsSharp.Benchmarks.Obsolete.NonTerminals.Abstractions;
+using GdsSharp.Lib;
 using GdsSharp.Lib.Reading.Enum;
 
-namespace GdsSharp.Lib.Obsolete.NonTerminals.Elements;
+namespace GdsSharp.Benchmarks.Obsolete.NonTerminals.Elements;
 
 public class GdsPathElement : IGdsLayeredElement
 {

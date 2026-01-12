@@ -1,6 +1,6 @@
-﻿using GdsSharp.Lib.Obsolete.NonTerminals.Elements;
+﻿using GdsSharp.Benchmarks.Obsolete.NonTerminals.Elements;
 
-namespace GdsSharp.Lib.Obsolete.NonTerminals;
+namespace GdsSharp.Benchmarks.Obsolete.NonTerminals;
 
 public class GdsStructure
 {

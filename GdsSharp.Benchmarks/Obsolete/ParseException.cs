@@ -1,6 +1,6 @@
-﻿using GdsSharp.Lib.Obsolete.Terminals.Records;
+﻿using GdsSharp.Benchmarks.Obsolete.Terminals.Records;
 
-namespace GdsSharp.Lib;
+namespace GdsSharp.Benchmarks.Obsolete;
 
 public class ParseException : Exception
 {

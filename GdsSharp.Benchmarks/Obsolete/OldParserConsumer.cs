@@ -1,11 +1,12 @@
-﻿using GdsSharp.Lib.Obsolete;
-using GdsSharp.Lib.Obsolete.NonTerminals;
-using GdsSharp.Lib.Obsolete.NonTerminals.Abstractions;
-using GdsSharp.Lib.Obsolete.NonTerminals.Elements;
+﻿using GdsSharp.Benchmarks.Obsolete.NonTerminals;
+using GdsSharp.Benchmarks.Obsolete.NonTerminals.Abstractions;
+using GdsSharp.Benchmarks.Obsolete.NonTerminals.Elements;
+using GdsSharp.Lib;
+using GdsSharp.Lib.Reading;
 using GdsSharp.Lib.Reading.Enum;
 using GdsSharp.Lib.Reading.Models;
 
-namespace GdsSharp.Lib.Reading.Consumer;
+namespace GdsSharp.Benchmarks.Obsolete;
 
 /// <summary>
 /// Reconstructs the same model graph as the original GdsParser.Parse().

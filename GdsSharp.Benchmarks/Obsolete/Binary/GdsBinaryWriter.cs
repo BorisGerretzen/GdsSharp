@@ -1,7 +1,8 @@
 using System.Buffers.Binary;
 using System.Text;
+using GdsSharp.Lib;
 
-namespace GdsSharp.Lib.Obsolete.Binary;
+namespace GdsSharp.Benchmarks.Obsolete.Binary;
 
 public class GdsBinaryWriter(Stream output) : BinaryWriter(output)
 {

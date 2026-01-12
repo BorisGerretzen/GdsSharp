@@ -1,8 +1,9 @@
 ﻿using System.Numerics;
+using GdsSharp.Benchmarks.Obsolete.NonTerminals.Elements;
+using GdsSharp.Lib;
 using GdsSharp.Lib.Library.Builders;
-using GdsSharp.Lib.Obsolete.NonTerminals.Elements;
 
-namespace GdsSharp.Lib.Obsolete.Builders;
+namespace GdsSharp.Benchmarks.Obsolete.Builders;
 
 public class PathBuilder
 {

@@ -1,8 +1,8 @@
-using GdsSharp.Lib.Obsolete.Binary;
-using GdsSharp.Lib.Obsolete.Terminals;
-using GdsSharp.Lib.Obsolete.Terminals.Abstractions;
+using GdsSharp.Benchmarks.Obsolete.Binary;
+using GdsSharp.Benchmarks.Obsolete.Terminals;
+using GdsSharp.Benchmarks.Obsolete.Terminals.Abstractions;
 
-namespace GdsSharp.Lib.Obsolete;
+namespace GdsSharp.Benchmarks.Obsolete;
 
 public class ObsGdsWriter : GdsStreamOperator
 {

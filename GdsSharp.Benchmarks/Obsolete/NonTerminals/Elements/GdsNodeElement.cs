@@ -1,6 +1,7 @@
-using GdsSharp.Lib.Obsolete.NonTerminals.Abstractions;
+using GdsSharp.Benchmarks.Obsolete.NonTerminals.Abstractions;
+using GdsSharp.Lib;
 
-namespace GdsSharp.Lib.Obsolete.NonTerminals.Elements;
+namespace GdsSharp.Benchmarks.Obsolete.NonTerminals.Elements;
 
 public class GdsNodeElement : IGdsLayeredElement
 {

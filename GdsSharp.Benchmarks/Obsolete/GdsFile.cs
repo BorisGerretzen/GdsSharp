@@ -1,8 +1,8 @@
-using GdsSharp.Lib.Obsolete.Lexing;
-using GdsSharp.Lib.Obsolete.NonTerminals;
+using GdsSharp.Benchmarks.Obsolete.Lexing;
+using GdsSharp.Benchmarks.Obsolete.NonTerminals;
 using GdsSharp.Lib.Reading.Enum;
 
-namespace GdsSharp.Lib.Obsolete;
+namespace GdsSharp.Benchmarks.Obsolete;
 
 public class GdsFile
 {

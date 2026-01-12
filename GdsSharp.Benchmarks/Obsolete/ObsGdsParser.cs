@@ -1,13 +1,13 @@
-﻿using GdsSharp.Lib.Obsolete.Lexing;
-using GdsSharp.Lib.Obsolete.NonTerminals;
-using GdsSharp.Lib.Obsolete.NonTerminals.Abstractions;
-using GdsSharp.Lib.Obsolete.NonTerminals.Elements;
-using GdsSharp.Lib.Obsolete.Terminals;
-using GdsSharp.Lib.Obsolete.Terminals.Abstractions;
-using GdsSharp.Lib.Obsolete.Terminals.Records;
+﻿using GdsSharp.Benchmarks.Obsolete.Lexing;
+using GdsSharp.Benchmarks.Obsolete.NonTerminals;
+using GdsSharp.Benchmarks.Obsolete.NonTerminals.Abstractions;
+using GdsSharp.Benchmarks.Obsolete.NonTerminals.Elements;
+using GdsSharp.Benchmarks.Obsolete.Terminals;
+using GdsSharp.Benchmarks.Obsolete.Terminals.Abstractions;
+using GdsSharp.Benchmarks.Obsolete.Terminals.Records;
 using GdsSharp.Lib.Reading.Enum;
 
-namespace GdsSharp.Lib.Obsolete;
+namespace GdsSharp.Benchmarks.Obsolete;
 
 public class ObsGdsParser
 {

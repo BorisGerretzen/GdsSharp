@@ -1,7 +1,7 @@
-using GdsSharp.Lib.Obsolete.Binary;
-using GdsSharp.Lib.Obsolete.Terminals.Abstractions;
+using GdsSharp.Benchmarks.Obsolete.Binary;
+using GdsSharp.Benchmarks.Obsolete.Terminals.Abstractions;
 
-namespace GdsSharp.Lib.Obsolete.Terminals.Records;
+namespace GdsSharp.Benchmarks.Obsolete.Terminals.Records;
 
 public class GdsRecordFonts : IGdsReadableRecord, IGdsWriteableRecord
 {

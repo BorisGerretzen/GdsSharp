@@ -1,8 +1,8 @@
 ﻿using BenchmarkDotNet.Attributes;
+using GdsSharp.Benchmarks.Obsolete;
+using GdsSharp.Benchmarks.Obsolete.Lexing;
 using GdsSharp.Lib.Library;
 using GdsSharp.Lib.Library.VertexStore;
-using GdsSharp.Lib.Obsolete;
-using GdsSharp.Lib.Obsolete.Lexing;
 using GdsSharp.Lib.Reading;
 using GdsSharp.Lib.Reading.Consumer;
 using GdsSharp.Lib.Reading.TokenStream;

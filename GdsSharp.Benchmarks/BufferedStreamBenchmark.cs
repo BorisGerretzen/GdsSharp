@@ -1,8 +1,8 @@
 ﻿using BenchmarkDotNet.Attributes;
-using GdsSharp.Lib.Obsolete;
-using GdsSharp.Lib.Obsolete.Builders;
-using GdsSharp.Lib.Obsolete.NonTerminals;
-using GdsSharp.Lib.Obsolete.NonTerminals.Elements;
+using GdsSharp.Benchmarks.Obsolete;
+using GdsSharp.Benchmarks.Obsolete.Builders;
+using GdsSharp.Benchmarks.Obsolete.NonTerminals;
+using GdsSharp.Benchmarks.Obsolete.NonTerminals.Elements;
 
 namespace GdsSharp.Benchmarks;
 

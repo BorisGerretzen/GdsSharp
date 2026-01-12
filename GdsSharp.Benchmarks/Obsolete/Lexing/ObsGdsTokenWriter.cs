@@ -1,11 +1,11 @@
-﻿using GdsSharp.Lib.Obsolete.NonTerminals;
-using GdsSharp.Lib.Obsolete.NonTerminals.Abstractions;
-using GdsSharp.Lib.Obsolete.NonTerminals.Elements;
-using GdsSharp.Lib.Obsolete.Terminals.Abstractions;
-using GdsSharp.Lib.Obsolete.Terminals.Records;
+﻿using GdsSharp.Benchmarks.Obsolete.NonTerminals;
+using GdsSharp.Benchmarks.Obsolete.NonTerminals.Abstractions;
+using GdsSharp.Benchmarks.Obsolete.NonTerminals.Elements;
+using GdsSharp.Benchmarks.Obsolete.Terminals.Abstractions;
+using GdsSharp.Benchmarks.Obsolete.Terminals.Records;
 using GdsSharp.Lib.Reading.Enum;
 
-namespace GdsSharp.Lib.Obsolete.Lexing;
+namespace GdsSharp.Benchmarks.Obsolete.Lexing;
 
 public class ObsGdsTokenWriter
 {

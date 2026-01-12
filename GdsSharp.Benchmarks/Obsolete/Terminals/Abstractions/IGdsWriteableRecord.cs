@@ -1,6 +1,6 @@
-using GdsSharp.Lib.Obsolete.Binary;
+using GdsSharp.Benchmarks.Obsolete.Binary;
 
-namespace GdsSharp.Lib.Obsolete.Terminals.Abstractions;
+namespace GdsSharp.Benchmarks.Obsolete.Terminals.Abstractions;
 
 public interface IGdsWriteableRecord : IGdsRecord
 {

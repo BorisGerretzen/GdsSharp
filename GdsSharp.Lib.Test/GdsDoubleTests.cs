@@ -1,6 +1,6 @@
 ﻿using System.Buffers.Binary;
 
-namespace GdsSharp.Lib.Test.Parsing;
+namespace GdsSharp.Lib.Test;
 
 public class GdsDoubleTests
 {

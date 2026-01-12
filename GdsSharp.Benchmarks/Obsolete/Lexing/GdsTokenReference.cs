@@ -1,6 +1,6 @@
-﻿using GdsSharp.Lib.Obsolete.Terminals;
-using GdsSharp.Lib.Obsolete.Terminals.Abstractions;
+﻿using GdsSharp.Benchmarks.Obsolete.Terminals;
+using GdsSharp.Benchmarks.Obsolete.Terminals.Abstractions;
 
-namespace GdsSharp.Lib.Obsolete.Lexing;
+namespace GdsSharp.Benchmarks.Obsolete.Lexing;
 
 public record GdsTokenReference(GdsHeader Header, IGdsRecord Record, long Offset);

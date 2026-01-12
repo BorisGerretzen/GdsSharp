@@ -1,6 +1,7 @@
-﻿using GdsSharp.Lib.Obsolete.NonTerminals.Elements;
+﻿using GdsSharp.Benchmarks.Obsolete.NonTerminals.Elements;
+using GdsSharp.Lib;
 
-namespace GdsSharp.Lib.Obsolete.Builders;
+namespace GdsSharp.Benchmarks.Obsolete.Builders;
 
 /// <summary>
 ///     Helper class for creating rectangle elements.

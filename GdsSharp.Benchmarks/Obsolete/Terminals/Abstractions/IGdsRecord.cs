@@ -1,4 +1,4 @@
-﻿namespace GdsSharp.Lib.Obsolete.Terminals.Abstractions;
+﻿namespace GdsSharp.Benchmarks.Obsolete.Terminals.Abstractions;
 
 public interface IGdsRecord
 {

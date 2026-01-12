@@ -1,10 +1,11 @@
 ﻿using System.Collections;
-using GdsSharp.Lib.Obsolete.Binary;
-using GdsSharp.Lib.Obsolete.Terminals;
-using GdsSharp.Lib.Obsolete.Terminals.Abstractions;
-using GdsSharp.Lib.Obsolete.Terminals.Records;
+using GdsSharp.Benchmarks.Obsolete.Binary;
+using GdsSharp.Benchmarks.Obsolete.Terminals;
+using GdsSharp.Benchmarks.Obsolete.Terminals.Abstractions;
+using GdsSharp.Benchmarks.Obsolete.Terminals.Records;
+using GdsSharp.Lib;
 
-namespace GdsSharp.Lib.Obsolete.Lexing;
+namespace GdsSharp.Benchmarks.Obsolete.Lexing;
 
 public class ObsGdsTokenStream : GdsStreamOperator, IDisposable, IEnumerable<IGdsRecord>
 {

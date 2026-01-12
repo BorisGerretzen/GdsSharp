@@ -1,4 +1,4 @@
-namespace GdsSharp.Lib.Obsolete.NonTerminals;
+namespace GdsSharp.Benchmarks.Obsolete.NonTerminals;
 
 public class GdsStrans
 {

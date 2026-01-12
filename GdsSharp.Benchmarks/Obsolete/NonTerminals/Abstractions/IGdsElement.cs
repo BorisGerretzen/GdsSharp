@@ -1,6 +1,6 @@
-using GdsSharp.Lib.Obsolete.NonTerminals.Elements;
+using GdsSharp.Benchmarks.Obsolete.NonTerminals.Elements;
 
-namespace GdsSharp.Lib.Obsolete.NonTerminals.Abstractions;
+namespace GdsSharp.Benchmarks.Obsolete.NonTerminals.Abstractions;
 
 public interface IGdsElement
 {

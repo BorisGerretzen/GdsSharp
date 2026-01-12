@@ -1,8 +1,8 @@
 ﻿using System.Buffers.Binary;
 using System.Text;
-using GdsSharp.Lib.Obsolete.Terminals;
+using GdsSharp.Lib;
 
-namespace GdsSharp.Lib.Obsolete.Binary;
+namespace GdsSharp.Benchmarks.Obsolete.Binary;
 
 public class GdsBinaryReader(Stream input, bool leaveOpen = true) : BinaryReader(input, Encoding.UTF8, leaveOpen)
 {

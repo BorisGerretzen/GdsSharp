@@ -1,4 +1,4 @@
-namespace GdsSharp.Lib.Obsolete.NonTerminals.Abstractions;
+namespace GdsSharp.Benchmarks.Obsolete.NonTerminals.Abstractions;
 
 public interface IGdsLayeredElement : IGdsElement
 {
