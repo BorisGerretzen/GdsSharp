@@ -3,12 +3,13 @@ using GdsSharp.Lib.Library.BoundingBox;
 using GdsSharp.Lib.Library.Builder;
 using GdsSharp.Lib.Library.Builder.Payload;
 using GdsSharp.Lib.Library.VertexStore;
+using GdsSharp.Lib.Reading;
 using GdsSharp.Lib.Reading.Enum;
 using GdsSharp.Lib.Reading.Models;
 
 namespace GdsSharp.Lib.Library;
 
-public class GdsLibraryBuilder(IGdsVertexStore vertexStore)
+public class GdsLibraryBuilder(IGdsVertexStore vertexStore, bool buildBoundingBoxes = false)
 {
     private readonly List<ARefPayload> _arrayReferences = [];
     private readonly List<BoundaryPayload> _boundaries = [];
@@ -44,7 +45,7 @@ public class GdsLibraryBuilder(IGdsVertexStore vertexStore)
             throw new InvalidOperationException("No current structure. Call AddStructure before adding elements.");
 
         var elementId = _elements.Count;
-        var elementRecord = new ElementRecord(common, ElementKind.SRef, _structureReferences.Count, null);
+        var elementRecord = new ElementRecord(common, GdsElementKind.StructureReference, _structureReferences.Count, null, -1);
         _elements.Add(elementRecord);
 
         var sref = new SRefPayload(_currentStructureId.Value, targetName, strans, origin);
@@ -54,15 +55,13 @@ public class GdsLibraryBuilder(IGdsVertexStore vertexStore)
         return elementId;
     }
 
-    public int AddArrayReference(GdsElementCommon? common, string targetName, GdsStransInfo? strans, int rows, int columns, GdsPoint rowVector,
-        GdsPoint columnVector,
-        GdsPoint origin)
+    public int AddArrayReference(GdsElementCommon? common, string targetName, GdsStransInfo? strans, int rows, int columns, GdsPoint rowVector, GdsPoint columnVector, GdsPoint origin)
     {
         if (!_currentStructureId.HasValue)
             throw new InvalidOperationException("No current structure. Call AddStructure before adding elements.");
 
         var elementId = _elements.Count;
-        var elementRecord = new ElementRecord(common, ElementKind.ARef, _arrayReferences.Count, null);
+        var elementRecord = new ElementRecord(common, GdsElementKind.ArrayReference, _arrayReferences.Count, null, -1);
         _elements.Add(elementRecord);
 
         var aref = new ARefPayload(_currentStructureId.Value, targetName, strans, rows, columns, rowVector, columnVector, origin);
@@ -78,7 +77,7 @@ public class GdsLibraryBuilder(IGdsVertexStore vertexStore)
             throw new InvalidOperationException("No current structure. Call AddStructure before adding elements.");
 
         var elementId = _elements.Count;
-        var elementRecord = new ElementRecord(common, ElementKind.Boundary, _boundaries.Count, GdsBoundingBox.FromPoints(points));
+        var elementRecord = new ElementRecord(common, GdsElementKind.Boundary, _boundaries.Count, GdsBoundingBox.FromPoints(points), layer);
         _elements.Add(elementRecord);
 
         var vertexOffset = vertexStore.Write(points);
@@ -97,13 +96,16 @@ public class GdsLibraryBuilder(IGdsVertexStore vertexStore)
         if (!_currentStructureId.HasValue)
             throw new InvalidOperationException("No current structure. Call AddStructure before adding elements.");
 
+        if (points.Length != GdsGlobals.BoxPointCount) throw new InvalidOperationException("BOX must have exactly 5 points.");
+        if (points[0] != points[4]) throw new InvalidOperationException("The first and last points of a BOX must be the same.");
+
         var elementId = _elements.Count;
-        var elementRecord = new ElementRecord(common, ElementKind.Box, _boxes.Count, GdsBoundingBox.FromPoints(points));
+        var elementRecord = new ElementRecord(common, GdsElementKind.Box, _boxes.Count, GdsBoundingBox.FromPoints(points), layer);
         _elements.Add(elementRecord);
 
         var vertexOffset = vertexStore.Write(points);
 
-        var box = new BoxPayload(layer, dataType, vertexOffset, points.Length);
+        var box = new BoxPayload(layer, dataType, vertexOffset);
         _boxes.Add(box);
 
         UpdateStructureBoundingBox(_currentStructureId.Value, elementRecord.BoundingBox);
@@ -125,7 +127,7 @@ public class GdsLibraryBuilder(IGdsVertexStore vertexStore)
         );
 
         var elementId = _elements.Count;
-        var elementRecord = new ElementRecord(common, ElementKind.Path, _paths.Count, boundingBox);
+        var elementRecord = new ElementRecord(common, GdsElementKind.Path, _paths.Count, boundingBox, layer);
         _elements.Add(elementRecord);
 
         var vertexOffset = vertexStore.Write(points);
@@ -145,7 +147,7 @@ public class GdsLibraryBuilder(IGdsVertexStore vertexStore)
             throw new InvalidOperationException("No current structure. Call AddStructure before adding elements.");
 
         var elementId = _elements.Count;
-        var elementRecord = new ElementRecord(common, ElementKind.Node, _nodes.Count, GdsBoundingBox.FromPoints(points));
+        var elementRecord = new ElementRecord(common, GdsElementKind.Node, _nodes.Count, GdsBoundingBox.FromPoints(points), layer);
         _elements.Add(elementRecord);
 
         var vertexOffset = vertexStore.Write(points);
@@ -167,7 +169,7 @@ public class GdsLibraryBuilder(IGdsVertexStore vertexStore)
             throw new InvalidOperationException("No current structure. Call AddStructure before adding elements.");
 
         var elementId = _elements.Count;
-        var elementRecord = new ElementRecord(common, ElementKind.Text, _texts.Count, null);
+        var elementRecord = new ElementRecord(common, GdsElementKind.Text, _texts.Count, null, layer);
         _elements.Add(elementRecord);
 
         var textRecord = new TextPayload(layer, textType, presentation, pathType, width, strans, origin, text);
@@ -193,7 +195,10 @@ public class GdsLibraryBuilder(IGdsVertexStore vertexStore)
         if (!Info.HasValue)
             throw new InvalidOperationException("Library info must be set before building the library.");
 
-        ComputeReferenceBoundingBoxes();
+        if (buildBoundingBoxes)
+        {
+            ComputeReferenceBoundingBoxes();
+        }
 
         var immutableStructures = new GdsStructure[_structures.Count];
         for (var i = 0; i < _structures.Count; i++) immutableStructures[i] = MutGdsStructure.ToGdsStructure(_structures[i]);
@@ -210,7 +215,7 @@ public class GdsLibraryBuilder(IGdsVertexStore vertexStore)
 
     private void UpdateStructureBoundingBox(CellId cellId, GdsBoundingBox? boundingBox)
     {
-        if (!boundingBox.HasValue) return;
+        if (!boundingBox.HasValue || !buildBoundingBoxes) return;
 
         ref var structure = ref CollectionsMarshal.AsSpan(_structures)[cellId.Id];
         structure.BoundingBox = structure.BoundingBox?.Union(boundingBox.Value) ?? boundingBox;
@@ -287,7 +292,8 @@ public class GdsLibraryBuilder(IGdsVertexStore vertexStore)
             {
                 foreach (var (rowVector, colVector, origin) in arefs)
                 {
-                    var childBox = GdsBoundingBox.FromPoints([origin, colVector, rowVector]);
+                    var p3 = origin + rowVector + colVector;
+                    var childBox = GdsBoundingBox.FromPoints([origin, colVector, rowVector, p3]);
                     currentBox = currentBox?.Union(childBox) ?? childBox;
                 }
             }

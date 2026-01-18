@@ -14,7 +14,7 @@ public class VectorExtensionsTests
 
         Assert.Multiple(() =>
         {
-            Assert.That(result.X, Is.EqualTo(0).Within(1e-6)); // allowing a small tolerance for floating point errors
+            Assert.That(result.X, Is.EqualTo(0).Within(1e-6));
             Assert.That(result.Y, Is.EqualTo(1).Within(1e-6));
         });
     }

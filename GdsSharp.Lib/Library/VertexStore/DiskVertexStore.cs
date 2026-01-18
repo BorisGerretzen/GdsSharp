@@ -18,7 +18,7 @@ public class DiskVertexStore : IGdsVertexStore, IDisposable
             FileMode.Open,
             FileAccess.ReadWrite,
             FileShare.None,
-            bufferSize: 65536, // 64KB Buffer for bulk writes
+            bufferSize: 65536,
             FileOptions.DeleteOnClose);
     }
 

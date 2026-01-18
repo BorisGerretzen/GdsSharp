@@ -203,6 +203,10 @@ public sealed class GdsParser(GdsTokenStream tokenStream) : IDisposable
         {
             Span<GdsPoint> points = stackalloc GdsPoint[numPoints];
             tokenStream.ReadXy(xyHeader, points);
+
+            if (points[0] != points[numPoints - 1])
+                throw new InvalidDataException($"Boundary's first and last point must coincide, found first point {points[0]} and last point {points[numPoints - 1]} at 0x{xyHeader.Offset:X}.");
+            
             consumer.OnBeginElement(GdsElementKind.Boundary, common);
             consumer.OnBoundary(layer, dataType, points);
             ConsumePropertiesAndEndElement(consumer);
@@ -210,17 +214,15 @@ public sealed class GdsParser(GdsTokenStream tokenStream) : IDisposable
         }
 
         var rentedPoints = ArrayPool<GdsPoint>.Shared.Rent(numPoints);
-        try
-        {
-            tokenStream.ReadXy(xyHeader, rentedPoints.AsSpan(0, numPoints));
-            consumer.OnBeginElement(GdsElementKind.Boundary, common);
-            consumer.OnBoundary(layer, dataType, rentedPoints.AsSpan(0, numPoints));
-            ConsumePropertiesAndEndElement(consumer);
-        }
-        finally
-        {
-            ArrayPool<GdsPoint>.Shared.Return(rentedPoints);
-        }
+        tokenStream.ReadXy(xyHeader, rentedPoints.AsSpan(0, numPoints));
+        
+        if (rentedPoints[0] != rentedPoints[numPoints - 1])
+            throw new InvalidDataException($"Boundary's first and last point must coincide, found first point {rentedPoints[0]} and last point {rentedPoints[numPoints - 1]} at 0x{xyHeader.Offset:X}.");
+
+        consumer.OnBeginElement(GdsElementKind.Boundary, common);
+        consumer.OnBoundary(layer, dataType, rentedPoints.AsSpan(0, numPoints));
+        ConsumePropertiesAndEndElement(consumer);
+        ArrayPool<GdsPoint>.Shared.Return(rentedPoints);
     }
 
     private void ParsePath(IParserConsumer consumer)
@@ -294,8 +296,8 @@ public sealed class GdsParser(GdsTokenStream tokenStream) : IDisposable
 
         var xyHeader = Expect(GdsRecordTypes.Xy);
         var numPoints = xyHeader.PayloadLength / 8;
-        if (numPoints != 1)
-            throw new InvalidDataException($"Structure reference must have exactly one coordinate point, found {numPoints} at 0x{xyHeader.Offset:X}.");
+        if (numPoints != GdsGlobals.StructureReferencePointCount)
+            throw new InvalidDataException($"Structure reference must have exactly {GdsGlobals.TextPointCount} coordinate point, found {numPoints} at 0x{xyHeader.Offset:X}.");
 
         Span<GdsPoint> pts = stackalloc GdsPoint[numPoints];
         tokenStream.ReadXy(xyHeader, pts);
@@ -318,8 +320,8 @@ public sealed class GdsParser(GdsTokenStream tokenStream) : IDisposable
 
         var xyHeader = Expect(GdsRecordTypes.Xy);
         var numPoints = xyHeader.PayloadLength / 8;
-        if (numPoints != 3)
-            throw new InvalidDataException($"Array reference must have exactly three coordinate points, found {numPoints} at 0x{xyHeader.Offset:X}.");
+        if (numPoints != GdsGlobals.ArrayReferencePointCount)
+            throw new InvalidDataException($"Array reference must have exactly {GdsGlobals.ArrayReferencePointCount} coordinate points, found {numPoints} at 0x{xyHeader.Offset:X}.");
 
         Span<GdsPoint> pts = stackalloc GdsPoint[numPoints];
         tokenStream.ReadXy(xyHeader, pts);
@@ -374,8 +376,8 @@ public sealed class GdsParser(GdsTokenStream tokenStream) : IDisposable
 
         var xyHeader = Expect(GdsRecordTypes.Xy);
         var numPoints = xyHeader.PayloadLength / 8;
-        if (numPoints != 1)
-            throw new InvalidDataException($"Text element must have exactly one coordinate point, found {numPoints} at 0x{xyHeader.Offset:X}.");
+        if (numPoints != GdsGlobals.TextPointCount)
+            throw new InvalidDataException($"Text element must have exactly {GdsGlobals.TextPointCount} coordinate point, found {numPoints} at 0x{xyHeader.Offset:X}.");
 
         Span<GdsPoint> points = stackalloc GdsPoint[numPoints];
         tokenStream.ReadXy(xyHeader, points);
@@ -400,8 +402,8 @@ public sealed class GdsParser(GdsTokenStream tokenStream) : IDisposable
 
         var xyHeader = Expect(GdsRecordTypes.Xy);
         var numPoints = xyHeader.PayloadLength / 8;
-        if (numPoints != 5)
-            throw new InvalidDataException($"Box element must have exactly five coordinate points, found {numPoints} at 0x{xyHeader.Offset:X}.");
+        if (numPoints != GdsGlobals.BoxPointCount)
+            throw new InvalidDataException($"Box element must have exactly {GdsGlobals.BoxPointCount} coordinate points, found {numPoints} at 0x{xyHeader.Offset:X}.");
 
         Span<GdsPoint> points = stackalloc GdsPoint[numPoints];
         tokenStream.ReadXy(xyHeader, points);
@@ -434,17 +436,11 @@ public sealed class GdsParser(GdsTokenStream tokenStream) : IDisposable
         }
 
         var rentedPoints = ArrayPool<GdsPoint>.Shared.Rent(numPoints);
-        try
-        {
-            tokenStream.ReadXy(xyHeader, rentedPoints.AsSpan(0, numPoints));
-            consumer.OnBeginElement(GdsElementKind.Node, common);
-            consumer.OnNode(layer, nodeType, rentedPoints.AsSpan(0, numPoints));
-            ConsumePropertiesAndEndElement(consumer);
-        }
-        finally
-        {
-            ArrayPool<GdsPoint>.Shared.Return(rentedPoints);
-        }
+        tokenStream.ReadXy(xyHeader, rentedPoints.AsSpan(0, numPoints));
+        consumer.OnBeginElement(GdsElementKind.Node, common);
+        consumer.OnNode(layer, nodeType, rentedPoints.AsSpan(0, numPoints));
+        ConsumePropertiesAndEndElement(consumer);
+        ArrayPool<GdsPoint>.Shared.Return(rentedPoints);
     }
 
     private void ConsumePropertiesAndEndElement(IParserConsumer consumer)

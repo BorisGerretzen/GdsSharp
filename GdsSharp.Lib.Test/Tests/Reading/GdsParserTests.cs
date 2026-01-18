@@ -4,7 +4,7 @@ using GdsSharp.Lib.Reading;
 using GdsSharp.Lib.Reading.Consumer;
 using GdsSharp.Lib.Reading.TokenStream;
 
-namespace GdsSharp.Lib.Test;
+namespace GdsSharp.Lib.Test.Reading;
 
 public class GdsParserTests
 {

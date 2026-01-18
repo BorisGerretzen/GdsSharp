@@ -6,9 +6,9 @@ using GdsSharp.Lib.Reading.Models;
 
 namespace GdsSharp.Lib.Reading.Consumer;
 
-public class GdsLibraryBuilderConsumer(IGdsVertexStore storeWriter) : IParserConsumer
+public class GdsLibraryBuilderConsumer(IGdsVertexStore storeWriter, bool buildBoundingBoxes = false) : IParserConsumer
 {
-    private readonly GdsLibraryBuilder _builder = new(storeWriter);
+    private readonly GdsLibraryBuilder _builder = new(storeWriter, buildBoundingBoxes);
     private GdsElementCommon? _currentElementCommon;
     private int? _currentElementId;
 
@@ -69,7 +69,7 @@ public class GdsLibraryBuilderConsumer(IGdsVertexStore storeWriter) : IParserCon
     public void OnBox(short layer, short boxType, ReadOnlySpan<GdsPoint> points)
     {
         if (!_currentStructureId.HasValue) throw new InvalidOperationException("No structure is currently being processed.");
-        if (points.Length != 5) throw new InvalidOperationException("BOX must have exactly 5 points.");
+        if (points.Length != GdsGlobals.BoxPointCount) throw new InvalidOperationException("BOX must have exactly 5 points.");
         if (points[0] != points[4]) throw new InvalidOperationException("The first and last points of a BOX must be the same.");
         _currentElementId = _builder.AddBox(_currentElementCommon, layer, boxType, points);
     }
@@ -83,7 +83,7 @@ public class GdsLibraryBuilderConsumer(IGdsVertexStore storeWriter) : IParserCon
     public void OnSref(string structureName, GdsStransInfo? strans, ReadOnlySpan<GdsPoint> points)
     {
         if (!_currentStructureId.HasValue) throw new InvalidOperationException("No structure is currently being processed.");
-        if (points.Length != 1) throw new InvalidOperationException("SREF must have exactly one origin point.");
+        if (points.Length != GdsGlobals.StructureReferencePointCount) throw new InvalidOperationException("SREF must have exactly one origin point.");
 
         var origin = points[0];
         _currentElementId = _builder.AddStructureReference(_currentElementCommon, structureName, strans, origin);
@@ -92,7 +92,7 @@ public class GdsLibraryBuilderConsumer(IGdsVertexStore storeWriter) : IParserCon
     public void OnAref(string structureName, GdsStransInfo? strans, short cols, short rows, ReadOnlySpan<GdsPoint> points)
     {
         if (!_currentStructureId.HasValue) throw new InvalidOperationException("No structure is currently being processed.");
-        if (points.Length != 3) throw new InvalidOperationException("AREF must have exactly three points: origin, column vector, row vector.");
+        if (points.Length != GdsGlobals.ArrayReferencePointCount) throw new InvalidOperationException("AREF must have exactly three points: origin, column vector, row vector.");
 
         var origin = points[0];
         var columnVector = points[1];
@@ -104,7 +104,7 @@ public class GdsLibraryBuilderConsumer(IGdsVertexStore storeWriter) : IParserCon
     public void OnText(short layer, short textType, PresentationInfo? presentation, GdsPathType? pathType, int? width, GdsStransInfo? strans, ReadOnlySpan<GdsPoint> points,
         string text)
     {
-        if (points.Length != 1) throw new InvalidOperationException("TEXT must have exactly one origin point.");
+        if (points.Length != GdsGlobals.TextPointCount) throw new InvalidOperationException("TEXT must have exactly one origin point.");
         if (!_currentStructureId.HasValue) throw new InvalidOperationException("No structure is currently being processed.");
 
         var origin = points[0];

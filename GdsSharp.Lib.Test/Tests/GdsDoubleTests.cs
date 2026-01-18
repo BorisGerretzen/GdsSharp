@@ -1,4 +1,5 @@
 ﻿using System.Buffers.Binary;
+using GdsSharp.Lib.Test.Helpers;
 
 namespace GdsSharp.Lib.Test;
 

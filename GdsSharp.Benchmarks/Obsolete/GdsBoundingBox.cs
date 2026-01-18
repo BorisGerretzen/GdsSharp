@@ -2,6 +2,7 @@
 
 namespace GdsSharp.Benchmarks.Obsolete;
 
+[Obsolete]
 public readonly struct GdsBoundingBox
 {
     public GdsPoint Min { get; }

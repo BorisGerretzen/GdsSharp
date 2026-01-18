@@ -5,6 +5,7 @@ using System.Text;
 using GdsSharp.Lib.Library;
 using GdsSharp.Lib.Library.Builder;
 using GdsSharp.Lib.Library.VertexStore;
+using GdsSharp.Lib.Reading;
 using GdsSharp.Lib.Reading.Enum;
 using GdsSharp.Lib.Reading.Models;
 using GdsSharp.Lib.Reading.TokenStream;
@@ -31,11 +32,10 @@ public sealed class GdsWriter
     /// <param name="library">Library to write.</param>
     /// <param name="vertexReader">Reader for the vertex store of the library.</param>
     /// <exception cref="ArgumentNullException">If vertexReader or library are null.</exception>
-    public void Write(GdsLibrary library, IGdsVertexStore vertexReader)
+    public void Write(GdsLibrary library)
     {
         if (library is null) throw new ArgumentNullException(nameof(library));
-        if (vertexReader is null) throw new ArgumentNullException(nameof(vertexReader));
-
+        
         WriteRecord(GdsRecordTypes.Header, w => { w.Write(library.Info.Version); });
         WriteRecord(GdsRecordTypes.BeginLibrary, w => { WriteTimestampPair(w, library.Info.ModificationTime, library.Info.AccessTime); });
         WriteRecord(GdsRecordTypes.LibraryName, w => { WriteGdsString(w, library.Info.Name); });
@@ -74,16 +74,15 @@ public sealed class GdsWriter
             w.Write(library.Info.PhysicalUnits);
         });
 
-        var propertiesByElement = library.PropertiesByElementIndex.Value;
         foreach (var s in library.Structures)
         {
-            WriteStructure(library, s, vertexReader, propertiesByElement);
+            WriteStructure(library, s, library.VertexStore);
         }
 
         WriteRecord(GdsRecordTypes.EndLibrary, payloadWriter: null);
     }
 
-    private void WriteStructure(GdsLibrary library, GdsStructure structure, IGdsVertexStore vertexReader, Dictionary<int, PropertyRecord[]> propertiesByElement)
+    private void WriteStructure(GdsLibrary library, GdsStructure structure, IGdsVertexStore vertexReader)
     {
         var info = structure.Info;
 
@@ -98,7 +97,7 @@ public sealed class GdsWriter
             var elementIndex = structure.ElementStartIndex + i;
             switch (element.Kind)
             {
-                case ElementKind.ARef:
+                case GdsElementKind.ArrayReference:
                 {
                     var aref = library.ArrayReferences[element.Index];
                     WriteRecord(GdsRecordTypes.ArrayReference, null);
@@ -118,7 +117,7 @@ public sealed class GdsWriter
                     });
                     break;
                 }
-                case ElementKind.Boundary:
+                case GdsElementKind.Boundary:
                 {
                     var boundary = library.Boundaries[element.Index];
                     WriteRecord(GdsRecordTypes.Boundary, null);
@@ -128,17 +127,17 @@ public sealed class GdsWriter
                     WriteXyFromStore(boundary.VertexOffset, boundary.VertexCount, vertexReader);
                     break;
                 }
-                case ElementKind.Box:
+                case GdsElementKind.Box:
                 {
                     var box = library.Boxes[element.Index];
                     WriteRecord(GdsRecordTypes.Box, null);
                     WriteCommon(element.Common);
                     WriteLayer(box.Layer);
                     WriteRecord(GdsRecordTypes.BoxType, w => w.Write(box.BoxType));
-                    WriteXyFromStore(box.VertexOffset, box.VertexCount, vertexReader);
+                    WriteXyFromStore(box.VertexOffset, GdsGlobals.BoxPointCount, vertexReader);
                     break;
                 }
-                case ElementKind.Node:
+                case GdsElementKind.Node:
                 {
                     var node = library.Nodes[element.Index];
                     WriteRecord(GdsRecordTypes.Node, null);
@@ -148,7 +147,7 @@ public sealed class GdsWriter
                     WriteXyFromStore(node.VertexOffset, node.VertexCount, vertexReader);
                     break;
                 }
-                case ElementKind.Path:
+                case GdsElementKind.Path:
                 {
                     var path = library.Paths[element.Index];
                     WriteRecord(GdsRecordTypes.Path, null);
@@ -162,7 +161,7 @@ public sealed class GdsWriter
                     WriteXyFromStore(path.VertexOffset, path.VertexCount, vertexReader);
                     break;
                 }
-                case ElementKind.SRef:
+                case GdsElementKind.StructureReference:
                 {
                     var sref = library.StructureReferences[element.Index];
                     WriteRecord(GdsRecordTypes.StructureReference, null);
@@ -172,7 +171,7 @@ public sealed class GdsWriter
                     WriteRecord(GdsRecordTypes.Xy, w => { WritePoint(w, sref.Origin); });
                     break;
                 }
-                case ElementKind.Text:
+                case GdsElementKind.Text:
                 {
                     var textRecord = library.Texts[element.Index];
                     WriteRecord(GdsRecordTypes.Text, null);
@@ -194,7 +193,7 @@ public sealed class GdsWriter
                     throw new InvalidDataException($"Unsupported element kind for writer: {element.Kind}");
             }
 
-            if (propertiesByElement.TryGetValue(elementIndex, out var props))
+            if (library.TryGetElementProperties(elementIndex, out var props))
                 foreach (var property in props)
                 {
                     WriteRecord(GdsRecordTypes.PropertyAttribute, w => w.Write(property.Attribute));
@@ -238,26 +237,22 @@ public sealed class GdsWriter
     private void WriteXyFromStore(long vertexOffset, int vertexCount, IGdsVertexStore vertexReader)
     {
         var arr = ArrayPool<GdsPoint>.Shared.Rent(vertexCount);
-        try
-        {
-            var got = vertexReader.Read(vertexOffset, arr.AsSpan(0, vertexCount));
-            if (got != vertexCount)
-                throw new InvalidDataException($"Vertex store returned {got} points, expected {vertexCount} for shape at offset {vertexOffset}.");
 
-            WriteRecord(GdsRecordTypes.Xy,
-                w =>
-                {
-                    var asBytes = MemoryMarshal.AsBytes(arr.AsSpan(0, vertexCount));
-                    var ints = MemoryMarshal.Cast<byte, int>(asBytes);
-                    for (var i = 0; i < ints.Length; i++)
-                        ints[i] = BinaryPrimitives.ReverseEndianness(ints[i]);
-                    w.Write(asBytes);
-                });
-        }
-        finally
-        {
-            ArrayPool<GdsPoint>.Shared.Return(arr);
-        }
+        var got = vertexReader.Read(vertexOffset, arr.AsSpan(0, vertexCount));
+        if (got != vertexCount)
+            throw new InvalidDataException($"Vertex store returned {got} points, expected {vertexCount} for shape at offset {vertexOffset}.");
+
+        WriteRecord(GdsRecordTypes.Xy,
+            w =>
+            {
+                var asBytes = MemoryMarshal.AsBytes(arr.AsSpan(0, vertexCount));
+                var ints = MemoryMarshal.Cast<byte, int>(asBytes);
+                for (var i = 0; i < ints.Length; i++)
+                    ints[i] = BinaryPrimitives.ReverseEndianness(ints[i]);
+                w.Write(asBytes);
+            });
+
+        ArrayPool<GdsPoint>.Shared.Return(arr);
     }
 
     private void WriteStrans(GdsStransInfo? val)
@@ -330,7 +325,6 @@ public sealed class GdsWriter
     {
         WriteRecord(GdsRecordTypes.PathType, w => w.Write((short)pathType));
     }
-
 
     private void WriteRecord(ushort code, Action<BufferedGdsBinaryWriter>? payloadWriter)
     {

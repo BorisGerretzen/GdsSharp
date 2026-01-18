@@ -1,6 +1,6 @@
 ﻿using System.Buffers.Binary;
 
-namespace GdsSharp.Lib.Test;
+namespace GdsSharp.Lib.Test.Helpers;
 
 public struct GdsDouble
 {

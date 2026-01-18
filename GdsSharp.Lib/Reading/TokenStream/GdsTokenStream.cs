@@ -12,13 +12,13 @@ public sealed class GdsTokenStream : IDisposable
     private int _currentRecordBytesRead;
     private int _expectedRecordBytes;
 
-    public GdsTokenStream(Stream stream, bool leaveOpen = false)
+    public GdsTokenStream(Stream stream, bool leaveOpen = false, int bufferSize = GdsGlobals.DefaultReaderBufferSize)
     {
         ArgumentNullException.ThrowIfNull(stream);
         if (!stream.CanSeek)
             throw new ArgumentException("Stream must support seeking.", nameof(stream));
 
-        _reader = new BufferedGdsReader(stream, leaveOpen);
+        _reader = new BufferedGdsReader(stream, leaveOpen, bufferSize: bufferSize);
     }
 
     public void Dispose()

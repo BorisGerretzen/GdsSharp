@@ -68,31 +68,31 @@ builder.AddBoundary(
 
 // Use the path builder to create a complex path
 var pathBuilder = new PathBuilder(
-    initialWidth: 100f,
-    initialPosition: new Vector2(-3100, -3300),
-    initialHeading: Vector2.UnitX)
-    
+        initialWidth: 100f,
+        initialPosition: new Vector2(-3100, -3300),
+        initialHeading: Vector2.UnitX)
+
     // Straight ahead for 2000 units
     .Straight(2000)
-    
+
     // Bend 45 degrees to the left with a radius of 500 units
     .BendDeg(-45, 500)
-    
+
     // Generate shape like <=>
     .Straight(100, widthEnd: 250)
     .Straight(100)
     .Straight(100, widthEnd: 100)
-    
+
     // Some more bends
     .BendDeg(-45, 500)
     .Straight(100)
     .Straight(200, widthEnd: 250)
     .BendDeg(180, 300)
     .BendDeg(-180, 300)
-    
+
     // Example of using a function to change the width
     .BendDeg(-180, 900, f => MathF.Cos(f * 50) * 100 + 150)
-    
+
     // PathBuilder also supports Bézier curves
     .Bezier(b => b
             .AddPoint(0, 0)
@@ -107,6 +107,31 @@ builder.AddPath(layer: 1, dataType: 0, pathBuilder, maxVertices: 200);
 
 // Build and Write to file
 var library = builder.Build();
-using var writeStream = File.OpenWrite("example.gds");
-var writer = new GdsWriter(writeStream);
-writer.Write(library, vertexStore);
+
+// Print library contents
+var view = library.AsView();
+Console.WriteLine($"Library Name: {view.Info.Name}");
+Console.WriteLine($"Number of Structures: {view.Structures.Count}");
+foreach (var structure in view.Structures)
+{
+    Console.WriteLine($" Structure Name: {structure.Name}");
+    Console.WriteLine($"  Number of Elements: {structure.Elements.Count}");
+
+    foreach (var element in structure.Elements)
+    {
+        Console.WriteLine($"   Element Type: {element.Kind}, Layer: {element.Layer}");
+        if (element.Kind == GdsElementKind.Boundary)
+        {
+            var boundary = element.AsBoundary();
+            Console.WriteLine($"    Number of Points: {boundary.PointCount}");
+        }
+        else if (element.Kind == GdsElementKind.Path)
+        {
+            var path = element.AsPath();
+            Console.WriteLine($"    Number of Points: {path.PointCount}");
+        }
+    }
+}
+
+// Write to GDS file
+library.WriteToFile("example.gds");

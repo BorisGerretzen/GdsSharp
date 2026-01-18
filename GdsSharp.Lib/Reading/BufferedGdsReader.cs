@@ -10,6 +10,7 @@ internal sealed class BufferedGdsReader : IDisposable
     private readonly Stream _stream;
 
     private byte[] _buffer;
+    private int _bufferLength;
 
     private bool _disposed;
     private int _len;
@@ -17,15 +18,15 @@ internal sealed class BufferedGdsReader : IDisposable
 
     private long _streamPosition;
 
-    public BufferedGdsReader(Stream stream, bool leaveOpen = true, int bufferSize = 64 * 1024)
+    public BufferedGdsReader(Stream stream, bool leaveOpen = true, int bufferSize = GdsGlobals.DefaultReaderBufferSize)
     {
         _stream = stream ?? throw new ArgumentNullException(nameof(stream));
         if (!stream.CanRead) throw new ArgumentException("Stream must be readable.", nameof(stream));
-        if (bufferSize <= 0) throw new ArgumentOutOfRangeException(nameof(bufferSize));
+        if (bufferSize < 8) throw new ArgumentOutOfRangeException(nameof(bufferSize), "Buffer size must be at least 8 bytes.");
 
         _leaveOpen = leaveOpen;
         _buffer = ArrayPool<byte>.Shared.Rent(bufferSize);
-
+        _bufferLength = bufferSize;
         if (_stream.CanSeek)
         {
             try
@@ -90,17 +91,13 @@ internal sealed class BufferedGdsReader : IDisposable
             _pos += length;
             return Encoding.ASCII.GetString(trimmed);
         }
-
-        var tmp = ArrayPool<byte>.Shared.Rent(length);
-        try
+        else
         {
+            var tmp = ArrayPool<byte>.Shared.Rent(length);
             ReadExactly(tmp.AsSpan(0, length));
             var trimmed = TrimTrailingNulls(tmp.AsSpan(0, length));
-            return Encoding.ASCII.GetString(trimmed);
-        }
-        finally
-        {
             ArrayPool<byte>.Shared.Return(tmp);
+            return Encoding.ASCII.GetString(trimmed);
         }
     }
 
@@ -179,7 +176,7 @@ internal sealed class BufferedGdsReader : IDisposable
             return true;
         }
 
-        if (count > _buffer.Length)
+        if (count > _bufferLength)
         {
             span = default;
             return false;
@@ -201,7 +198,7 @@ internal sealed class BufferedGdsReader : IDisposable
     private void FillBuffer()
     {
         _pos = 0;
-        var read = _stream.Read(_buffer, 0, _buffer.Length);
+        var read = _stream.Read(_buffer, 0, _bufferLength);
 
         _streamPosition += read;
         _len = read;
@@ -212,7 +209,7 @@ internal sealed class BufferedGdsReader : IDisposable
     {
         if (_len - _pos >= needed) return;
 
-        var read = _stream.Read(_buffer, _len, _buffer.Length - _len);
+        var read = _stream.Read(_buffer, _len, _bufferLength - _len);
 
         _streamPosition += read;
         _len += read;

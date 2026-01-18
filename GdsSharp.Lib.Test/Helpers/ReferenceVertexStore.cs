@@ -1,6 +1,6 @@
 ﻿using GdsSharp.Lib.Library.VertexStore;
 
-namespace GdsSharp.Lib.Test.Library.VertexStore;
+namespace GdsSharp.Lib.Test.Helpers;
 
 /// <summary>
 /// Creates a new memory vertex store for storing GDS points in memory.

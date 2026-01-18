@@ -1,19 +1,25 @@
 ﻿using System.Numerics;
 using System.Runtime.InteropServices;
 using BenchmarkDotNet.Attributes;
-using GdsSharp.Benchmarks.Obsolete;
 using GdsSharp.Lib;
+using GdsSharp.Lib.Library.BoundingBox;
 
 namespace GdsSharp.Benchmarks;
 
 public class MinMaxFromPoints
 {
-    private readonly GdsPoint[] _points = new GdsPoint[1000];
+    [Params(10, 100, 1_000, 10_000)]
+    public int N;
+
+    private GdsPoint[] _points;
 
     [GlobalSetup]
     public void GlobalSetup()
     {
-        var random = new Random();
+        _points = new GdsPoint[N];
+        
+        var random = new Random(42); 
+        
         for (int i = 0; i < _points.Length; i++)
         {
             _points[i] = new GdsPoint(
@@ -23,8 +29,8 @@ public class MinMaxFromPoints
         }
     }
 
-    [Benchmark]
-    public GdsBoundingBox NaiveMinMax()
+    [Benchmark(Baseline = true)]
+    public GdsBoundingBox ForeachMinMax()
     {
         var minX = int.MaxValue;
         var minY = int.MaxValue;
@@ -45,6 +51,8 @@ public class MinMaxFromPoints
     [Benchmark]
     public GdsBoundingBox Simd()
     {
+        if(!Vector.IsHardwareAccelerated) throw new InvalidOperationException("SIMD not supported on this hardware.");
+        
         // Memory layout: [X1, Y1, X2, Y2, X3, Y3...]
         var rawValues = MemoryMarshal.Cast<GdsPoint, int>(_points);
 
