@@ -14,6 +14,40 @@ public abstract class VertexStoreTests<TStore>
     }
 
     [Test]
+    public void Write_EmptyBatch_DoesNotIncreaseCount()
+    {
+        var sut = CreateSut();
+        try
+        {
+            var points = Array.Empty<GdsPoint>();
+            var offset = sut.Write(points);
+            Assert.That(offset, Is.Zero);
+            Assert.That(sut, Has.Count.Zero);
+        }
+        finally
+        {
+            DisposeSut(sut);
+        }
+    }
+
+    [Test]
+    public void Write_IncreasesCount()
+    {
+        var sut = CreateSut();
+        try
+        {
+            var points = GeneratePoints(0, 150);
+
+            sut.Write(points);
+            Assert.That(sut, Has.Count.EqualTo(150));
+        }
+        finally
+        {
+            DisposeSut(sut);
+        }
+    }
+    
+    [Test]
     public void Write_SingleBatch_ReadsBackCorrectly()
     {
         var sut = CreateSut();

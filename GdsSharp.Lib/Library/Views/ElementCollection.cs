@@ -4,7 +4,7 @@ public readonly struct ElementCollection
 {
     public readonly int StructureIndex;
     public readonly int Count;
-
+    
     private readonly GdsLibrary _library;
 
     internal ElementCollection(GdsLibrary library, int structureIndex)

@@ -11,6 +11,8 @@ public class ReferenceVertexStore(int? initialCapacity = null) : IGdsVertexStore
 {
     private readonly List<GdsPoint> _points = new(initialCapacity ?? 0);
 
+    public long Count { get; private set; }
+
     public int Read(long pointIndex, Span<GdsPoint> destination)
     {
         var availablePoints = _points.Count - pointIndex;
@@ -27,6 +29,8 @@ public class ReferenceVertexStore(int? initialCapacity = null) : IGdsVertexStore
     {
         var offset = _points.Count;
         _points.AddRange(points);
+        
+        Count += _points.Count;
         return offset;
     }
 }

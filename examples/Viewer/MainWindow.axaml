@@ -1,0 +1,22 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:controls="clr-namespace:Viewer.Controls"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="Viewer.MainWindow"
+        Title="GDS Viewer">
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="_File">
+                <MenuItem Header="_Open..." Click="OnOpenClick" />
+            </MenuItem>
+        </Menu>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="5" Spacing="10">
+            <TextBlock VerticalAlignment="Center">Structure:</TextBlock>
+            <ComboBox x:Name="StructureComboBox" Width="200" SelectionChanged="OnStructureSelectionChanged" />
+            <Button Content="Fit to View" Click="OnFitToViewClick" />
+        </StackPanel>
+        <controls:GdsViewerControl x:Name="GdsViewer" />
+    </DockPanel>
+</Window>

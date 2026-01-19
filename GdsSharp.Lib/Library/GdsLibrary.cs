@@ -1,5 +1,6 @@
 ﻿using GdsSharp.Lib.Library.Builder;
 using GdsSharp.Lib.Library.Builder.Payload;
+using GdsSharp.Lib.Library.Editing;
 using GdsSharp.Lib.Library.VertexStore;
 using GdsSharp.Lib.Library.Views;
 using GdsSharp.Lib.Reading;
@@ -60,6 +61,11 @@ public class GdsLibrary
     public LibraryView AsView()
     {
         return new LibraryView(this);
+    }
+
+    public GdsEditSession Edit()
+    {
+        return new GdsEditSession(this);
     }
 
     public void WriteToFile(string path)
