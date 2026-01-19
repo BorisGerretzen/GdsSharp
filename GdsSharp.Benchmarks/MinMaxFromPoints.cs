@@ -8,25 +8,22 @@ namespace GdsSharp.Benchmarks;
 
 public class MinMaxFromPoints
 {
-    [Params(10, 100, 1_000, 10_000)]
-    public int N;
-
     private GdsPoint[] _points;
+
+    [Params(10, 100, 1_000, 10_000)] public int N;
 
     [GlobalSetup]
     public void GlobalSetup()
     {
         _points = new GdsPoint[N];
-        
-        var random = new Random(42); 
-        
-        for (int i = 0; i < _points.Length; i++)
-        {
+
+        var random = new Random(42);
+
+        for (var i = 0; i < _points.Length; i++)
             _points[i] = new GdsPoint(
                 random.Next(-10000, 10000),
                 random.Next(-10000, 10000)
             );
-        }
     }
 
     [Benchmark(Baseline = true)]
@@ -51,8 +48,8 @@ public class MinMaxFromPoints
     [Benchmark]
     public GdsBoundingBox Simd()
     {
-        if(!Vector.IsHardwareAccelerated) throw new InvalidOperationException("SIMD not supported on this hardware.");
-        
+        if (!Vector.IsHardwareAccelerated) throw new InvalidOperationException("SIMD not supported on this hardware.");
+
         // Memory layout: [X1, Y1, X2, Y2, X3, Y3...]
         var rawValues = MemoryMarshal.Cast<GdsPoint, int>(_points);
 

@@ -9,8 +9,8 @@ public interface IGdsElement
     int PlexNumber { get; set; }
 
     /// <summary>
-    /// Materializes the children of the element.
-    /// In practice only used for <see cref="GdsBoundaryElement"/> to materialize the points.
+    ///     Materializes the children of the element.
+    ///     In practice only used for <see cref="GdsBoundaryElement" /> to materialize the points.
     /// </summary>
     virtual void Materialize()
     {

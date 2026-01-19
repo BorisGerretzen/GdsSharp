@@ -7,6 +7,11 @@ namespace GdsSharp.Lib.Reading;
 
 public sealed class GdsParser(GdsTokenStream tokenStream) : IDisposable
 {
+    public void Dispose()
+    {
+        tokenStream.Dispose();
+    }
+
     public void Parse(IParserConsumer consumer)
     {
         Expect(GdsRecordTypes.Header);
@@ -54,17 +59,17 @@ public sealed class GdsParser(GdsTokenStream tokenStream) : IDisposable
         var (userUnits, physicalUnits) = ReadUnits();
 
         var libraryInfo = new GdsLibraryInfo(
-            Version: version,
-            Name: libName,
-            ModificationTime: lastMod,
-            AccessTime: lastAcc,
-            ReferencedLibraries: refLibs ?? [],
-            Fonts: fonts ?? [],
-            AttributeDefinitionFile: null,
-            Generations: generations,
-            UserUnits: userUnits,
-            PhysicalUnits: physicalUnits,
-            FormatType: format.HasValue ? (GdsFormatType)format.Value : null
+            version,
+            libName,
+            lastMod,
+            lastAcc,
+            refLibs ?? [],
+            fonts ?? [],
+            null,
+            generations,
+            userUnits,
+            physicalUnits,
+            format.HasValue ? (GdsFormatType)format.Value : null
         );
         consumer.OnBeginLibrary(in libraryInfo);
 
@@ -206,7 +211,7 @@ public sealed class GdsParser(GdsTokenStream tokenStream) : IDisposable
 
             if (points[0] != points[numPoints - 1])
                 throw new InvalidDataException($"Boundary's first and last point must coincide, found first point {points[0]} and last point {points[numPoints - 1]} at 0x{xyHeader.Offset:X}.");
-            
+
             consumer.OnBeginElement(GdsElementKind.Boundary, common);
             consumer.OnBoundary(layer, dataType, points);
             ConsumePropertiesAndEndElement(consumer);
@@ -215,9 +220,10 @@ public sealed class GdsParser(GdsTokenStream tokenStream) : IDisposable
 
         var rentedPoints = ArrayPool<GdsPoint>.Shared.Rent(numPoints);
         tokenStream.ReadXy(xyHeader, rentedPoints.AsSpan(0, numPoints));
-        
+
         if (rentedPoints[0] != rentedPoints[numPoints - 1])
-            throw new InvalidDataException($"Boundary's first and last point must coincide, found first point {rentedPoints[0]} and last point {rentedPoints[numPoints - 1]} at 0x{xyHeader.Offset:X}.");
+            throw new InvalidDataException(
+                $"Boundary's first and last point must coincide, found first point {rentedPoints[0]} and last point {rentedPoints[numPoints - 1]} at 0x{xyHeader.Offset:X}.");
 
         consumer.OnBeginElement(GdsElementKind.Boundary, common);
         consumer.OnBoundary(layer, dataType, rentedPoints.AsSpan(0, numPoints));
@@ -474,9 +480,9 @@ public sealed class GdsParser(GdsTokenStream tokenStream) : IDisposable
         var flags = tokenStream.ReadUInt16();
 
         var s = new GdsStransInfo(
-            Reflection: (flags & 0b10000000_00000000) != 0,
-            AbsoluteMagnification: (flags & 0b100) != 0,
-            AbsoluteAngle: (flags & 0b10) != 0
+            (flags & 0b10000000_00000000) != 0,
+            (flags & 0b100) != 0,
+            (flags & 0b10) != 0
         );
 
         if (tokenStream.TryPeek(out var magPeek) && magPeek.Code == GdsRecordTypes.Magnification)
@@ -534,10 +540,7 @@ public sealed class GdsParser(GdsTokenStream tokenStream) : IDisposable
     {
         var numStrings = h.PayloadLength / 44;
         var result = new string[numStrings];
-        for (var i = 0; i < numStrings; i++)
-        {
-            result[i] = tokenStream.ReadString(44).TrimEnd('\0');
-        }
+        for (var i = 0; i < numStrings; i++) result[i] = tokenStream.ReadString(44).TrimEnd('\0');
 
         return result;
     }
@@ -557,14 +560,9 @@ public sealed class GdsParser(GdsTokenStream tokenStream) : IDisposable
         var horizontalPresentation = packed & 0b11;
 
         return new PresentationInfo(
-            Font: (short)fontNumber,
-            HorizontalJustification: (short)horizontalPresentation,
-            VerticalJustification: (short)verticalPresentation
+            (short)fontNumber,
+            (short)horizontalPresentation,
+            (short)verticalPresentation
         );
-    }
-
-    public void Dispose()
-    {
-        tokenStream.Dispose();
     }
 }

@@ -118,8 +118,8 @@ public class PathBuilder
     ///     Builds the path into a series of elements each having a maximum number of vertices.
     /// </summary>
     /// <param name="maxVertices">Maximum number of vertices per element.</param>
-    /// <returns>Enumerable of <see cref="GdsBoundaryElement"/>.</returns>
-    /// <exception cref="ArgumentException">Thrown when <paramref name="maxVertices"/> is less than 4.</exception>
+    /// <returns>Enumerable of <see cref="GdsBoundaryElement" />.</returns>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="maxVertices" /> is less than 4.</exception>
     public IEnumerable<GdsElement> Build(int maxVertices = 200)
     {
         if (maxVertices < 4)
@@ -142,7 +142,7 @@ public class PathBuilder
                 Element = new GdsBoundaryElement
                 {
                     Points = allPoints.ToList(),
-                    NumPoints = allPoints.Length,
+                    NumPoints = allPoints.Length
                 }
             };
         }

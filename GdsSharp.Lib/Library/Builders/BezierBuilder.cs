@@ -3,7 +3,7 @@
 namespace GdsSharp.Lib.Library.Builders;
 
 /// <summary>
-/// Helper class for building Bézier curves.
+///     Helper class for building Bézier curves.
 /// </summary>
 public class BezierBuilder
 {
@@ -31,7 +31,7 @@ public class BezierBuilder
     private readonly List<GdsPoint> _controlPoints = [];
 
     /// <summary>
-    /// Adds a control point to the Bézier curve.
+    ///     Adds a control point to the Bézier curve.
     /// </summary>
     /// <param name="x">X coordinate.</param>
     /// <param name="y">Y coordinate.</param>
@@ -42,7 +42,7 @@ public class BezierBuilder
     }
 
     /// <summary>
-    /// Adds a control point to the Bézier curve.
+    ///     Adds a control point to the Bézier curve.
     /// </summary>
     /// <param name="point">Point to add.</param>
     /// <exception cref="InvalidOperationException">If more than 16 points are added.</exception>
@@ -55,7 +55,7 @@ public class BezierBuilder
     }
 
     /// <summary>
-    /// Builds a line path from the added control points.
+    ///     Builds a line path from the added control points.
     /// </summary>
     /// <param name="numVertices">Number of path elements.</param>
     /// <returns>Array of points representing the path.</returns>
@@ -67,7 +67,7 @@ public class BezierBuilder
     }
 
     /// <summary>
-    /// Builds the Bézier curve as a polygon.
+    ///     Builds the Bézier curve as a polygon.
     /// </summary>
     /// <param name="width">Width of the line.</param>
     /// <param name="numVertices">Number of vertices to use for the polygon.</param>
@@ -126,7 +126,7 @@ public class BezierBuilder
     }
 
     /// <summary>
-    /// Evaluates the Bézier curve at a given t.
+    ///     Evaluates the Bézier curve at a given t.
     /// </summary>
     /// <param name="t">[0,1]</param>
     /// <returns>Position on the curve at <see cref="t" />.</returns>
@@ -146,7 +146,7 @@ public class BezierBuilder
     }
 
     /// <summary>
-    /// Evaluates the tangent of the Bézier curve at a given t.
+    ///     Evaluates the tangent of the Bézier curve at a given t.
     /// </summary>
     /// <param name="t">[0,1]</param>
     /// <returns>Tangent vector of the curve at <see cref="t" />.</returns>
@@ -176,7 +176,7 @@ public class BezierBuilder
     private static float Bernstein(int n, int i, float t)
     {
         var ti = MathF.Pow(t, i);
-        var tNMinusI = MathF.Pow((1 - t), (n - i));
+        var tNMinusI = MathF.Pow(1 - t, n - i);
         var basis = Binomial(n, i) * ti * tNMinusI;
         return basis;
     }
@@ -190,4 +190,3 @@ public class BezierBuilder
         return ni;
     }
 }
-

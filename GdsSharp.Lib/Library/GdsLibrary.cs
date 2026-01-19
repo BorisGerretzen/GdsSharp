@@ -12,17 +12,20 @@ namespace GdsSharp.Lib.Library;
 
 public class GdsLibrary
 {
-    internal readonly IGdsVertexStore VertexStore; 
-    internal readonly GdsStructure[] Structures;
-    internal readonly ElementRecord[] Elements;
-    internal readonly BoundaryPayload[] Boundaries;
-    internal readonly PathPayload[] Paths;
-    internal readonly SRefPayload[] StructureReferences;
     internal readonly ARefPayload[] ArrayReferences;
-    internal readonly TextPayload[] Texts;
-    internal readonly NodePayload[] Nodes;
+    internal readonly BoundaryPayload[] Boundaries;
     internal readonly BoxPayload[] Boxes;
+    internal readonly ElementRecord[] Elements;
+    internal readonly NodePayload[] Nodes;
+    internal readonly PathPayload[] Paths;
     internal readonly PropertyRecord[] Properties;
+    internal readonly SRefPayload[] StructureReferences;
+    internal readonly GdsStructure[] Structures;
+    internal readonly TextPayload[] Texts;
+    internal readonly IGdsVertexStore VertexStore;
+
+    private Dictionary<int, PropertyRecord[]>? _elementPropertiesIndex;
+    private Dictionary<string, int>? _structureIndex;
 
     internal GdsLibrary(
         IGdsVertexStore vertexStore,
@@ -54,26 +57,26 @@ public class GdsLibrary
 
     public GdsLibraryInfo Info { get; }
 
-    private Dictionary<int, PropertyRecord[]>? _elementPropertiesIndex;
-    private Dictionary<string, int>? _structureIndex;
-    
-    public LibraryView AsView() => new(this);
-    
+    public LibraryView AsView()
+    {
+        return new LibraryView(this);
+    }
+
     public void WriteToFile(string path)
     {
-        using var fs = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None, 4096, FileOptions.SequentialScan); 
+        using var fs = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None, 4096, FileOptions.SequentialScan);
         WriteToStream(fs);
     }
-    
+
     public void WriteToStream(Stream stream)
     {
         var writer = new GdsWriter(stream);
         writer.Write(this);
     }
-    
+
     public static GdsLibrary FromFile(string path, Action<GdsLibraryBuilderOptions>? configure = null)
     {
-        using var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.SequentialScan); 
+        using var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.SequentialScan);
         return FromStream(fs, configure);
     }
 
@@ -88,41 +91,35 @@ public class GdsLibrary
             VertexStoreType.Disk => new DiskVertexStore(),
             _ => throw new ArgumentOutOfRangeException()
         };
-        
-        var consumer = new GdsLibraryBuilderConsumer(store, buildBoundingBoxes: options.BuildBoundingBoxes);
+
+        var consumer = new GdsLibraryBuilderConsumer(store, options.BuildBoundingBoxes);
         var tokenStream = new GdsTokenStream(stream, bufferSize: options.ReadBufferSize);
         var parser = new GdsParser(tokenStream);
         parser.Parse(consumer);
         return consumer.Library;
     }
-    
+
     internal bool TryGetStructureIndex(string structureName, out int index)
     {
-        if(_structureIndex == null)
-        {
-            BuildStructureIndex();
-        }
-        
+        if (_structureIndex == null) BuildStructureIndex();
+
         return _structureIndex!.TryGetValue(structureName, out index);
     }
-    
+
     internal bool TryGetElementProperties(int elementId, out PropertyRecord[] properties)
     {
-        if(_elementPropertiesIndex == null)
-        {
-            BuildElementPropertiesIndex();
-        }
-        
+        if (_elementPropertiesIndex == null) BuildElementPropertiesIndex();
+
         return _elementPropertiesIndex!.TryGetValue(elementId, out properties!);
     }
-    
+
     private void BuildElementPropertiesIndex()
     {
         _elementPropertiesIndex = Properties
             .GroupBy(p => p.ElementId)
             .ToDictionary(g => g.Key, g => g.ToArray());
     }
-    
+
     private void BuildStructureIndex()
     {
         _structureIndex = new Dictionary<string, int>();

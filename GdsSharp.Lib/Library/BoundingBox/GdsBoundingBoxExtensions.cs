@@ -23,7 +23,7 @@ public static class GdsBoundingBoxExtensions
             box.Min,
             new(box.Min.X, box.Max.Y),
             new(box.Max.X, box.Min.Y),
-            box.Max,
+            box.Max
         };
 
         double minX = double.PositiveInfinity, minY = double.PositiveInfinity;

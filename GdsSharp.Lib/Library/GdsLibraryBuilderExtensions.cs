@@ -1,4 +1,3 @@
-using System.Numerics;
 using GdsSharp.Lib.Library.Builders;
 using GdsSharp.Lib.Reading.Enum;
 using GdsSharp.Lib.Reading.Models;
@@ -6,12 +5,12 @@ using GdsSharp.Lib.Reading.Models;
 namespace GdsSharp.Lib.Library;
 
 /// <summary>
-/// Extension methods for GdsLibraryBuilder to support geometry builders.
+///     Extension methods for GdsLibraryBuilder to support geometry builders.
 /// </summary>
 public static class GdsLibraryBuilderExtensions
 {
     /// <summary>
-    /// Adds a Bézier curve as a boundary element (polygon).
+    ///     Adds a Bézier curve as a boundary element (polygon).
     /// </summary>
     /// <param name="builder">The library builder.</param>
     /// <param name="layer">Layer number.</param>
@@ -35,7 +34,7 @@ public static class GdsLibraryBuilderExtensions
     }
 
     /// <summary>
-    /// Adds a Bézier curve as a path element.
+    ///     Adds a Bézier curve as a path element.
     /// </summary>
     /// <param name="builder">The library builder.</param>
     /// <param name="layer">Layer number.</param>
@@ -61,7 +60,7 @@ public static class GdsLibraryBuilderExtensions
     }
 
     /// <summary>
-    /// Adds a circle as a boundary element.
+    ///     Adds a circle as a boundary element.
     /// </summary>
     /// <param name="builder">The library builder.</param>
     /// <param name="layer">Layer number.</param>
@@ -87,7 +86,7 @@ public static class GdsLibraryBuilderExtensions
     }
 
     /// <summary>
-    /// Adds a rectangle as a boundary element.
+    ///     Adds a rectangle as a boundary element.
     /// </summary>
     /// <param name="builder">The library builder.</param>
     /// <param name="layer">Layer number.</param>
@@ -113,8 +112,8 @@ public static class GdsLibraryBuilderExtensions
     }
 
     /// <summary>
-    /// Adds a complex path as boundary elements.
-    /// The path may be split into multiple boundary elements if it exceeds the maximum vertex count.
+    ///     Adds a complex path as boundary elements.
+    ///     The path may be split into multiple boundary elements if it exceeds the maximum vertex count.
     /// </summary>
     /// <param name="builder">The library builder.</param>
     /// <param name="layer">Layer number.</param>

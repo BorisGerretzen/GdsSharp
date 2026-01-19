@@ -4,7 +4,7 @@ public readonly struct ElementCollection
 {
     public readonly int StructureIndex;
     public readonly int Count;
-    
+
     private readonly GdsLibrary _library;
 
     internal ElementCollection(GdsLibrary library, int structureIndex)
@@ -14,7 +14,10 @@ public readonly struct ElementCollection
         StructureIndex = structureIndex;
     }
 
-    public Enumerator GetEnumerator() => new(_library, StructureIndex);
+    public Enumerator GetEnumerator()
+    {
+        return new Enumerator(_library, StructureIndex);
+    }
 
     public struct Enumerator
     {

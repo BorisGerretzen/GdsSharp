@@ -9,8 +9,8 @@ using GdsSharp.Lib.Reading.Models;
 namespace GdsSharp.Benchmarks.Obsolete;
 
 /// <summary>
-/// Reconstructs the same model graph as the original GdsParser.Parse().
-/// Intended as a baseline adapter from the new event-based parser.
+///     Reconstructs the same model graph as the original GdsParser.Parse().
+///     Intended as a baseline adapter from the new event-based parser.
 /// </summary>
 public sealed class OldParserConsumer : IParserConsumer
 {
@@ -112,7 +112,9 @@ public sealed class OldParserConsumer : IParserConsumer
         };
 
         if (_currentStructure.Elements is List<GdsElement> list)
+        {
             list.Add(wrapped);
+        }
         else
         {
             var newList = _currentStructure.Elements.ToList();
@@ -134,7 +136,7 @@ public sealed class OldParserConsumer : IParserConsumer
             Layer = layer,
             DataType = dataType,
             Points = arr,
-            NumPoints = arr.Length,
+            NumPoints = arr.Length
         };
 
         _currentElement = e;
@@ -149,7 +151,7 @@ public sealed class OldParserConsumer : IParserConsumer
         {
             Points = pts,
             DataType = dataType,
-            Layer = layer,
+            Layer = layer
         };
 
         if (pathType is not null) e.PathType = pathType.Value;
@@ -191,7 +193,7 @@ public sealed class OldParserConsumer : IParserConsumer
         {
             StructureName = structureName,
             Transformation = ConvertStrans(strans) ?? new GdsStrans(),
-            Points = points.ToArray().ToList(),
+            Points = points.ToArray().ToList()
         };
 
         _currentElement = e;
@@ -206,7 +208,7 @@ public sealed class OldParserConsumer : IParserConsumer
             Columns = cols,
             Rows = rows,
             Transformation = ConvertStrans(strans) ?? new GdsStrans(),
-            Points = points.ToArray().ToList(),
+            Points = points.ToArray().ToList()
         };
 
         _currentElement = e;
@@ -222,7 +224,7 @@ public sealed class OldParserConsumer : IParserConsumer
             TextType = textType,
             Layer = layer,
             Transformation = ConvertStrans(strans) ?? new GdsStrans(),
-            Points = points.ToArray().ToList(),
+            Points = points.ToArray().ToList()
         };
 
         if (presentation is not null)

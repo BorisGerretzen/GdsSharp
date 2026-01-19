@@ -27,7 +27,7 @@ public sealed class GdsWriter
     }
 
     /// <summary>
-    /// Writes the given GDSII library to the underlying stream.
+    ///     Writes the given GDSII library to the underlying stream.
     /// </summary>
     /// <param name="library">Library to write.</param>
     /// <param name="vertexReader">Reader for the vertex store of the library.</param>
@@ -35,38 +35,28 @@ public sealed class GdsWriter
     public void Write(GdsLibrary library)
     {
         if (library is null) throw new ArgumentNullException(nameof(library));
-        
+
         WriteRecord(GdsRecordTypes.Header, w => { w.Write(library.Info.Version); });
         WriteRecord(GdsRecordTypes.BeginLibrary, w => { WriteTimestampPair(w, library.Info.ModificationTime, library.Info.AccessTime); });
         WriteRecord(GdsRecordTypes.LibraryName, w => { WriteGdsString(w, library.Info.Name); });
 
         if (library.Info.ReferencedLibraries is { Count: > 0 } refLibs)
-        {
             WriteRecord(GdsRecordTypes.ReferencedLibraries, w =>
             {
                 foreach (var s in refLibs)
                     WriteFixedString(w, s, 44);
             });
-        }
 
         if (library.Info.Fonts is { Count: > 0 } fonts)
-        {
             WriteRecord(GdsRecordTypes.Fonts, w =>
             {
                 foreach (var s in fonts)
                     WriteFixedString(w, s, 44);
             });
-        }
 
-        if (library.Info.Generations.HasValue)
-        {
-            WriteRecord(GdsRecordTypes.Generations, w => { w.Write(library.Info.Generations.Value); });
-        }
+        if (library.Info.Generations.HasValue) WriteRecord(GdsRecordTypes.Generations, w => { w.Write(library.Info.Generations.Value); });
 
-        if (library.Info.FormatType.HasValue)
-        {
-            WriteRecord(GdsRecordTypes.Format, w => { w.Write((short)library.Info.FormatType); });
-        }
+        if (library.Info.FormatType.HasValue) WriteRecord(GdsRecordTypes.Format, w => { w.Write((short)library.Info.FormatType); });
 
         WriteRecord(GdsRecordTypes.Units, w =>
         {
@@ -74,12 +64,9 @@ public sealed class GdsWriter
             w.Write(library.Info.PhysicalUnits);
         });
 
-        foreach (var s in library.Structures)
-        {
-            WriteStructure(library, s, library.VertexStore);
-        }
+        foreach (var s in library.Structures) WriteStructure(library, s, library.VertexStore);
 
-        WriteRecord(GdsRecordTypes.EndLibrary, payloadWriter: null);
+        WriteRecord(GdsRecordTypes.EndLibrary, null);
     }
 
     private void WriteStructure(GdsLibrary library, GdsStructure structure, IGdsVertexStore vertexReader)
@@ -219,20 +206,23 @@ public sealed class GdsWriter
                 w.Write(payload);
             });
 
-        if (c.PlexNumber.HasValue)
-        {
-            WriteRecord(GdsRecordTypes.Plex, w => w.Write(c.PlexNumber.Value));
-        }
+        if (c.PlexNumber.HasValue) WriteRecord(GdsRecordTypes.Plex, w => w.Write(c.PlexNumber.Value));
     }
 
     private void WriteLayer(short layer)
-        => WriteRecord(GdsRecordTypes.Layer, w => w.Write(layer));
+    {
+        WriteRecord(GdsRecordTypes.Layer, w => w.Write(layer));
+    }
 
     private void WriteDataType(short dataType)
-        => WriteRecord(GdsRecordTypes.DataType, w => w.Write(dataType));
+    {
+        WriteRecord(GdsRecordTypes.DataType, w => w.Write(dataType));
+    }
 
     private void WriteWidth(int width)
-        => WriteRecord(GdsRecordTypes.Width, w => w.Write(width));
+    {
+        WriteRecord(GdsRecordTypes.Width, w => w.Write(width));
+    }
 
     private void WriteXyFromStore(long vertexOffset, int vertexCount, IGdsVertexStore vertexReader)
     {

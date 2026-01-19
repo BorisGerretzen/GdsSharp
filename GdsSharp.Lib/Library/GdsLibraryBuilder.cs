@@ -184,9 +184,9 @@ public class GdsLibraryBuilder(IGdsVertexStore vertexStore, bool buildBoundingBo
     public void AddElementProperty(int elementId, short attribute, string value)
     {
         var propertyRecord = new PropertyRecord(
-            ElementId: elementId,
-            Attribute: attribute,
-            Value: value);
+            elementId,
+            attribute,
+            value);
         _properties.Add(propertyRecord);
     }
 
@@ -195,10 +195,7 @@ public class GdsLibraryBuilder(IGdsVertexStore vertexStore, bool buildBoundingBo
         if (!Info.HasValue)
             throw new InvalidOperationException("Library info must be set before building the library.");
 
-        if (buildBoundingBoxes)
-        {
-            ComputeReferenceBoundingBoxes();
-        }
+        if (buildBoundingBoxes) ComputeReferenceBoundingBoxes();
 
         var immutableStructures = new GdsStructure[_structures.Count];
         for (var i = 0; i < _structures.Count; i++) immutableStructures[i] = MutGdsStructure.ToGdsStructure(_structures[i]);
@@ -261,10 +258,8 @@ public class GdsLibraryBuilder(IGdsVertexStore vertexStore, bool buildBoundingBo
         // Topological sort zero indegree first, build bounding boxes leaves up
         var queue = new Queue<int>();
         for (var i = 0; i < numStructures; i++)
-        {
             if (numDeps[i] == 0)
                 queue.Enqueue(i);
-        }
 
         var numProcessed = 0;
         while (queue.Count > 0)
@@ -275,7 +270,6 @@ public class GdsLibraryBuilder(IGdsVertexStore vertexStore, bool buildBoundingBo
 
             // Process structure references
             if (structureReferencesByParent[current] is { } srefs)
-            {
                 foreach (var (childId, strans, origin) in srefs)
                 {
                     var childBox = structuresSpan[childId.Id].BoundingBox;
@@ -285,18 +279,15 @@ public class GdsLibraryBuilder(IGdsVertexStore vertexStore, bool buildBoundingBo
                         currentBox = currentBox?.Union(transformedBox) ?? transformedBox;
                     }
                 }
-            }
 
             // Process array references, rowvec and colvec are pre-transformed
             if (arrayReferencesByParent[current] is { } arefs)
-            {
                 foreach (var (rowVector, colVector, origin) in arefs)
                 {
                     var p3 = origin + rowVector + colVector;
                     var childBox = GdsBoundingBox.FromPoints([origin, colVector, rowVector, p3]);
                     currentBox = currentBox?.Union(childBox) ?? childBox;
                 }
-            }
 
             currentStructure.BoundingBox = currentBox;
 

@@ -31,7 +31,7 @@ public class LibraryViewTests
             Assert.That(view.Structures[ex.EmptyStructureIndex].Name, Is.EqualTo(ex.EmptyName));
         });
     }
-    
+
     [Test]
     public void TryGetStructure_ExistingStructure_ReturnsTrueAndStructure()
     {
@@ -43,7 +43,7 @@ public class LibraryViewTests
         Assert.That(result, Is.True);
         Assert.That(structure.Name, Is.EqualTo(ex.TopName));
     }
-    
+
     [Test]
     public void TryGetStructure_ExistingStructure_DifferentCasing_ReturnsFalse()
     {

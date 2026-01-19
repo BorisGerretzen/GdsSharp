@@ -48,7 +48,7 @@ public struct GdsDouble
         if (double.IsNaN(fexp)) fexp = 0;
         var exp = (int)Math.Ceiling(fexp);
         if (value >= Math.Pow(16, exp)) exp++;
-        
+
         var mantissa = (ulong)(value / Math.Pow(16, exp - 14));
         Exponent = exp;
         Mantissa = mantissa;

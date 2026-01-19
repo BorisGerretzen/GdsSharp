@@ -129,7 +129,7 @@ public class GdsDoubleTests
     {
         if (TestContext.CurrentContext.Random.NextDouble() < 0.01)
             return 0.0;
-        
+
         // GDSII Max: ~7.2e75
         // GDSII Min: ~5.4e-79
         // Generate exponent between -75 and +75

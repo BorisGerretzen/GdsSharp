@@ -1,5 +1,4 @@
 using GdsSharp.Lib.Library.Views;
-using GdsSharp.Lib.Reading;
 using GdsSharp.Lib.Test.Helpers;
 
 namespace GdsSharp.Lib.Test.Library.Views;
@@ -32,7 +31,7 @@ public class ElementCollectionTests
         Assert.That(elementIndices[0], Is.EqualTo(ex.TopBoundary1ElementIndex));
         Assert.That(elementIndices[^1], Is.EqualTo(ex.TopBoundary2ElementIndex));
     }
-    
+
     [Test]
     public void Count_IsCorrect()
     {

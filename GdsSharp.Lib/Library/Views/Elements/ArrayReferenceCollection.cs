@@ -6,15 +6,18 @@ public readonly struct ArrayReferenceCollection
 {
     public readonly int StructureIndex;
     private readonly GdsLibrary _library;
-    
+
     internal ArrayReferenceCollection(GdsLibrary library, int structureIndex)
     {
         _library = library;
         StructureIndex = structureIndex;
     }
-    
-    public Enumerator GetEnumerator() => new(_library, StructureIndex);
-    
+
+    public Enumerator GetEnumerator()
+    {
+        return new Enumerator(_library, StructureIndex);
+    }
+
     public struct Enumerator
     {
         private readonly GdsLibrary _lib;
@@ -36,10 +39,8 @@ public readonly struct ArrayReferenceCollection
         public bool MoveNext()
         {
             while (++_elementIndex < _elementsCount)
-            {
                 if (_lib.Elements[_elementIndex + _elementsStartIndex].Kind == GdsElementKind.ArrayReference)
                     return true;
-            }
 
             return false;
         }

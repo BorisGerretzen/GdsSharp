@@ -12,15 +12,12 @@ public class GdsStructure
     public IEnumerable<GdsElement> Elements { get; set; } = new List<GdsElement>();
 
     /// <summary>
-    /// Materializes all elements in the structure.
+    ///     Materializes all elements in the structure.
     /// </summary>
     public void Materialize()
     {
         var elements = Elements.ToList();
-        foreach (var element in elements)
-        {
-            element.Materialize();
-        }
+        foreach (var element in elements) element.Materialize();
 
         Elements = elements;
     }

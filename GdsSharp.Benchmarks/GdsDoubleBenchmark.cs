@@ -36,7 +36,7 @@ public class GdsDoubleBenchmark
             GdsDoubleConverter.ToGdsBytes(_values[i], _dataInputs[i]);
         }
     }
-    
+
     [Benchmark(Baseline = true)]
     public void Write_Legacy()
     {

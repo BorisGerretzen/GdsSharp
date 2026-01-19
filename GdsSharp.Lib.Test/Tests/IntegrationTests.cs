@@ -33,7 +33,7 @@ public class IntegrationTests
             yield return new TestCaseData(file, size)
                 .SetName($"{file}, BufferSize={size}");
     }
-    
+
     [TestCaseSource(nameof(RoundtripFileAndBufferSizeCases))]
     public void TestWriterRoundtrip(string manifestFile, int bufferSize)
     {

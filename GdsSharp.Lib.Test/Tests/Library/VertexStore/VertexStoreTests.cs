@@ -131,10 +131,7 @@ public abstract class VertexStoreTests<TStore>
             Assert.That(buffer[9].X, Is.EqualTo(99));
 
             // Everything after readCount should remain sentinel
-            for (var i = readCount; i < buffer.Length; i++)
-            {
-                Assert.That(buffer[i], Is.EqualTo(sentinel), $"Index {i} was modified unexpectedly.");
-            }
+            for (var i = readCount; i < buffer.Length; i++) Assert.That(buffer[i], Is.EqualTo(sentinel), $"Index {i} was modified unexpectedly.");
         }
         finally
         {
@@ -174,7 +171,6 @@ public abstract class VertexStoreTests<TStore>
             const int iterations = 50_000;
 
             for (var i = 0; i < iterations; i++)
-            {
                 if (random.NextDouble() < 0.5)
                 {
                     var count = random.Next(1, 10_000);
@@ -206,7 +202,6 @@ public abstract class VertexStoreTests<TStore>
                     Assert.That(sutBuffer.AsSpan().SequenceEqual(refBuffer), Is.True,
                         $"Iteration {i}: Data mismatch reading {count} points at offset {readOffset}.");
                 }
-            }
         }
         finally
         {

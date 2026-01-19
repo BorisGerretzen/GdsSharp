@@ -37,7 +37,7 @@ public class ObsGdsTokenStream : GdsStreamOperator, IDisposable, IEnumerable<IGd
     }
 
     /// <summary>
-    /// Peeks at the next item in the queue.
+    ///     Peeks at the next item in the queue.
     /// </summary>
     /// <returns>Next item in the queue.</returns>
     /// <exception cref="InvalidOperationException">If queue is empty.</exception>
@@ -55,7 +55,7 @@ public class ObsGdsTokenStream : GdsStreamOperator, IDisposable, IEnumerable<IGd
     }
 
     /// <summary>
-    /// Dequeues the next item in the queue.
+    ///     Dequeues the next item in the queue.
     /// </summary>
     /// <returns>Next item in the queue.</returns>
     /// <exception cref="InvalidOperationException">If queue is empty.</exception>
@@ -67,7 +67,7 @@ public class ObsGdsTokenStream : GdsStreamOperator, IDisposable, IEnumerable<IGd
     }
 
     /// <summary>
-    /// Sets the position of the reader.
+    ///     Sets the position of the reader.
     /// </summary>
     /// <param name="position">Position in the stream.</param>
     /// <returns>Old position.</returns>

@@ -23,14 +23,45 @@ public readonly record struct GdsPoint
         Y = (int)MathF.Round(y);
     }
 
-    public static GdsPoint operator +(GdsPoint a, GdsPoint b) => new(a.X + b.X, a.Y + b.Y);
-    public static GdsPoint operator -(GdsPoint a, GdsPoint b) => new(a.X - b.X, a.Y - b.Y);
-    public static GdsPoint operator +(GdsPoint a, int b) => new(a.X + b, a.Y + b);
-    public static GdsPoint operator -(GdsPoint a, int b) => new(a.X - b, a.Y - b);
-    public static GdsPoint operator *(GdsPoint a, int b) => new(a.X * b, a.Y * b);
-    public static GdsPoint operator +(int a, GdsPoint b) => new(a + b.X, a + b.Y);
-    public static GdsPoint operator -(int a, GdsPoint b) => new(a - b.X, a - b.Y);
-    public static GdsPoint operator *(int a, GdsPoint b) => new(a * b.X, a * b.Y);
+    public static GdsPoint operator +(GdsPoint a, GdsPoint b)
+    {
+        return new GdsPoint(a.X + b.X, a.Y + b.Y);
+    }
+
+    public static GdsPoint operator -(GdsPoint a, GdsPoint b)
+    {
+        return new GdsPoint(a.X - b.X, a.Y - b.Y);
+    }
+
+    public static GdsPoint operator +(GdsPoint a, int b)
+    {
+        return new GdsPoint(a.X + b, a.Y + b);
+    }
+
+    public static GdsPoint operator -(GdsPoint a, int b)
+    {
+        return new GdsPoint(a.X - b, a.Y - b);
+    }
+
+    public static GdsPoint operator *(GdsPoint a, int b)
+    {
+        return new GdsPoint(a.X * b, a.Y * b);
+    }
+
+    public static GdsPoint operator +(int a, GdsPoint b)
+    {
+        return new GdsPoint(a + b.X, a + b.Y);
+    }
+
+    public static GdsPoint operator -(int a, GdsPoint b)
+    {
+        return new GdsPoint(a - b.X, a - b.Y);
+    }
+
+    public static GdsPoint operator *(int a, GdsPoint b)
+    {
+        return new GdsPoint(a * b.X, a * b.Y);
+    }
 
     public override string ToString()
     {

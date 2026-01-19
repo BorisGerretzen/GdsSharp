@@ -6,11 +6,11 @@ namespace GdsSharp.Lib.Reading;
 
 internal sealed class BufferedGdsReader : IDisposable
 {
+    private readonly int _bufferLength;
     private readonly bool _leaveOpen;
     private readonly Stream _stream;
 
     private byte[] _buffer;
-    private int _bufferLength;
 
     private bool _disposed;
     private int _len;
@@ -28,7 +28,6 @@ internal sealed class BufferedGdsReader : IDisposable
         _buffer = ArrayPool<byte>.Shared.Rent(bufferSize);
         _bufferLength = bufferSize;
         if (_stream.CanSeek)
-        {
             try
             {
                 _streamPosition = _stream.Position;
@@ -37,11 +36,8 @@ internal sealed class BufferedGdsReader : IDisposable
             {
                 _streamPosition = 0;
             }
-        }
         else
-        {
             _streamPosition = 0;
-        }
     }
 
     public long Position => _streamPosition - (_len - _pos);

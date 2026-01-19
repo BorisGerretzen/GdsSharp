@@ -50,10 +50,8 @@ public class ObsGdsTokenWriter
         yield return new GdsRecordUnits { PhysicalUnits = _file.PhysicalUnits, UserUnits = _file.UserUnits };
 
         foreach (var structure in _file.Structures)
-        {
-            foreach (var record in TokenizeStructure(structure))
-                yield return record;
-        }
+        foreach (var record in TokenizeStructure(structure))
+            yield return record;
 
         yield return new GdsRecordNoData { Type = GdsRecordNoDataType.EndLib };
     }

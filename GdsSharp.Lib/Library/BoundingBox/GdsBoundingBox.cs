@@ -16,7 +16,7 @@ public readonly struct GdsBoundingBox(GdsPoint min, GdsPoint max)
     );
 
     /// <summary>
-    /// Returns the union of this bounding box with another bounding box.
+    ///     Returns the union of this bounding box with another bounding box.
     /// </summary>
     /// <returns>Bounding box that encompasses both this and the other bounding box.</returns>
     public GdsBoundingBox Union(GdsBoundingBox other)
@@ -89,7 +89,7 @@ public readonly struct GdsBoundingBox(GdsPoint min, GdsPoint max)
     }
 
     /// <summary>
-    /// Translates the bounding box by the given vector.
+    ///     Translates the bounding box by the given vector.
     /// </summary>
     /// <returns>The translated bounding box.</returns>
     public static GdsBoundingBox operator +(GdsBoundingBox box, GdsPoint vec)

@@ -10,11 +10,12 @@ using GdsSharp.Lib.Reading.TokenStream;
 
 namespace GdsSharp.Benchmarks;
 
-[MemoryDiagnoser, Orderer(SummaryOrderPolicy.Declared)]
+[MemoryDiagnoser]
+[Orderer(SummaryOrderPolicy.Declared)]
 public class OldNew
 {
     private const string AssetPath = "Assets/Proprietary/prop.gds";
-    
+
     [Benchmark(Baseline = true)]
     public GdsFile Old()
     {
@@ -36,7 +37,7 @@ public class OldNew
         parser.Parse(consumer);
         return consumer.File;
     }
-    
+
     [Benchmark]
     public GdsLibrary New()
     {
@@ -48,7 +49,7 @@ public class OldNew
         parser.Parse(consumer);
         return consumer.Library;
     }
-    
+
     [Benchmark]
     public GdsLibrary NewDiskBacked()
     {

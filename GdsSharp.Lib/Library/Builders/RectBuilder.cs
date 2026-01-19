@@ -1,12 +1,12 @@
 ﻿namespace GdsSharp.Lib.Library.Builders;
 
 /// <summary>
-/// Helper class for creating rectangle elements.
+///     Helper class for creating rectangle elements.
 /// </summary>
 public static class RectBuilder
 {
     /// <summary>
-    /// Helper function for creating a rectangle polygon.
+    ///     Helper function for creating a rectangle polygon.
     /// </summary>
     /// <param name="x">Lower left X coordinate.</param>
     /// <param name="y">Lower left Y coordinate.</param>
@@ -25,4 +25,3 @@ public static class RectBuilder
         ];
     }
 }
-

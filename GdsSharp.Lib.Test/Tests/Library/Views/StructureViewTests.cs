@@ -1,6 +1,5 @@
 using GdsSharp.Lib.Library.Views;
 using GdsSharp.Lib.Library.Views.Elements;
-using GdsSharp.Lib.Reading;
 using GdsSharp.Lib.Test.Helpers;
 
 namespace GdsSharp.Lib.Test.Library.Views;
@@ -38,7 +37,7 @@ public class StructureViewTests
             ex.TopBoundary2ElementIndex
         }));
     }
-    
+
     [Test]
     public void TypedCollections_ReturnExpectedCountsForMixedStructure()
     {
@@ -76,12 +75,59 @@ public class StructureViewTests
         });
     }
 
-    private static int Count(ElementCollection collection) { var c = 0; foreach (var _ in collection) c++; return c; }
-    private static int Count(BoundaryCollection collection) { var c = 0; foreach (var _ in collection) c++; return c; }
-    private static int Count(PathCollection collection) { var c = 0; foreach (var _ in collection) c++; return c; }
-    private static int Count(BoxCollection collection) { var c = 0; foreach (var _ in collection) c++; return c; }
-    private static int Count(NodeCollection collection) { var c = 0; foreach (var _ in collection) c++; return c; }
-    private static int Count(TextCollection collection) { var c = 0; foreach (var _ in collection) c++; return c; }
-    private static int Count(StructureReferenceCollection collection) { var c = 0; foreach (var _ in collection) c++; return c; }
-    private static int Count(ArrayReferenceCollection collection) { var c = 0; foreach (var _ in collection) c++; return c; }
+    private static int Count(ElementCollection collection)
+    {
+        var c = 0;
+        foreach (var _ in collection) c++;
+        return c;
+    }
+
+    private static int Count(BoundaryCollection collection)
+    {
+        var c = 0;
+        foreach (var _ in collection) c++;
+        return c;
+    }
+
+    private static int Count(PathCollection collection)
+    {
+        var c = 0;
+        foreach (var _ in collection) c++;
+        return c;
+    }
+
+    private static int Count(BoxCollection collection)
+    {
+        var c = 0;
+        foreach (var _ in collection) c++;
+        return c;
+    }
+
+    private static int Count(NodeCollection collection)
+    {
+        var c = 0;
+        foreach (var _ in collection) c++;
+        return c;
+    }
+
+    private static int Count(TextCollection collection)
+    {
+        var c = 0;
+        foreach (var _ in collection) c++;
+        return c;
+    }
+
+    private static int Count(StructureReferenceCollection collection)
+    {
+        var c = 0;
+        foreach (var _ in collection) c++;
+        return c;
+    }
+
+    private static int Count(ArrayReferenceCollection collection)
+    {
+        var c = 0;
+        foreach (var _ in collection) c++;
+        return c;
+    }
 }

@@ -5,9 +5,9 @@ namespace GdsSharp.Lib.Library.VertexStore;
 
 public class DiskVertexStore : IGdsVertexStore, IDisposable
 {
-    private readonly FileStream _stream;
     private readonly object _lock = new();
     private readonly int _pointSize;
+    private readonly FileStream _stream;
 
     public DiskVertexStore()
     {
@@ -18,8 +18,13 @@ public class DiskVertexStore : IGdsVertexStore, IDisposable
             FileMode.Open,
             FileAccess.ReadWrite,
             FileShare.None,
-            bufferSize: 65536,
+            65536,
             FileOptions.DeleteOnClose);
+    }
+
+    public void Dispose()
+    {
+        _stream?.Dispose();
     }
 
     /// <inheritdoc />
@@ -31,9 +36,7 @@ public class DiskVertexStore : IGdsVertexStore, IDisposable
             var startIndex = currentByteLength / _pointSize;
 
             if (startIndex > int.MaxValue)
-            {
                 throw new InvalidOperationException("Store has exceeded the maximum capacity addressable by an int index (approx 16GB). Change interface return type to long.");
-            }
 
             _stream.Seek(0, SeekOrigin.End);
 
@@ -51,10 +54,7 @@ public class DiskVertexStore : IGdsVertexStore, IDisposable
         {
             var byteOffset = pointIndex * _pointSize;
 
-            if (byteOffset >= _stream.Length)
-            {
-                return 0;
-            }
+            if (byteOffset >= _stream.Length) return 0;
 
             _stream.Seek(byteOffset, SeekOrigin.Begin);
 
@@ -63,10 +63,5 @@ public class DiskVertexStore : IGdsVertexStore, IDisposable
 
             return bytesRead / _pointSize;
         }
-    }
-
-    public void Dispose()
-    {
-        _stream?.Dispose();
     }
 }

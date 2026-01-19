@@ -16,7 +16,7 @@ public readonly struct ArrayReferenceView
     public GdsPoint RowVector => _library.ArrayReferences[_arefIndex].RowVector;
     public GdsPoint ColumnVector => _library.ArrayReferences[_arefIndex].ColumnVector;
     public GdsPoint Origin => _library.ArrayReferences[_arefIndex].Origin;
-    
+
     internal ArrayReferenceView(GdsLibrary library, int elementIndex)
     {
         _library = library;

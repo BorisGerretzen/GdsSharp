@@ -1,7 +1,7 @@
 namespace GdsSharp.Lib.Reading.Enum;
 
 /// <summary>
-/// Serialized from short
+///     Serialized from short
 /// </summary>
 public enum GdsPathType
 {

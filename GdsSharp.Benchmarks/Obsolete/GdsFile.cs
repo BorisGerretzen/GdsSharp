@@ -38,15 +38,12 @@ public class GdsFile
     }
 
     /// <summary>
-    /// Materializes all structures in the GDS file.
+    ///     Materializes all structures in the GDS file.
     /// </summary>
     public void Materialize()
     {
         var structures = Structures.ToList();
-        foreach (var structure in structures)
-        {
-            structure.Materialize();
-        }
+        foreach (var structure in structures) structure.Materialize();
 
         Structures = structures;
     }

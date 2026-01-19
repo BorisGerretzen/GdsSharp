@@ -8,12 +8,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\GdsSharp.Lib\GdsSharp.Lib.csproj" />
+        <ProjectReference Include="..\GdsSharp.Lib\GdsSharp.Lib.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="BenchmarkDotNet" Version="0.14.0" />
-      <PackageReference Include="BenchmarkDotNet.Annotations" Version="0.14.0" />
+        <PackageReference Include="BenchmarkDotNet" Version="0.14.0"/>
+        <PackageReference Include="BenchmarkDotNet.Annotations" Version="0.14.0"/>
     </ItemGroup>
 
 

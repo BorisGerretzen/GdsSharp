@@ -3,7 +3,7 @@
 namespace GdsSharp.Lib.Library.Builders;
 
 /// <summary>
-/// Builder for creating complex paths with various segment types.
+///     Builder for creating complex paths with various segment types.
 /// </summary>
 public class PathBuilder
 {
@@ -13,7 +13,7 @@ public class PathBuilder
     private readonly List<GdsPathSegment> _pathSegments = [];
 
     /// <summary>
-    /// Creates a new PathBuilder.
+    ///     Creates a new PathBuilder.
     /// </summary>
     /// <param name="initialWidth">Initial width of the path.</param>
     /// <param name="initialPosition">Initial position of the path (default: (0,0)).</param>
@@ -26,13 +26,13 @@ public class PathBuilder
     }
 
     /// <summary>
-    /// Adds a path segment to the path.
+    ///     Adds a path segment to the path.
     /// </summary>
     /// <param name="path">Function that returns the coordinates of the path.</param>
     /// <param name="derivative">Function that returns derivative vectors of the path.</param>
     /// <param name="width">
-    /// Function that returns the width of the path. Can be null or return null, in this case the last
-    /// available width will be used.
+    ///     Function that returns the width of the path. Can be null or return null, in this case the last
+    ///     available width will be used.
     /// </param>
     /// <param name="vertices">Number of vertices used for the path. The final mesh will have two times this amount.</param>
     public PathBuilder AddPathSegment(Func<float, Vector2> path, Func<float, Vector2> derivative, Func<float, float?>? width = null, int vertices = 10)
@@ -42,10 +42,10 @@ public class PathBuilder
     }
 
     /// <summary>
-    /// Adds a straight segment to the path.
-    /// If <see cref="width" /> is provided it takes precedence over <see cref="widthStart" /> and <see cref="widthEnd" />.
-    /// If only <see cref="widthEnd" /> is provided the width will be interpolated between the previous width and
-    /// <see cref="widthEnd" />.
+    ///     Adds a straight segment to the path.
+    ///     If <see cref="width" /> is provided it takes precedence over <see cref="widthStart" /> and <see cref="widthEnd" />.
+    ///     If only <see cref="widthEnd" /> is provided the width will be interpolated between the previous width and
+    ///     <see cref="widthEnd" />.
     /// </summary>
     /// <param name="length">Length of the segment.</param>
     /// <param name="widthStart">(optional) Width at the start of the segment.</param>
@@ -64,7 +64,7 @@ public class PathBuilder
     }
 
     /// <summary>
-    /// Adds a bend to the path.
+    ///     Adds a bend to the path.
     /// </summary>
     /// <param name="angle">Angle of the bend in radians.</param>
     /// <param name="radius">Radius of the bend.</param>
@@ -90,7 +90,7 @@ public class PathBuilder
     }
 
     /// <summary>
-    /// Adds a bend to the path.
+    ///     Adds a bend to the path.
     /// </summary>
     /// <param name="angle">Angle of the bend in degrees.</param>
     /// <param name="radius">Radius of the bend.</param>
@@ -103,7 +103,7 @@ public class PathBuilder
     }
 
     /// <summary>
-    /// Adds a Bézier curve to the path.
+    ///     Adds a Bézier curve to the path.
     /// </summary>
     /// <param name="build">Bézier builder where you can add control points.</param>
     /// <param name="width">(optional) Function that provides a width for t on the interval [0,1].</param>
@@ -121,11 +121,11 @@ public class PathBuilder
     }
 
     /// <summary>
-    /// Builds the path into a series of point arrays, each having a maximum number of vertices.
+    ///     Builds the path into a series of point arrays, each having a maximum number of vertices.
     /// </summary>
     /// <param name="maxVertices">Maximum number of vertices per polygon chunk (default: 200).</param>
     /// <returns>Enumerable of point arrays representing the path polygons.</returns>
-    /// <exception cref="ArgumentException">Thrown when <paramref name="maxVertices"/> is less than 4.</exception>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="maxVertices" /> is less than 4.</exception>
     public IEnumerable<GdsPoint[]> Build(int maxVertices = 200)
     {
         if (maxVertices < 4)
@@ -133,12 +133,12 @@ public class PathBuilder
 
         var pathPoints = GetPathPoints().ToArray();
         var chunkSize = maxVertices / 2;
-        
+
         for (var chunkStart = 0; chunkStart < pathPoints.Length; chunkStart += chunkSize - 1)
         {
             var chunkEnd = Math.Min(chunkStart + chunkSize, pathPoints.Length);
             var points = pathPoints[chunkStart..chunkEnd];
-            
+
             var allPoints = new GdsPoint[points.Length * 2];
             for (var i = 0; i < points.Length; i++)
             {
@@ -147,14 +147,14 @@ public class PathBuilder
             }
 
             yield return allPoints;
-            
+
             if (chunkEnd >= pathPoints.Length)
                 break;
         }
     }
 
     /// <summary>
-    /// Generates a list of points for each segment in the path.
+    ///     Generates a list of points for each segment in the path.
     /// </summary>
     /// <returns>List of points per segment.</returns>
     private IEnumerable<GdsPathPoint> GetPathPoints()
@@ -200,7 +200,7 @@ public class PathBuilder
     }
 
     /// <summary>
-    /// Represents a path segment.
+    ///     Represents a path segment.
     /// </summary>
     /// <param name="Path">Function that defines the path of the segment.</param>
     /// <param name="Derivative">Function that defines the derivative of the segment.</param>
@@ -209,11 +209,10 @@ public class PathBuilder
     private record struct GdsPathSegment(Func<float, Vector2> Path, Func<float, Vector2> Derivative, Func<float, float?>? Width, int Vertices);
 
     /// <summary>
-    /// Represents a single point in the path.
+    ///     Represents a single point in the path.
     /// </summary>
     /// <param name="Point">The coordinates of the point.</param>
     /// <param name="Normal">The normal of the point.</param>
     /// <param name="Width">The width at the point.</param>
     private record struct GdsPathPoint(Vector2 Point, Vector2 Normal, float Width);
 }
-

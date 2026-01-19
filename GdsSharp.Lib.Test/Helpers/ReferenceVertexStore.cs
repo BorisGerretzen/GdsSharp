@@ -3,8 +3,8 @@
 namespace GdsSharp.Lib.Test.Helpers;
 
 /// <summary>
-/// Creates a new memory vertex store for storing GDS points in memory.
-/// Pick a suitable initial capacity to avoid resizing.
+///     Creates a new memory vertex store for storing GDS points in memory.
+///     Pick a suitable initial capacity to avoid resizing.
 /// </summary>
 /// <param name="initialCapacity">The initial capacity of the vertex store.</param>
 public class ReferenceVertexStore(int? initialCapacity = null) : IGdsVertexStore
@@ -18,10 +18,7 @@ public class ReferenceVertexStore(int? initialCapacity = null) : IGdsVertexStore
         if (pointsToRead <= 0)
             return 0;
 
-        for (var i = 0; i < pointsToRead; i++)
-        {
-            destination[i] = _points[(int)(pointIndex + i)];
-        }
+        for (var i = 0; i < pointsToRead; i++) destination[i] = _points[(int)(pointIndex + i)];
 
         return (int)pointsToRead;
     }

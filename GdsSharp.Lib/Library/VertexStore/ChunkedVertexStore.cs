@@ -1,11 +1,10 @@
-﻿
-namespace GdsSharp.Lib.Library.VertexStore;
+﻿namespace GdsSharp.Lib.Library.VertexStore;
 
 public class ChunkedVertexStore : IGdsVertexStore
 {
     // 8192 * 8 bytes -> ~64KB per chunk. 
-    private const int ChunkSize = 8192; 
-    
+    private const int ChunkSize = 8192;
+
     private readonly List<GdsPoint[]> _chunks = new();
     private int _currentChunkIndex = -1;
     private int _currentChunkOffset = ChunkSize;
@@ -39,7 +38,7 @@ public class ChunkedVertexStore : IGdsVertexStore
             _totalPoints += toWrite;
         }
 
-        return (int)startOffset; 
+        return (int)startOffset;
     }
 
     public int Read(long pointIndex, Span<GdsPoint> destination)
@@ -61,10 +60,10 @@ public class ChunkedVertexStore : IGdsVertexStore
             currentChunk.AsSpan(chunkOffset, toCopy).CopyTo(destination.Slice(readSoFar, toCopy));
 
             readSoFar += toCopy;
-            
+
             // Move to next chunk
             chunkIdx++;
-            chunkOffset = 0; 
+            chunkOffset = 0;
         }
 
         return readSoFar;

@@ -1,12 +1,12 @@
 ﻿namespace GdsSharp.Lib.Library.Builders;
 
 /// <summary>
-/// Helper class for constructing circles.
+///     Helper class for constructing circles.
 /// </summary>
 public static class CircleBuilder
 {
     /// <summary>
-    /// Creates a polygon approximation of a circle.
+    ///     Creates a polygon approximation of a circle.
     /// </summary>
     /// <param name="x">Center X coordinate.</param>
     /// <param name="y">Center Y coordinate.</param>
@@ -76,4 +76,3 @@ public static class CircleBuilder
         return Enumerable.Range(0, numSamples).Select(i => sourceList[i * step]);
     }
 }
-

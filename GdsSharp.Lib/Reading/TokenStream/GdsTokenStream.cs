@@ -18,7 +18,7 @@ public sealed class GdsTokenStream : IDisposable
         if (!stream.CanSeek)
             throw new ArgumentException("Stream must support seeking.", nameof(stream));
 
-        _reader = new BufferedGdsReader(stream, leaveOpen, bufferSize: bufferSize);
+        _reader = new BufferedGdsReader(stream, leaveOpen, bufferSize);
     }
 
     public void Dispose()

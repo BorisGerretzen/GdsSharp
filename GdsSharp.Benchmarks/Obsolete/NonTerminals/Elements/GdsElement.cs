@@ -8,7 +8,7 @@ public class GdsElement
     public List<GdsProperty> Properties { get; set; } = new();
 
     /// <summary>
-    /// Materializes the element.
+    ///     Materializes the element.
     /// </summary>
     public void Materialize()
     {

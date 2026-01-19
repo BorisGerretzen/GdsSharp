@@ -7,7 +7,7 @@ public readonly struct StructureCollection
     public StructureView this[string name] => !TryGetStructure(name, out var structure) ? throw new KeyNotFoundException($"Structure with name '{name}' not found.") : structure;
 
     private readonly GdsLibrary _library;
-    
+
     public bool TryGetStructure(string name, out StructureView structure)
     {
         if (!_library.TryGetStructureIndex(name, out var index))
@@ -15,7 +15,7 @@ public readonly struct StructureCollection
             structure = default;
             return false;
         }
-        
+
         structure = new StructureView(_library, index);
         return true;
     }
@@ -25,8 +25,11 @@ public readonly struct StructureCollection
         _library = library;
     }
 
-    public Enumerator GetEnumerator() => new(_library);
-    
+    public Enumerator GetEnumerator()
+    {
+        return new Enumerator(_library);
+    }
+
     public struct Enumerator
     {
         private readonly GdsLibrary _lib;

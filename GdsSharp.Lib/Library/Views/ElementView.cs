@@ -11,7 +11,7 @@ public readonly struct ElementView
     public GdsBoundingBox? BoundingBox => _library.Elements[ElementIndex].BoundingBox;
 
     /// <summary>
-    /// Layer number of the element, note that StructureReference and ArrayReference do not have layers and will return -1.
+    ///     Layer number of the element, note that StructureReference and ArrayReference do not have layers and will return -1.
     /// </summary>
     public int Layer => _library.Elements[ElementIndex].Layer;
 
@@ -23,11 +23,38 @@ public readonly struct ElementView
         ElementIndex = elementIndex;
     }
 
-    public ArrayReferenceView AsArrayReference() => new(_library, ElementIndex);
-    public BoundaryView AsBoundary() => new(_library, ElementIndex);
-    public BoxView AsBox() => new(_library, ElementIndex);
-    public NodeView AsNode() => new(_library, ElementIndex);
-    public PathView AsPath() => new(_library, ElementIndex);
-    public StructureReferenceView AsStructureReference() => new(_library, ElementIndex);
-    public TextView AsText() => new(_library, ElementIndex);
+    public ArrayReferenceView AsArrayReference()
+    {
+        return new ArrayReferenceView(_library, ElementIndex);
+    }
+
+    public BoundaryView AsBoundary()
+    {
+        return new BoundaryView(_library, ElementIndex);
+    }
+
+    public BoxView AsBox()
+    {
+        return new BoxView(_library, ElementIndex);
+    }
+
+    public NodeView AsNode()
+    {
+        return new NodeView(_library, ElementIndex);
+    }
+
+    public PathView AsPath()
+    {
+        return new PathView(_library, ElementIndex);
+    }
+
+    public StructureReferenceView AsStructureReference()
+    {
+        return new StructureReferenceView(_library, ElementIndex);
+    }
+
+    public TextView AsText()
+    {
+        return new TextView(_library, ElementIndex);
+    }
 }
