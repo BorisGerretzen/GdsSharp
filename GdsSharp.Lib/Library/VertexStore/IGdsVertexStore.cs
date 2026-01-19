@@ -3,6 +3,11 @@
 public interface IGdsVertexStore
 {
     /// <summary>
+    ///     Number of points in the store.
+    /// </summary>
+    long Count { get; }
+
+    /// <summary>
     ///     Reads points starting from the given point index into the destination span.
     /// </summary>
     /// <param name="pointIndex">Index to start reading.</param>

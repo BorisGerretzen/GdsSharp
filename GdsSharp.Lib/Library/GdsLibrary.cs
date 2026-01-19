@@ -89,7 +89,7 @@ public class GdsLibrary
         {
             VertexStoreType.Memory => new ChunkedVertexStore(),
             VertexStoreType.Disk => new DiskVertexStore(),
-            _ => throw new ArgumentOutOfRangeException()
+            _ => throw new ArgumentOutOfRangeException(nameof(GdsLibraryBuilderOptions.VertexStoreType), "Unknown vertex store type"),
         };
 
         var consumer = new GdsLibraryBuilderConsumer(store, options.BuildBoundingBoxes);

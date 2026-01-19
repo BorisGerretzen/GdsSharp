@@ -43,9 +43,12 @@ public class DiskVertexStore : IGdsVertexStore, IDisposable
             var byteSpan = MemoryMarshal.AsBytes(points);
             _stream.Write(byteSpan);
 
+            Count += points.Length;
             return (int)startIndex;
         }
     }
+
+    public long Count { get; private set; }
 
     /// <inheritdoc />
     public int Read(long pointIndex, Span<GdsPoint> destination)

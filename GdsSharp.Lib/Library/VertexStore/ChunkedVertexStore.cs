@@ -38,8 +38,11 @@ public class ChunkedVertexStore : IGdsVertexStore
             _totalPoints += toWrite;
         }
 
+        Count += points.Length;
         return (int)startOffset;
     }
+
+    public long Count { get; private set; }
 
     public int Read(long pointIndex, Span<GdsPoint> destination)
     {
